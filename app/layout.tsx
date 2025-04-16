@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   description: "과거의 나와 대화하는 AI 성찰 일기장",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,7 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen pb-14`}
       >
-        <div className="max-w-screen-md mx-auto">
+        <div className="w-full max-w-lg mx-auto">
           <header className="bg-white p-4 border-b">
             <h1 className="text-xl font-bold">리플렉트 AI</h1>
           </header>

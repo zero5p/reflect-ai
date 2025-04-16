@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addDays } from 'date-fns';
 import { CalendarEvent } from '@/app/types/calendar';
+import { query } from '@/app/lib/db';
 
 // 임시 더미 추천 데이터 (실제로는 AI 모델이 생성)
 const generateDummyRecommendations = () => {
@@ -92,6 +93,41 @@ export async function POST(request: NextRequest) {
     console.error('Error accepting recommendation:', error);
     return NextResponse.json(
       { error: '추천 수락 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}
+
+// POST: AI 일정 추천 요청
+export async function POST_AI() {
+  try {
+    // 최근 성찰 데이터 가져오기
+    const reflectionsResult = await query(
+      'SELECT * FROM reflections ORDER BY created_at DESC LIMIT 10'
+    );
+    
+    const reflections = reflectionsResult.rows;
+    
+    // 여기에 실제 Gemini API 호출 코드가 들어갑니다
+    // 지금은 모의 데이터를 반환합니다
+    
+    const recommendedSchedule = {
+      title: '집중력 최적화 일정',
+      description: '최근 성찰 기록 분석 결과, 오전 시간에 집중력이 높고 오후 3시 이후에는 피로감을 자주 느끼는 패턴이 발견되었습니다.',
+      items: [
+        { startTime: '09:00', endTime: '11:30', description: '집중 작업 시간 (회의 없음)' },
+        { startTime: '11:30', endTime: '12:30', description: '점심 식사 및 가벼운 산책' },
+        { startTime: '12:30', endTime: '15:00', description: '회의 및 협업 시간' },
+        { startTime: '15:00', endTime: '16:00', description: '휴식 및 명상' },
+        { startTime: '16:00', endTime: '18:00', description: '가벼운 작업 및 마무리' }
+      ]
+    };
+    
+    return NextResponse.json(recommendedSchedule);
+  } catch (error) {
+    console.error('Error:', error);
+    return NextResponse.json(
+      { error: '일정 추천에 실패했습니다.' },
       { status: 500 }
     );
   }
