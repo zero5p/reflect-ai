@@ -12,6 +12,8 @@ import {
 import { mockReflections } from "./data/mockReflections";
 import Image from "next/image";
 import windowSvg from "../public/window.svg";
+import Button from "./components/ui/Button";
+import Card from "./components/ui/Card";
 
 // 랜덤 멘트 리스트 (더 세련되고 위트 있게)
 const MOTIVATION_QUOTES = [
@@ -40,7 +42,7 @@ export default function Home() {
   return (
     <div className="space-y-6">
       {/* 히어로 섹션 + 그래픽 */}
-      <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-7 text-white shadow-md overflow-hidden">
+      <Card color="mint" rounded shadow className="relative overflow-hidden text-white bg-gradient-to-r from-mint-400 to-lavender-400 p-7">
         {/* 감성적인 일러스트(예시: 창문) */}
         <div className="absolute left-6 bottom-2 opacity-60 pointer-events-none select-none hidden md:block">
           <Image src={windowSvg} alt="감성 창문 일러스트" width={110} height={110} className="drop-shadow-lg" />
@@ -49,110 +51,109 @@ export default function Home() {
           <Star className="w-32 h-32 text-yellow-200 animate-spin-slow" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold mb-2 drop-shadow">{quote}</h1>
-        <p className="text-indigo-100 mb-4 md:text-lg">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
-        <Link
-          href="/reflection/new"
-          className="inline-flex items-center px-5 py-3 bg-white text-indigo-600 rounded-lg font-semibold shadow-lg hover:bg-indigo-50 transition-colors text-lg"
-        >
-          <Zap className="h-5 w-5 mr-2" /> 성찰 시작하기
-        </Link>
+        <p className="text-white/80 mb-4 md:text-lg">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
+        <Button color="primary" size="lg" className="mt-2 mb-2" asChild>
+          <Link href="/reflection/new" className="inline-flex items-center">
+            <Zap className="h-5 w-5 mr-2" /> 성찰 시작하기
+          </Link>
+        </Button>
         {/* 서비스 안내 */}
-        <div className="mt-5 p-4 bg-white/80 rounded-xl shadow border border-gray-100 text-gray-700 backdrop-blur-sm">
+        <Card color="white" rounded className="mt-5 p-4 shadow border border-gray-100 text-gray-700 backdrop-blur-sm">
           <h2 className="text-lg font-semibold mb-2">reflect-ai란?</h2>
           <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">
             <li>AI 기반 감정/일정 기록</li>
             <li>맞춤 일정 추천 & 인사이트</li>
             <li>나만의 성장 데이터</li>
           </ul>
-        </div>
-      </div>
+        </Card>
+      </Card>
 
       {/* 요약 카드 섹션 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 최근 성찰 요약 */}
-        <div className="bg-white rounded-xl shadow border border-gray-100 flex items-center p-4 gap-4 hover:shadow-lg transition-all">
+        <Card color="lavender" rounded shadow className="flex items-center gap-4 hover:shadow-lg transition-all">
           <div className="text-3xl">{latestReflection ? (latestReflection.emotion === "기쁨" ? "😄" : latestReflection.emotion === "슬픔" ? "😢" : latestReflection.emotion === "화남" ? "😠" : latestReflection.emotion === "평온" ? "😌" : latestReflection.emotion === "불안" ? "😰" : latestReflection.emotion === "지루함" ? "😑" : "😐") : ""}</div>
           <div className="flex-1">
             <div className="text-gray-700 text-sm mb-1 font-semibold">최근 성찰</div>
             <div className="text-gray-900 font-medium line-clamp-1">{latestReflection ? latestReflection.content : "작성된 성찰이 없습니다."}</div>
             <div className="text-xs text-gray-400">{latestReflection ? new Date(latestReflection.createdAt).toLocaleDateString("ko-KR") : ""}</div>
           </div>
-          <Link href="/reflection" className="text-indigo-600 hover:underline text-sm font-medium">더 보기</Link>
-        </div>
+          <Button color="secondary" size="sm" asChild>
+            <Link href="/reflection">더 보기</Link>
+          </Button>
+        </Card>
         {/* 오늘의 추천 일정 요약 */}
-        <div className="bg-white rounded-xl shadow border border-gray-100 flex items-center p-4 gap-4 hover:shadow-lg transition-all">
+        <Card color="mint" rounded shadow className="flex items-center gap-4 hover:shadow-lg transition-all">
           <CalendarDays className="w-8 h-8 text-indigo-400" />
           <div className="flex-1">
             <div className="text-gray-700 text-sm mb-1 font-semibold">오늘의 추천 일정</div>
             <div className="text-gray-900 font-medium line-clamp-1">{todaySchedule.summary}</div>
             <div className="text-xs text-gray-400">{todaySchedule.title}</div>
           </div>
-          <Link href="/schedule" className="text-indigo-600 hover:underline text-sm font-medium">일정 보기</Link>
-        </div>
+          <Button color="primary" size="sm" asChild>
+            <Link href="/schedule">일정 보기</Link>
+          </Button>
+        </Card>
       </div>
 
       {/* 주요 기능 카드 */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
-          <div className="rounded-full bg-blue-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <BookText className="h-6 w-6 text-blue-600" />
+        <Card color="white" rounded shadow className="hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-mint-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <BookText className="h-6 w-6 text-mint-500" />
           </div>
           <h2 className="text-lg font-semibold mb-2">오늘의 성찰</h2>
           <p className="text-gray-600 mb-3">당신의 하루는 어땠나요? 감정과 생각을 기록해보세요.</p>
-          <Link
-            href="/reflection/new"
-            className="text-blue-600 font-medium hover:text-blue-800 flex items-center"
-          >
-            성찰 기록하기
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
-          </Link>
-        </div>
-        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
-          <div className="rounded-full bg-green-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <LineChart className="h-6 w-6 text-green-600" />
+          <Button color="mint" size="md" asChild>
+            <Link href="/reflection/new" className="flex items-center">
+              성찰 기록하기
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+            </Link>
+          </Button>
+        </Card>
+        <Card color="white" rounded shadow className="hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-lavender-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <LineChart className="h-6 w-6 text-lavender-500" />
           </div>
           <h2 className="text-lg font-semibold mb-2">AI 일정 추천</h2>
           <p className="text-gray-600 mb-3">과거 경험을 바탕으로 최적화된 일정을 추천받아보세요.</p>
-          <Link
-            href="/schedule"
-            className="text-green-600 font-medium hover:text-green-800 flex items-center"
-          >
-            일정 추천받기
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
-          </Link>
-        </div>
-        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
-          <div className="rounded-full bg-purple-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <BarChart2 className="h-6 w-6 text-purple-600" />
+          <Button color="lavender" size="md" asChild>
+            <Link href="/schedule" className="flex items-center">
+              일정 추천받기
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+            </Link>
+          </Button>
+        </Card>
+        <Card color="white" rounded shadow className="hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-mint-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <BarChart2 className="h-6 w-6 text-mint-500" />
           </div>
           <h2 className="text-lg font-semibold mb-2">나의 인사이트</h2>
           <p className="text-gray-600 mb-3">성찰과 일정 데이터를 기반으로 AI 인사이트를 확인하세요.</p>
-          <Link
-            href="/schedule"
-            className="text-purple-600 font-medium hover:text-purple-800 flex items-center"
-          >
-            인사이트 보기
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
-          </Link>
-        </div>
-        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
-          <div className="rounded-full bg-yellow-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <Clock className="h-6 w-6 text-yellow-600" />
+          <Button color="mint" size="md" asChild>
+            <Link href="/schedule" className="flex items-center">
+              인사이트 보기
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+            </Link>
+          </Button>
+        </Card>
+        <Card color="white" rounded shadow className="hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-lavender-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <Clock className="h-6 w-6 text-lavender-500" />
           </div>
           <h2 className="text-lg font-semibold mb-2">캘린더</h2>
           <p className="text-gray-600 mb-3">월별로 감정/일정/성찰을 한눈에 확인할 수 있어요.</p>
-          <Link
-            href="/calendar"
-            className="text-yellow-600 font-medium hover:text-yellow-800 flex items-center"
-          >
-            캘린더 보기
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
-          </Link>
-        </div>
+          <Button color="lavender" size="md" asChild>
+            <Link href="/calendar" className="flex items-center">
+              캘린더 보기
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+            </Link>
+          </Button>
+        </Card>
       </div>
 
       {/* 빠른 액세스 세션 (추가 컨텐츠) */}
-      <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
+      <Card color="white" rounded shadow className="p-4">
         <h2 className="text-lg font-semibold mb-3">빠른 액세스</h2>
         <div className="grid grid-cols-4 gap-3">
           <Link
@@ -184,10 +185,10 @@ export default function Home() {
             <span className="text-sm text-center">알림 설정</span>
           </Link>
         </div>
-      </div>
+      </Card>
 
       {/* 인사이트 섹션 */}
-      <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
+      <Card color="white" rounded shadow className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">당신의 인사이트</h2>
           <Link
@@ -229,10 +230,10 @@ export default function Home() {
             </p>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* 최근 성찰 섹션 */}
-      <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
+      <Card color="white" rounded shadow className="p-4">
         <h2 className="text-lg font-semibold mb-3">최근 성찰</h2>
 
         <div className="text-gray-500 text-center py-6 border-2 border-dashed border-gray-200 rounded-lg">
@@ -245,7 +246,7 @@ export default function Home() {
             첫 성찰 기록하기
           </Link>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

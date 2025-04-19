@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-// Removing the unused import:
-// import Link from 'next/link';
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Plus,
+  PlusCircle,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -84,113 +85,84 @@ export default function CalendarPage() {
   };
 
   return (
-    <div>
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center">
-            <div className="rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-3">
-              <CalendarIcon className="h-5 w-5 text-blue-600" />
-            </div>
-            <h1 className="text-2xl font-bold">캘린더</h1>
-          </div>
-
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={handlePrevMonth}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-600" />
-            </button>
-            <div className="min-w-[120px] text-center font-medium text-gray-700">
-              {currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월
-            </div>
-            <button
-              onClick={handleNextMonth}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <ChevronRight className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
-
-          <button className="flex items-center px-3 py-1.5 bg-blue-600 text-sm text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus className="h-4 w-4 mr-1" />
-            일정 추가
-          </button>
+    <div className="space-y-7">
+      {/* 상단 요약/액션 섹션 */}
+      <Card color="lavender" rounded shadow className="flex items-center gap-6 p-7 relative overflow-hidden">
+        <CalendarIcon className="w-10 h-10 text-white opacity-80" />
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-white mb-1 drop-shadow">캘린더</h1>
+          <p className="text-white/90 mb-2">월별로 감정/일정/성찰을 한눈에!</p>
         </div>
+        <Button color="mint" size="md" asChild>
+          <Link href="/schedule/new" className="inline-flex items-center">
+            <PlusCircle className="w-5 h-5 mr-1" /> 새 일정 추가
+          </Link>
+        </Button>
+      </Card>
 
-        <div className="grid grid-cols-7 gap-2 mt-4">
-          {["일", "월", "화", "수", "목", "금", "토"].map((day, idx) => (
-            <div
-              key={day}
-              className={`font-medium py-2 text-sm rounded 
-                ${idx === 0 ? "text-red-500" : ""}
-                ${idx === 6 ? "text-blue-500" : ""}
-              `}
-            >
-              {day}
-            </div>
+      {/* 달력 그리드 */}
+      <Card color="white" rounded shadow className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <Button color="neutral" size="sm" onClick={handlePrevMonth}>
+            <ChevronLeft />
+          </Button>
+          <div className="font-semibold text-lg">
+            {currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월
+          </div>
+          <Button color="neutral" size="sm" onClick={handleNextMonth}>
+            <ChevronRight />
+          </Button>
+        </div>
+        <div className="grid grid-cols-7 gap-2 text-center text-gray-500 mb-2">
+          {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
+            <div key={d} className="font-semibold">{d}</div>
           ))}
-
+        </div>
+        <div className="grid grid-cols-7 gap-2">
           {days.map((dayObj, idx) => (
-            <button
+            <div
               key={idx}
-              className={`aspect-square rounded-lg flex flex-col items-center justify-center border ${dayObj.isCurrentMonth ? 'bg-white text-gray-900 hover:bg-indigo-50' : 'bg-gray-50 text-gray-300'} ${selectedDate && dayObj.day === selectedDate.getDate() && dayObj.isCurrentMonth ? 'ring-2 ring-indigo-400' : ''}`}
-              onClick={() => handleDayClick(dayObj)}
-              disabled={!dayObj.isCurrentMonth || !dayObj.day}
+              className={`relative flex flex-col items-center justify-center h-16 ${
+                dayObj.isCurrentMonth ? "bg-white" : "bg-gray-50"
+              }`}
             >
-              <span className="font-medium">{dayObj.day}</span>
+              <div className="font-semibold text-gray-700 mb-1">{dayObj.day}</div>
               {dayObj.hasEvent && dayObj.emotionType !== null && (
-                <span className="text-xl mt-1">{getEmotionEmoji(dayObj.emotionType)}</span>
+                <div className="flex flex-col items-center">
+                  <span className="text-2xl">{getEmotionEmoji(dayObj.emotionType)}</span>
+                </div>
               )}
-            </button>
+              <button
+                className={`absolute inset-0 ${
+                  dayObj.isCurrentMonth ? "bg-white" : "bg-gray-50"
+                }`}
+                onClick={() => handleDayClick(dayObj)}
+                disabled={!dayObj.isCurrentMonth || !dayObj.day}
+              />
+            </div>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-        <h2 className="text-xl font-semibold mb-4">이달의 요약</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-indigo-50 p-4 rounded-lg">
-            <h3 className="font-medium text-sm mb-1 text-indigo-800">
-              감정 분포
+      {/* 날짜 상세 모달 */}
+      {showDetailModal && selectedDate && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-2">
+              {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월{" "}
+              {selectedDate.getDate()}일
             </h3>
-            <div className="flex flex-wrap mt-2 gap-2">
-              <div className="flex items-center text-sm bg-white px-2 py-1 rounded-full">
-                <span className="mr-1">😄</span> 6일
-              </div>
-              <div className="flex items-center text-sm bg-white px-2 py-1 rounded-full">
-                <span className="mr-1">😌</span> 5일
-              </div>
-              <div className="flex items-center text-sm bg-white px-2 py-1 rounded-full">
-                <span className="mr-1">😢</span> 2일
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h3 className="font-medium text-sm mb-1 text-green-800">
-              활동 통계
-            </h3>
-            <div className="flex flex-wrap mt-2 gap-2">
-              <div className="text-sm bg-white px-2 py-1 rounded-full">
-                성찰 13회
-              </div>
-              <div className="text-sm bg-white px-2 py-1 rounded-full">
-                평균 4.5점
-              </div>
+            <p className="mb-2 text-gray-700">
+              해당 날짜의 성찰/일정/이벤트 상세 내용 (실제 연동은 추후 구현)
+            </p>
+            <div className="flex justify-end">
+              <Button color="indigo" size="md" onClick={() => setShowDetailModal(false)}>
+                닫기
+              </Button>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* [UI/UX 개선] 플로팅 액션 버튼 */}
-      <button
-        className="fixed bottom-8 right-8 bg-indigo-600 text-white rounded-full w-14 h-14 shadow-lg flex items-center justify-center text-3xl hover:bg-indigo-700 transition-colors z-50"
-        title="일정/성찰 추가"
-        onClick={() => setShowAddModal(true)}
-      >
-        +
-      </button>
+      )}
 
       {/* 일정/성찰 추가 모달 */}
       {showAddModal && (
@@ -199,25 +171,27 @@ export default function CalendarPage() {
             <h3 className="text-lg font-bold mb-2">일정/성찰 추가</h3>
             <p className="mb-4 text-gray-700 text-sm">(실제 입력 폼은 추후 구현)</p>
             <div className="flex justify-end">
-              <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 mr-2" onClick={() => setShowAddModal(false)}>취소</button>
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" onClick={() => setShowAddModal(false)}>확인</button>
+              <Button color="gray" size="md" onClick={() => setShowAddModal(false)}>
+                취소
+              </Button>
+              <Button color="indigo" size="md" onClick={() => setShowAddModal(false)}>
+                확인
+              </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 날짜 상세 모달 */}
-      {showDetailModal && selectedDate && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-            <h3 className="text-lg font-bold mb-2">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일</h3>
-            <p className="mb-2 text-gray-700">해당 날짜의 성찰/일정/이벤트 상세 내용 (실제 연동은 추후 구현)</p>
-            <div className="flex justify-end">
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" onClick={() => setShowDetailModal(false)}>닫기</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* [UI/UX 개선] 플로팅 액션 버튼 */}
+      <Button
+        color="indigo"
+        size="lg"
+        className="fixed bottom-8 right-8 shadow-lg z-50"
+        title="일정/성찰 추가"
+        onClick={() => setShowAddModal(true)}
+      >
+        +
+      </Button>
     </div>
   );
 }

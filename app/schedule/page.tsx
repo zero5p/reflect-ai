@@ -9,6 +9,10 @@ import {
 import { Sparkles, Calendar, List, Activity, BookText } from "lucide-react";
 import AIScheduleRecommendations from "@/app/components/AIScheduleRecommendations";
 import { useState } from "react";
+import Button from "@/app/components/ui/Button";
+import Card from "@/app/components/ui/Card";
+import { CalendarDays, PlusCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function SchedulePage() {
   // 샘플 템플릿 데이터
@@ -92,8 +96,20 @@ export default function SchedulePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold mb-4">일정 최적화</h1>
+    <div className="space-y-7">
+      {/* 상단 요약/액션 섹션 */}
+      <Card color="mint" rounded shadow className="flex items-center gap-6 p-7 relative overflow-hidden">
+        <CalendarDays className="w-10 h-10 text-white opacity-80" />
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-white mb-1 drop-shadow">일정 최적화</h1>
+          <p className="text-white/90 mb-2">계획을 세우고, 하루를 더 가볍게!</p>
+        </div>
+        <Button color="lavender" size="md" asChild>
+          <Link href="/schedule/new" className="inline-flex items-center">
+            <PlusCircle className="w-5 h-5 mr-1" /> 새 일정 추가
+          </Link>
+        </Button>
+      </Card>
 
       <Tabs defaultValue="recommendations">
         <TabsList className="grid grid-cols-3 bg-gray-100 rounded-lg mb-6">
@@ -120,38 +136,64 @@ export default function SchedulePage() {
         </TabsContent>
 
         <TabsContent value="templates">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            {scheduleTemplates.map((template) => (
-              <div key={template.id} className="bg-white p-6 rounded-xl shadow border border-gray-100 flex flex-col">
-                <h2 className="text-lg font-semibold mb-2 text-indigo-600">{template.title}</h2>
-                <p className="text-gray-700 mb-3">{template.description}</p>
-                <ul className="mb-4 space-y-1 text-sm text-gray-600">
-                  {template.items.map((item, idx) => (
-                    <li key={idx}>• <span className="font-medium">{item.time}</span> {item.description}</li>
-                  ))}
-                </ul>
-                <button className="mt-auto px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors" onClick={() => handleAddSchedule(template.title)}>내 일정에 추가</button>
+          <Card color="white" rounded shadow className="p-5">
+            <h2 className="text-lg font-semibold mb-4 text-gray-700">일정 템플릿</h2>
+            {scheduleTemplates.length === 0 ? (
+              <div className="text-gray-400 text-center py-6 border-2 border-dashed border-gray-100 rounded-lg">
+                템플릿이 없습니다.<br />
+                <Button color="mint" size="md" asChild>
+                  <Link href="/schedule/new">첫 템플릿 추가하기</Link>
+                </Button>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {scheduleTemplates.map((template) => (
+                  <Card key={template.id} color="mint" rounded shadow className="flex flex-col gap-4 px-4 py-3">
+                    <h2 className="text-lg font-semibold mb-2 text-gray-900">{template.title}</h2>
+                    <p className="text-gray-700 mb-3">{template.description}</p>
+                    <ul className="mb-4 space-y-1 text-sm text-gray-600">
+                      {template.items.map((item, idx) => (
+                        <li key={idx}>• <span className="font-medium">{item.time}</span> {item.description}</li>
+                      ))}
+                    </ul>
+                    <Button color="secondary" size="sm" asChild>
+                      <Link href={`/schedule/${template.id}`}>상세</Link>
+                    </Button>
+                    <Button color="secondary" size="sm" asChild onClick={() => handleAddSchedule(template.title)}>
+                      내 일정에 추가
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </Card>
         </TabsContent>
 
         <TabsContent value="insights">
-          <div className="mb-8">
-            <h3 className="text-xl font-bold mb-4 text-indigo-700">AI 인사이트</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {insights.map((insight) => (
-                <div key={insight.id} className="bg-white rounded-xl shadow border border-gray-100 p-5 flex items-start">
-                  <div className="mr-4">{insight.icon}</div>
-                  <div>
-                    <div className="font-semibold text-indigo-600 mb-1">{insight.title}</div>
-                    <div className="text-gray-700 text-sm mb-1">{insight.description}</div>
-                    <span className="text-xs text-gray-400">카테고리: {insight.category}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Card color="white" rounded shadow className="p-5">
+            <h2 className="text-lg font-semibold mb-4 text-gray-700">인사이트</h2>
+            {insights.length === 0 ? (
+              <div className="text-gray-400 text-center py-6 border-2 border-dashed border-gray-100 rounded-lg">
+                인사이트가 없습니다.<br />
+                <Button color="mint" size="md" asChild>
+                  <Link href="/schedule/new">첫 인사이트 추가하기</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {insights.map((insight) => (
+                  <Card key={insight.id} color="mint" rounded shadow className="flex items-start gap-4 px-4 py-3">
+                    <div className="mr-4">{insight.icon}</div>
+                    <div>
+                      <div className="font-semibold text-indigo-600 mb-1">{insight.title}</div>
+                      <div className="text-gray-700 text-sm mb-1">{insight.description}</div>
+                      <span className="text-xs text-gray-400">카테고리: {insight.category}</span>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </Card>
         </TabsContent>
       </Tabs>
 
