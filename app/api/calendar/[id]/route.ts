@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { CalendarEvent } from '@/app/types/calendar';
 import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -8,7 +7,7 @@ const sql = neon(process.env.DATABASE_URL!);
 // GET: 특정 ID로 일정 조회 (DB)
 export async function GET(request: NextRequest, { params }: any) {
   try {
-    const rows = await sql('SELECT * FROM events WHERE id = $1', [params.id]);
+    const rows = await sql`SELECT * FROM events WHERE id = ${params.id}`;
     if (!rows[0]) {
       return NextResponse.json({ error: '해당 ID의 일정을 찾을 수 없습니다.' }, { status: 404 });
     }
@@ -27,10 +26,7 @@ export async function PUT(request: NextRequest, { params }: any) {
     if (!title || !date) {
       return NextResponse.json({ error: '제목과 날짜는 필수 입력 항목입니다.' }, { status: 400 });
     }
-    const result = await sql(
-      `UPDATE events SET title = $1, date = $2, startTime = $3, endTime = $4, category = $5, reflectionId = $6, isRecommended = $7 WHERE id = $8 RETURNING *`,
-      [title, date, startTime, endTime, category, reflectionId, isRecommended, params.id]
-    );
+    const result = await sql`UPDATE events SET title = ${title}, date = ${date}, startTime = ${startTime}, endTime = ${endTime}, category = ${category}, reflectionId = ${reflectionId}, isRecommended = ${isRecommended} WHERE id = ${params.id} RETURNING *`;
     if (!result[0]) {
       return NextResponse.json({ error: '해당 ID의 일정을 찾을 수 없습니다.' }, { status: 404 });
     }
@@ -44,7 +40,7 @@ export async function PUT(request: NextRequest, { params }: any) {
 // DELETE: 특정 ID의 일정 삭제 (DB)
 export async function DELETE(request: NextRequest, { params }: any) {
   try {
-    const result = await sql('DELETE FROM events WHERE id = $1 RETURNING *', [params.id]);
+    const result = await sql`DELETE FROM events WHERE id = ${params.id} RETURNING *`;
     if (!result[0]) {
       return NextResponse.json({ error: '해당 ID의 일정을 찾을 수 없습니다.' }, { status: 404 });
     }

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CalendarEvent } from '@/app/types/calendar';
 import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -11,9 +10,9 @@ export async function GET(request: NextRequest) {
   try {
     let rows;
     if (dateParam) {
-      rows = await sql('SELECT * FROM events WHERE date = $1', [dateParam]);
+      rows = await sql`SELECT * FROM events WHERE date = ${dateParam}`;
     } else {
-      rows = await sql('SELECT * FROM events ORDER BY date ASC');
+      rows = await sql`SELECT * FROM events ORDER BY date ASC`;
     }
     return NextResponse.json(rows);
   } catch (error) {
@@ -30,10 +29,10 @@ export async function POST(request: NextRequest) {
     if (!title || !date) {
       return NextResponse.json({ error: '제목과 날짜는 필수 입력 항목입니다.' }, { status: 400 });
     }
-    const result = await sql(
-      'INSERT INTO events (title, date, startTime, endTime, category, reflectionId, isRecommended) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [title, date, startTime, endTime, category, reflectionId, isRecommended || false]
-    );
+    const result = await sql`
+      INSERT INTO events (title, date, startTime, endTime, category, reflectionId, isRecommended) 
+      VALUES (${title}, ${date}, ${startTime}, ${endTime}, ${category}, ${reflectionId}, ${isRecommended || false}) 
+      RETURNING *`;
     return NextResponse.json(result[0], { status: 201 });
   } catch (error) {
     console.error('Error creating event:', error);
