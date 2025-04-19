@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
+import LoginButton from "./components/LoginButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,10 @@ export default function RootLayout({
       >
         <div className="w-full max-w-lg mx-auto">
           <header className="bg-white p-4 border-b">
-            <h1 className="text-xl font-bold">리플렉트 AI</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-bold">리플렉트 AI</h1>
+              <LoginButton />
+            </div>
           </header>
           <main className="p-4">{children}</main>
           <Navigation />
