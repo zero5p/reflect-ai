@@ -23,11 +23,8 @@ const events: CalendarEvent[] = [
 ];
 
 // 특정 ID로 일정 조회
-export async function GET(
-  request: NextRequest,
-  /** @type {{ params: { id: string } }} */
-  { params }
-) {
+// @ts-expect-error Next.js dynamic route context type
+export async function GET(request: NextRequest, { params }: any) {
   const id = params.id;
   const event = events.find((e) => e.id === id);
   
@@ -42,11 +39,8 @@ export async function GET(
 }
 
 // 특정 ID의 일정 업데이트
-export async function PUT(
-  request: NextRequest,
-  /** @type {{ params: { id: string } }} */
-  { params }
-) {
+// @ts-expect-error Next.js dynamic route context type
+export async function PUT(request: NextRequest, { params }: any) {
   try {
     const id = params.id;
     const body = await request.json();
@@ -93,11 +87,8 @@ export async function PUT(
 }
 
 // 특정 ID의 일정 삭제
-export async function DELETE(
-  request: NextRequest,
-  /** @type {{ params: { id: string } }} */
-  { params }
-) {
+// @ts-expect-error Next.js dynamic route context type
+export async function DELETE(request: NextRequest, { params }: any) {
   const id = params.id;
   const index = events.findIndex((e) => e.id === id);
   
