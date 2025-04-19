@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Sparkles, Calendar, List, Activity, BookText } from 'lucide-react';
 import AIScheduleRecommendations from '@/app/components/AIScheduleRecommendations';
