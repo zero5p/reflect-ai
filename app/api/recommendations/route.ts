@@ -64,37 +64,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// POST: 추천 일정 수락하기
-export async function POSTAccept(request: NextRequest) {
-  try {
-    const body = await request.json();
-    if (!body.id || !body.recommendation) {
-      return NextResponse.json(
-        { error: "추천 ID와 추천 데이터는 필수입니다." },
-        { status: 400 },
-      );
-    }
-    const recommendation = body.recommendation as Recommendation;
-    // reflectionId 필드 제거 (Recommendation 타입에 없음)
-    const newEvent = {
-      id: Date.now().toString(),
-      title: recommendation.title,
-      date: new Date(recommendation.date),
-      startTime: recommendation.startTime,
-      endTime: recommendation.endTime,
-      category: recommendation.category,
-      isRecommended: true,
-    };
-    return NextResponse.json({
-      success: true,
-      event: newEvent,
-    });
-  } catch (error) {
-    console.error("Error accepting recommendation:", error);
-    return NextResponse.json(
-      { error: "추천 수락 중 오류가 발생했습니다." },
-      { status: 500 },
-    );
-  }
-}
