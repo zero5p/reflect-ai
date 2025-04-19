@@ -28,7 +28,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const id = (await params).id;
-  const event = events.find((e) => e.id === params.id);
+  const event = events.find((e) => e.id === id);
   
   if (!event) {
     return NextResponse.json(
@@ -48,7 +48,7 @@ export async function PUT(
   try {
     const id = (await params).id;
     const body = await request.json();
-    const index = events.findIndex((e) => e.id === params.id);
+    const index = events.findIndex((e) => e.id === id);
     
     if (index === -1) {
       return NextResponse.json(
@@ -96,7 +96,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const id = (await params).id;
-  const index = events.findIndex((e) => e.id === params.id);
+  const index = events.findIndex((e) => e.id === id);
   
   if (index === -1) {
     return NextResponse.json(
