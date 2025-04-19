@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import type { Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 
 export const authOptions = {
   providers: [
@@ -12,10 +14,12 @@ export const authOptions = {
     strategy: "jwt" as const,
   },
   callbacks: {
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       // Google의 고유 식별자(sub)와 email을 세션에 포함
-      session.user.id = token.sub;
-      session.user.email = token.email;
+      if (session.user) {
+        (session.user as any).id = token.sub;
+        session.user.email = token.email;
+      }
       return session;
     },
   },
