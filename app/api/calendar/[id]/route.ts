@@ -23,7 +23,11 @@ const events: CalendarEvent[] = [
 ];
 
 // 특정 ID로 일정 조회
-export async function GET(request: NextRequest, { params }) {
+export async function GET(
+  request: NextRequest,
+  /** @type {{ params: { id: string } }} */
+  { params }
+) {
   const id = params.id;
   const event = events.find((e) => e.id === id);
   
@@ -38,7 +42,11 @@ export async function GET(request: NextRequest, { params }) {
 }
 
 // 특정 ID의 일정 업데이트
-export async function PUT(request: NextRequest, { params }) {
+export async function PUT(
+  request: NextRequest,
+  /** @type {{ params: { id: string } }} */
+  { params }
+) {
   try {
     const id = params.id;
     const body = await request.json();
@@ -85,7 +93,11 @@ export async function PUT(request: NextRequest, { params }) {
 }
 
 // 특정 ID의 일정 삭제
-export async function DELETE(request: NextRequest, { params }) {
+export async function DELETE(
+  request: NextRequest,
+  /** @type {{ params: { id: string } }} */
+  { params }
+) {
   const id = params.id;
   const index = events.findIndex((e) => e.id === id);
   
