@@ -3,18 +3,6 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL!);
 
-// 추천 일정 타입 명시
-interface Recommendation {
-  id: string;
-  title: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  category: string;
-  reasoning: string;
-  accepted: boolean;
-}
-
 // GET: 추천 일정 목록 조회 (DB)
 export async function GET() {
   try {
