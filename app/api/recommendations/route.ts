@@ -18,9 +18,7 @@ interface Recommendation {
 // GET: 추천 일정 목록 조회 (DB)
 export async function GET() {
   try {
-    const rows = await sql<Recommendation[]>(
-      "SELECT * FROM recommendations ORDER BY date ASC",
-    );
+    const rows = await sql`SELECT * FROM recommendations ORDER BY date ASC`;
     return NextResponse.json(rows);
   } catch (error) {
     console.error("Error fetching recommendations:", error);
@@ -43,18 +41,7 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-    const result = await sql<Recommendation[]>(
-      "INSERT INTO recommendations (title, date, startTime, endTime, category, reasoning, accepted) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [
-        title,
-        date,
-        startTime,
-        endTime,
-        category,
-        reasoning || "",
-        accepted ?? false,
-      ],
-    );
+    const result = await sql`INSERT INTO recommendations (title, date, startTime, endTime, category, reasoning, accepted) VALUES (${title}, ${date}, ${startTime}, ${endTime}, ${category}, ${reasoning || ""}, ${accepted ?? false}) RETURNING *`;
     return NextResponse.json(result[0], { status: 201 });
   } catch (error) {
     console.error("Error creating recommendation:", error);

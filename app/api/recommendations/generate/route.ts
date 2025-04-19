@@ -9,17 +9,12 @@ const sql = neon(process.env.DATABASE_URL!);
 export async function POST() {
   try {
     // 최근 성찰 데이터 가져오기 (최대 10개)
-    const reflections = await sql(
-      "SELECT * FROM reflections ORDER BY created_at DESC LIMIT 10",
-    );
+    const reflections = await sql`SELECT * FROM reflections ORDER BY created_at DESC LIMIT 10`;
     // 향후 7일 일정 가져오기
     const today = new Date();
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 7);
-    const events = await sql(
-      "SELECT * FROM events WHERE date >= $1 AND date <= $2",
-      [today.toISOString().split("T")[0], nextWeek.toISOString().split("T")[0]],
-    );
+    const events = await sql`SELECT * FROM events WHERE date >= ${today.toISOString().split("T")[0]} AND date <= ${nextWeek.toISOString().split("T")[0]}`;
     // Gemini API로 추천 일정 생성
     const recommendations = await generateScheduleRecommendations(
       reflections,
@@ -28,19 +23,9 @@ export async function POST() {
     // 추천 일정 DB에 저장
     const savedRecommendations = [];
     for (const recommendation of recommendations) {
-      const result = await sql(
-        `INSERT INTO recommendations (title, date, startTime, endTime, category, reasoning, accepted)
-         VALUES ($1, $2, $3, $4, $5, $6, false)
-         RETURNING *`,
-        [
-          recommendation.title,
-          recommendation.date,
-          recommendation.startTime,
-          recommendation.endTime,
-          recommendation.category,
-          recommendation.reasoning,
-        ],
-      );
+      const result = await sql`INSERT INTO recommendations (title, date, startTime, endTime, category, reasoning, accepted)
+         VALUES (${recommendation.title}, ${recommendation.date}, ${recommendation.startTime}, ${recommendation.endTime}, ${recommendation.category}, ${recommendation.reasoning}, false)
+         RETURNING *`;
       savedRecommendations.push(result[0]);
     }
     return NextResponse.json({
@@ -68,10 +53,7 @@ export async function PUT(request: NextRequest) {
       );
     }
     // 추천 상태 업데이트
-    const updateResult = await sql(
-      "UPDATE recommendations SET accepted = $1 WHERE id = $2 RETURNING *",
-      [isAccepted, recommendationId],
-    );
+    const updateResult = await sql`UPDATE recommendations SET accepted = ${isAccepted} WHERE id = ${recommendationId} RETURNING *`;
     if (!updateResult[0]) {
       return NextResponse.json(
         { error: "해당 추천을 찾을 수 없습니다." },
@@ -82,10 +64,7 @@ export async function PUT(request: NextRequest) {
     let event = null;
     if (isAccepted) {
       const r = updateResult[0];
-      const eventResult = await sql(
-        "INSERT INTO events (title, date, startTime, endTime, category, isRecommended) VALUES ($1, $2, $3, $4, $5, true) RETURNING *",
-        [r.title, r.date, r.startTime, r.endTime, r.category],
-      );
+      const eventResult = await sql`INSERT INTO events (title, date, startTime, endTime, category, isRecommended) VALUES (${r.title}, ${r.date}, ${r.startTime}, ${r.endTime}, ${r.category}, true) RETURNING *`;
       event = eventResult[0];
     }
     return NextResponse.json({

@@ -14,9 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
     // 추천 일정 조회
-    const recRows = await sql("SELECT * FROM recommendations WHERE id = $1", [
-      id,
-    ]);
+    const recRows = await sql`SELECT * FROM recommendations WHERE id = ${id}`;
     const recommendation = recRows[0];
     if (!recommendation) {
       return NextResponse.json(
@@ -25,19 +23,9 @@ export async function POST(request: NextRequest) {
       );
     }
     // 추천을 이벤트로 저장
-    const eventResult = await sql(
-      "INSERT INTO events (title, date, startTime, endTime, category, isRecommended) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [
-        recommendation.title,
-        recommendation.date,
-        recommendation.startTime,
-        recommendation.endTime,
-        recommendation.category,
-        true,
-      ],
-    );
+    const eventResult = await sql`INSERT INTO events (title, date, startTime, endTime, category, isRecommended) VALUES (${recommendation.title}, ${recommendation.date}, ${recommendation.startTime}, ${recommendation.endTime}, ${recommendation.category}, true) RETURNING *`;
     // 추천 상태 업데이트(accepted)
-    await sql("UPDATE recommendations SET accepted = true WHERE id = $1", [id]);
+    await sql`UPDATE recommendations SET accepted = true WHERE id = ${id}`;
     return NextResponse.json({ success: true, event: eventResult[0] });
   } catch (error) {
     console.error("추천 수락 중 오류:", error);
