@@ -74,6 +74,7 @@ export async function getClient() {
   const originalRelease = client.release.bind(client);
 
   // 타임스탬프를 기록하기 위한 모니터링 래퍼
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type QueryParam = string | { text: string; values?: unknown[] };
   
   client.query = async function(...args: unknown[]) {
