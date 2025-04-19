@@ -3,12 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/db';
 
 // GET: 특정 ID의 성찰 가져오기
-export async function GET(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }) {
   try {
-    const result = await query('SELECT * FROM reflections WHERE id = $1', [context.params.id]);
+    const result = await query('SELECT * FROM reflections WHERE id = $1', [params.id]);
     
     if (result.rows.length === 0) {
       return NextResponse.json(
@@ -28,10 +25,7 @@ export async function GET(
 }
 
 // PUT: 특정 ID의 성찰 수정하기
-export async function PUT(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }) {
   try {
     const { content, emotion } = await request.json();
     
@@ -49,7 +43,7 @@ export async function PUT(
            updated_at = CURRENT_TIMESTAMP 
        WHERE id = $3 
        RETURNING *`,
-      [content, emotion, context.params.id]
+      [content, emotion, params.id]
     );
     
     if (result.rows.length === 0) {
@@ -70,12 +64,9 @@ export async function PUT(
 }
 
 // DELETE: 특정 ID의 성찰 삭제하기
-export async function DELETE(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }) {
   try {
-    const result = await query('DELETE FROM reflections WHERE id = $1 RETURNING id', [context.params.id]);
+    const result = await query('DELETE FROM reflections WHERE id = $1 RETURNING *', [params.id]);
     
     if (result.rows.length === 0) {
       return NextResponse.json(
