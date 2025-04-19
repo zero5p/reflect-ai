@@ -2,52 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { addDays } from 'date-fns';
 import { CalendarEvent } from '@/app/types/calendar';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL!);
 
 // 추천 일정 타입 명시
 interface Recommendation {
   id: string;
   title: string;
-  date: Date | string;
+  date: string;
   startTime: string;
   endTime: string;
   category: string;
   reasoning: string;
   accepted: boolean;
 }
-
-// 임시 더미 추천 데이터
-const generateDummyRecommendations = (): Recommendation[] => [
-  {
-    id: Date.now().toString() + '1',
-    title: '운동: 30분 조깅',
-    date: addDays(new Date(), 1),
-    startTime: '08:00',
-    endTime: '08:30',
-    category: '건강',
-    reasoning: '최근 성찰 기록에서 운동 후 긍정적인 기분 변화가 관찰되었습니다. 아침 조깅이 하루를 활기차게 시작하는 데 도움을 줄 것으로 예상됩니다.',
-    accepted: false,
-  },
-  {
-    id: Date.now().toString() + '2',
-    title: '독서 시간',
-    date: addDays(new Date(), 2),
-    startTime: '20:00',
-    endTime: '21:00',
-    category: '자기계발',
-    reasoning: '저녁 시간 독서가 수면의 질을 향상시키는데 도움이 된다는 성찰 기록이 있습니다. 규칙적인 독서 습관 형성을 위해 추천합니다.',
-    accepted: false,
-  },
-  {
-    id: Date.now().toString() + '3',
-    title: '명상 연습',
-    date: addDays(new Date(), 3),
-    startTime: '07:30',
-    endTime: '07:45',
-    category: '정신건강',
-    reasoning: '높은 스트레스를 언급한 성찰 기록이 있습니다. 짧은 아침 명상이 하루 중 스트레스 관리에 도움을 줄 수 있습니다.',
-    accepted: false,
-  },
-];
 
 // Gemini API를 이용한 추천 생성 함수
 async function generateAIRecommendations(
@@ -87,23 +56,38 @@ async function generateAIRecommendations(
   }
 }
 
-// GET: AI 추천 일정 가져오기
+// GET: 추천 일정 목록 조회 (DB)
 export async function GET() {
   try {
-    // 실제 데이터베이스 연동 필요시 아래 부분 구현
-    const reflections: object[] = [];
-    const existingEvents: object[] = [];
-    const recommendations = await generateAIRecommendations(reflections, existingEvents);
-    return NextResponse.json(recommendations);
+    const rows = await sql<Recommendation[]>('SELECT * FROM recommendations ORDER BY date ASC');
+    return NextResponse.json(rows);
   } catch (error) {
-    console.error('Error generating recommendations:', error);
-    const recommendations = generateDummyRecommendations();
-    return NextResponse.json(recommendations);
+    console.error('Error fetching recommendations:', error);
+    return NextResponse.json({ error: '추천 목록을 불러오지 못했습니다.' }, { status: 500 });
+  }
+}
+
+// POST: 추천 일정 추가 (DB)
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { title, date, startTime, endTime, category, reasoning, accepted } = body;
+    if (!title || !date || !startTime || !endTime || !category) {
+      return NextResponse.json({ error: '필수 항목이 누락되었습니다.' }, { status: 400 });
+    }
+    const result = await sql<Recommendation[]>(
+      'INSERT INTO recommendations (title, date, startTime, endTime, category, reasoning, accepted) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [title, date, startTime, endTime, category, reasoning || '', accepted ?? false]
+    );
+    return NextResponse.json(result[0], { status: 201 });
+  } catch (error) {
+    console.error('Error creating recommendation:', error);
+    return NextResponse.json({ error: '추천 추가 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
 
 // POST: 추천 일정 수락하기
-export async function POST(request: NextRequest) {
+export async function POSTAccept(request: NextRequest) {
   try {
     const body = await request.json();
     if (!body.id || !body.recommendation) {

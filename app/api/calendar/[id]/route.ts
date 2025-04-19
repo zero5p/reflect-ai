@@ -1,104 +1,56 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { CalendarEvent } from '@/app/types/calendar';
+import { neon } from '@neondatabase/serverless';
 
-// 임시 데이터 저장소 (실제로는 데이터베이스를 사용할 예정)
-const events: CalendarEvent[] = [
-  {
-    id: '1',
-    title: '운동하기',
-    date: new Date(),
-    startTime: '10:00',
-    endTime: '11:00',
-    category: '건강',
-  },
-  {
-    id: '2',
-    title: '독서 시간',
-    date: new Date(),
-    startTime: '15:00',
-    endTime: '16:00',
-    category: '취미',
-    isRecommended: true,
-  },
-];
+const sql = neon(process.env.DATABASE_URL!);
 
-// 특정 ID로 일정 조회
+// GET: 특정 ID로 일정 조회 (DB)
 export async function GET(request: NextRequest, { params }: any) {
-  const id = params.id;
-  const event = events.find((e) => e.id === id);
-  
-  if (!event) {
-    return NextResponse.json(
-      { error: '해당 ID의 일정을 찾을 수 없습니다.' },
-      { status: 404 }
-    );
+  try {
+    const rows = await sql('SELECT * FROM events WHERE id = $1', [params.id]);
+    if (!rows[0]) {
+      return NextResponse.json({ error: '해당 ID의 일정을 찾을 수 없습니다.' }, { status: 404 });
+    }
+    return NextResponse.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching event:', error);
+    return NextResponse.json({ error: '일정 조회 중 오류가 발생했습니다.' }, { status: 500 });
   }
-  
-  return NextResponse.json(event);
 }
 
-// 특정 ID의 일정 업데이트
+// PUT: 특정 ID의 일정 업데이트 (DB)
 export async function PUT(request: NextRequest, { params }: any) {
   try {
-    const id = params.id;
     const body = await request.json();
-    const index = events.findIndex((e) => e.id === id);
-    
-    if (index === -1) {
-      return NextResponse.json(
-        { error: '해당 ID의 일정을 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+    const { title, date, startTime, endTime, category, reflectionId, isRecommended } = body;
+    if (!title || !date) {
+      return NextResponse.json({ error: '제목과 날짜는 필수 입력 항목입니다.' }, { status: 400 });
     }
-    
-    // 필수 필드 검증
-    if (!body.title || !body.date) {
-      return NextResponse.json(
-        { error: '제목과 날짜는 필수 입력 항목입니다.' },
-        { status: 400 }
-      );
+    const result = await sql(
+      `UPDATE events SET title = $1, date = $2, startTime = $3, endTime = $4, category = $5, reflectionId = $6, isRecommended = $7 WHERE id = $8 RETURNING *`,
+      [title, date, startTime, endTime, category, reflectionId, isRecommended, params.id]
+    );
+    if (!result[0]) {
+      return NextResponse.json({ error: '해당 ID의 일정을 찾을 수 없습니다.' }, { status: 404 });
     }
-    
-    // 업데이트된 일정 객체
-    const updatedEvent: CalendarEvent = {
-      ...events[index],
-      title: body.title,
-      date: new Date(body.date),
-      startTime: body.startTime || events[index].startTime,
-      endTime: body.endTime || events[index].endTime,
-      category: body.category || events[index].category,
-      reflectionId: body.reflectionId || events[index].reflectionId,
-      isRecommended: body.isRecommended !== undefined ? body.isRecommended : events[index].isRecommended,
-    };
-    
-    // 임시 저장소에서 업데이트 (실제로는 데이터베이스에서 업데이트)
-    events[index] = updatedEvent;
-    
-    return NextResponse.json(updatedEvent);
+    return NextResponse.json(result[0]);
   } catch (error) {
     console.error('Error updating event:', error);
-    return NextResponse.json(
-      { error: '일정 업데이트 중 오류가 발생했습니다.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '일정 업데이트 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
 
-// 특정 ID의 일정 삭제
+// DELETE: 특정 ID의 일정 삭제 (DB)
 export async function DELETE(request: NextRequest, { params }: any) {
-  const id = params.id;
-  const index = events.findIndex((e) => e.id === id);
-  
-  if (index === -1) {
-    return NextResponse.json(
-      { error: '해당 ID의 일정을 찾을 수 없습니다.' },
-      { status: 404 }
-    );
+  try {
+    const result = await sql('DELETE FROM events WHERE id = $1 RETURNING *', [params.id]);
+    if (!result[0]) {
+      return NextResponse.json({ error: '해당 ID의 일정을 찾을 수 없습니다.' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    return NextResponse.json({ error: '일정 삭제 중 오류가 발생했습니다.' }, { status: 500 });
   }
-  
-  // 임시 저장소에서 삭제 (실제로는 데이터베이스에서 삭제)
-  events.splice(index, 1);
-  
-  return NextResponse.json({ success: true });
 }
