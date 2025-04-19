@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/reflections/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/db';
