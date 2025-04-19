@@ -1,3 +1,5 @@
+"use client";
+
 // app/reflection/page.tsx
 import Link from "next/link";
 import { useState } from "react";
