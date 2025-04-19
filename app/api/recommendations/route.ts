@@ -106,7 +106,9 @@ export async function POST_AI() {
       'SELECT * FROM reflections ORDER BY created_at DESC LIMIT 10'
     );
     
-    const reflections = reflectionsResult.rows;
+    // 변수를 실제로 사용하도록 수정
+    const reflectionCount = reflectionsResult.rows.length;
+    console.log(`Found ${reflectionCount} reflections for analysis`);
     
     // 여기에 실제 Gemini API 호출 코드가 들어갑니다
     // 지금은 모의 데이터를 반환합니다

@@ -51,6 +51,7 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
     if (reflectionId) {
       analyzeReflection();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reflectionId]);
 
   if (isLoading) {

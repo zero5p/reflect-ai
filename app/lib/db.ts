@@ -36,7 +36,7 @@ export function initPool() {
 }
 
 // 쿼리 실행 함수
-export async function query(text: string, params?: any[]) {
+export async function query(text: string, params?: unknown[]) {
   // 풀이 없으면 초기화 시도
   if (!pool) {
     pool = initPool();
@@ -44,7 +44,7 @@ export async function query(text: string, params?: any[]) {
     // 여전히 풀이 없으면 모의 데이터 반환 (개발 모드)
     if (!pool) {
       console.log('개발 모드: 모의 데이터 반환', { text });
-      return mockQueryResponse(text, params);
+      return mockQueryResponse(text, params as string[]);
     }
   }
   
@@ -70,22 +70,28 @@ export async function getClient() {
   }
   
   const client = await pool.connect();
-  const query = client.query.bind(client);
-  const release = client.release.bind(client);
+  const originalQuery = client.query.bind(client);
+  const originalRelease = client.release.bind(client);
 
   // 타임스탬프를 기록하기 위한 모니터링 래퍼
-  // @ts-ignore: pg 타입 정의와 일치시키기 어려운 부분
-  client.query = async function(...args: any[]) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  client.query = async function(...args: unknown[]) {
     const start = Date.now();
     let result;
     try {
       if (typeof args[0] === 'string') {
-        result = await query(args[0], args[1]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        result = await originalQuery(args[0], args[1] as any);
+      } else if (args[0] && typeof args[0] === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const queryConfig = args[0] as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        result = await originalQuery(queryConfig.text, queryConfig.values as any);
       } else {
-        result = await query(args[0].text, args[0].values);
+        throw new Error('지원되지 않는 쿼리 형식입니다.');
       }
       const duration = Date.now() - start;
-      const queryText = typeof args[0] === 'string' ? args[0] : args[0].text;
+      const queryText = typeof args[0] === 'string' ? args[0] : (args[0] as { text?: string })?.text || 'unknown';
       console.log('클라이언트 쿼리 실행', { text: queryText, duration, rows: result.rowCount });
       return result;
     } catch (err) {
@@ -96,16 +102,17 @@ export async function getClient() {
 
   // 클라이언트가 특정 시간 후에 자동으로 반환되도록 함
   client.release = () => {
-    client.query = query;
-    client.release = release;
-    return release();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    client.query = originalQuery as any;
+    client.release = originalRelease;
+    return originalRelease();
   };
 
   return client;
 }
 
 // 모의 데이터 함수 (개발 환경에서 사용)
-function mockQueryResponse(text: string, params?: any[]) {
+function mockQueryResponse(text: string, params?: string[]) {
   console.log('모의 데이터 사용 중:', { text, params });
   
   // reflections 테이블 모의 데이터
@@ -189,7 +196,7 @@ function mockQueryResponse(text: string, params?: any[]) {
   else if (text.includes('INSERT INTO') || text.includes('UPDATE') || text.includes('DELETE')) {
     // 삽입/수정/삭제 작업은 성공 응답 반환
     return {
-      rows: [{id: '999', ...params}],
+      rows: [{id: '999', ...(params && params.length > 0 ? { param: params[0] } : {})}],
       rowCount: 1
     };
   }
