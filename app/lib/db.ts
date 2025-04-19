@@ -74,19 +74,17 @@ export async function getClient() {
   const originalRelease = client.release.bind(client);
 
   // 타임스탬프를 기록하기 위한 모니터링 래퍼
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type QueryParam = string | { text: string; values?: unknown[] };
+  
   client.query = async function(...args: unknown[]) {
     const start = Date.now();
     let result;
     try {
       if (typeof args[0] === 'string') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        result = await originalQuery(args[0], args[1] as any);
+        result = await originalQuery(args[0], args[1] as unknown[]);
       } else if (args[0] && typeof args[0] === 'object') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const queryConfig = args[0] as any;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        result = await originalQuery(queryConfig.text, queryConfig.values as any);
+        const queryConfig = args[0] as { text: string; values?: unknown[] };
+        result = await originalQuery(queryConfig.text, queryConfig.values);
       } else {
         throw new Error('지원되지 않는 쿼리 형식입니다.');
       }
@@ -102,8 +100,7 @@ export async function getClient() {
 
   // 클라이언트가 특정 시간 후에 자동으로 반환되도록 함
   client.release = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    client.query = originalQuery as any;
+    client.query = originalQuery;
     client.release = originalRelease;
     return originalRelease();
   };
