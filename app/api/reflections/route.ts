@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/db';
 
 // GET: 모든 성찰 목록 가져오기
@@ -16,22 +16,19 @@ export async function GET() {
 }
 
 // POST: 새 성찰 추가하기
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { content, emotion } = await request.json();
-    
     if (!content) {
       return NextResponse.json(
         { error: '내용을 입력해주세요.' },
         { status: 400 }
       );
     }
-    
     const result = await query(
       'INSERT INTO reflections (content, emotion) VALUES ($1, $2) RETURNING *',
       [content, emotion]
     );
-    
     return NextResponse.json(result.rows[0], { status: 201 });
   } catch (error) {
     console.error('Error:', error);
