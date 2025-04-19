@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/app/lib/db';
 
 // GET: 특정 ID의 성찰 가져오기
-// @ts-expect-error Next.js dynamic route context type
 export async function GET(request: NextRequest, { params }: any) {
   try {
     const result = await query('SELECT * FROM reflections WHERE id = $1', [params.id]);
@@ -27,7 +26,6 @@ export async function GET(request: NextRequest, { params }: any) {
 }
 
 // PUT: 특정 ID의 성찰 수정하기
-// @ts-expect-error Next.js dynamic route context type
 export async function PUT(request: NextRequest, { params }: any) {
   try {
     const { content, emotion } = await request.json();
@@ -67,7 +65,6 @@ export async function PUT(request: NextRequest, { params }: any) {
 }
 
 // DELETE: 특정 ID의 성찰 삭제하기
-// @ts-expect-error Next.js dynamic route context type
 export async function DELETE(request: NextRequest, { params }: any) {
   try {
     const result = await query('DELETE FROM reflections WHERE id = $1 RETURNING *', [params.id]);
