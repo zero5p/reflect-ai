@@ -85,65 +85,48 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="space-y-7">
+    <div className="flex flex-col gap-8 max-w-2xl mx-auto px-4 pb-28">
       {/* 상단 요약/액션 섹션 */}
-      <Card color="lavender" rounded shadow className="flex items-center gap-6 p-7 relative overflow-hidden">
+      <Card color="mint" rounded shadow className="flex items-center gap-6 p-8 mb-2 relative overflow-hidden">
         <CalendarIcon className="w-10 h-10 text-white opacity-80" />
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white mb-1 drop-shadow">캘린더</h1>
-          <p className="text-white/90 mb-2">월별로 감정/일정/성찰을 한눈에!</p>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 drop-shadow">캘린더</h1>
+          <p className="text-white/90 mb-2 md:text-lg">일정을 한눈에 보고, 새로운 일정을 추가해보세요.</p>
         </div>
-        <Button color="mint" size="md" asChild>
-          <Link href="/schedule/new" className="inline-flex items-center">
-            <PlusCircle className="w-5 h-5 mr-1" /> 새 일정 추가
+        <Button color="lavender" size="md" asChild>
+          <Link href="/calendar/new" className="inline-flex items-center">
+            <PlusCircle className="w-5 h-5 mr-1" /> 새 일정
           </Link>
         </Button>
       </Card>
 
-      {/* 달력 그리드 */}
-      <Card color="white" rounded shadow className="p-5">
-        <div className="flex items-center justify-between mb-3">
-          <Button color="neutral" size="sm" onClick={handlePrevMonth}>
-            <ChevronLeft />
-          </Button>
-          <div className="font-semibold text-lg">
-            {currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월
-          </div>
-          <Button color="neutral" size="sm" onClick={handleNextMonth}>
-            <ChevronRight />
-          </Button>
+      {/* 달력 카드 */}
+      <Card color="white" rounded shadow className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <Button color="mint" size="sm" onClick={handlePrevMonth}><ChevronLeft /></Button>
+          <div className="text-lg font-semibold">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</div>
+          <Button color="mint" size="sm" onClick={handleNextMonth}><ChevronRight /></Button>
         </div>
-        <div className="grid grid-cols-7 gap-2 text-center text-gray-500 mb-2">
-          {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-            <div key={d} className="font-semibold">{d}</div>
-          ))}
+        <div className="grid grid-cols-7 gap-2 text-center text-xs text-gray-400 mb-2">
+          <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
         </div>
         <div className="grid grid-cols-7 gap-2">
           {days.map((dayObj, idx) => (
             <div
               key={idx}
-              className={`relative flex flex-col items-center justify-center h-16 ${
-                dayObj.isCurrentMonth ? "bg-white" : "bg-gray-50"
-              }`}
+              className={`aspect-square flex flex-col items-center justify-center rounded-lg border ${dayObj.isCurrentMonth ? 'bg-mint-50 border-mint-100' : 'bg-gray-50 border-gray-100'} ${dayObj.hasEvent ? 'ring-2 ring-lavender-300' : ''} cursor-pointer hover:bg-mint-100 transition-all`}
+              onClick={() => dayObj.isCurrentMonth && dayObj.day && handleDayClick(dayObj)}
             >
-              <div className="font-semibold text-gray-700 mb-1">{dayObj.day}</div>
+              <span className={`font-semibold ${dayObj.isCurrentMonth ? 'text-gray-700' : 'text-gray-300'}`}>{dayObj.day ? dayObj.day : ''}</span>
               {dayObj.hasEvent && dayObj.emotionType !== null && (
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl">{getEmotionEmoji(dayObj.emotionType)}</span>
-                </div>
+                <span className="text-lg">{getEmotionEmoji(dayObj.emotionType!)}</span>
               )}
-              <button
-                className={`absolute inset-0 ${
-                  dayObj.isCurrentMonth ? "bg-white" : "bg-gray-50"
-                }`}
-                onClick={() => handleDayClick(dayObj)}
-                disabled={!dayObj.isCurrentMonth || !dayObj.day}
-              />
             </div>
           ))}
         </div>
       </Card>
 
+      {/* 일정 추가/상세 모달 등은 기존 구조 유지 (필요시 별도 개선) */}
       {/* 날짜 상세 모달 */}
       {showDetailModal && selectedDate && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

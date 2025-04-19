@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Card from "./ui/Card";
 import Button from "./ui/Button";
 import { Home, CalendarDays, BookText, BarChart2 } from "lucide-react";
 
@@ -20,19 +19,25 @@ const navItems: NavItem[] = [
 
 export default function Navigation() {
   const pathname = usePathname();
-
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur shadow-t py-2 px-2 flex justify-center">
-      <Card color="white" rounded shadow className="flex justify-between w-full max-w-xl mx-auto px-4 py-2">
+    <nav className="fixed bottom-0 left-0 w-full z-40 bg-white/90 border-t border-gray-100 backdrop-blur-md shadow-lg">
+      <div className="max-w-xl mx-auto flex flex-row justify-between items-center px-2 py-2 md:px-6 md:py-3">
         {navItems.map((item) => (
-          <Button key={item.href} color="neutral" size="sm" asChild className="flex flex-col items-center px-2 py-1">
-            <Link href={item.href} className={`flex flex-col items-center ${pathname === item.href ? "text-blue-500" : "text-gray-500"}`}>
-              <span className="mb-1">{item.icon}</span>
-              <span className="text-xs font-medium">{item.label}</span>
+          <Button
+            key={item.href}
+            asChild
+            color={pathname === item.href ? "mint" : "gray"}
+            size="sm"
+            className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition-all ${pathname === item.href ? 'shadow-md scale-110' : ''}`}
+            aria-label={item.label}
+          >
+            <Link href={item.href} className="flex flex-col items-center">
+              <span className={`text-lg md:text-xl ${pathname === item.href ? 'text-mint-600' : 'text-gray-400'}`}>{item.icon}</span>
+              <span className={`text-xs font-medium ${pathname === item.href ? 'text-mint-700' : 'text-gray-400'}`}>{item.label}</span>
             </Link>
           </Button>
         ))}
-      </Card>
+      </div>
     </nav>
   );
 }

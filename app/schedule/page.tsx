@@ -96,13 +96,13 @@ export default function SchedulePage() {
   };
 
   return (
-    <div className="space-y-7">
+    <div className="flex flex-col gap-8 max-w-3xl mx-auto px-4 pb-28">
       {/* 상단 요약/액션 섹션 */}
-      <Card color="mint" rounded shadow className="flex items-center gap-6 p-7 relative overflow-hidden">
-        <CalendarDays className="w-10 h-10 text-white opacity-80" />
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white mb-1 drop-shadow">일정 최적화</h1>
-          <p className="text-white/90 mb-2">계획을 세우고, 하루를 더 가볍게!</p>
+      <Card color="mint" rounded shadow className="flex items-center gap-6 p-8 relative overflow-hidden">
+        <CalendarDays className="w-12 h-12 text-white opacity-80" />
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 drop-shadow">일정 최적화</h1>
+          <p className="text-white/90 mb-2 md:text-lg">계획을 세우고, 하루를 더 가볍게!</p>
         </div>
         <Button color="lavender" size="md" asChild>
           <Link href="/schedule/new" className="inline-flex items-center">
@@ -128,15 +128,15 @@ export default function SchedulePage() {
         </TabsList>
 
         <TabsContent value="recommendations">
-          <div className="mb-6 p-4 bg-white rounded-xl shadow border border-gray-100">
+          <Card color="white" rounded shadow className="mb-6 p-6">
             <h1 className="text-2xl font-bold mb-2 text-indigo-700">AI가 추천하는 오늘의 일정</h1>
             <p className="text-gray-600 text-sm">AI가 당신의 성찰 데이터를 분석해 맞춤 일정을 추천합니다. 원하는 템플릿을 바로 내 일정에 추가해보세요!</p>
-          </div>
+          </Card>
           <AIScheduleRecommendations />
         </TabsContent>
 
         <TabsContent value="templates">
-          <Card color="white" rounded shadow className="p-5">
+          <Card color="white" rounded shadow className="p-6">
             <h2 className="text-lg font-semibold mb-4 text-gray-700">일정 템플릿</h2>
             {scheduleTemplates.length === 0 ? (
               <div className="text-gray-400 text-center py-6 border-2 border-dashed border-gray-100 rounded-lg">
@@ -156,12 +156,14 @@ export default function SchedulePage() {
                         <li key={idx}>• <span className="font-medium">{item.time}</span> {item.description}</li>
                       ))}
                     </ul>
-                    <Button color="secondary" size="sm" asChild>
-                      <Link href={`/schedule/${template.id}`}>상세</Link>
-                    </Button>
-                    <Button color="secondary" size="sm" asChild onClick={() => handleAddSchedule(template.title)}>
-                      내 일정에 추가
-                    </Button>
+                    <div className="flex flex-row gap-2">
+                      <Button color="secondary" size="sm" asChild>
+                        <Link href={`/schedule/${template.id}`}>상세</Link>
+                      </Button>
+                      <Button color="secondary" size="sm" asChild onClick={() => handleAddSchedule(template.title)}>
+                        내 일정에 추가
+                      </Button>
+                    </div>
                   </Card>
                 ))}
               </div>
@@ -170,7 +172,7 @@ export default function SchedulePage() {
         </TabsContent>
 
         <TabsContent value="insights">
-          <Card color="white" rounded shadow className="p-5">
+          <Card color="white" rounded shadow className="p-6">
             <h2 className="text-lg font-semibold mb-4 text-gray-700">인사이트</h2>
             {insights.length === 0 ? (
               <div className="text-gray-400 text-center py-6 border-2 border-dashed border-gray-100 rounded-lg">

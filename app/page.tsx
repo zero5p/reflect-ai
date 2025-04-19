@@ -40,58 +40,60 @@ export default function Home() {
   const quote = MOTIVATION_QUOTES[Math.floor(Math.random() * MOTIVATION_QUOTES.length)];
 
   return (
-    <div className="space-y-6">
-      {/* 히어로 섹션 + 그래픽 */}
-      <Card color="mint" rounded shadow className="relative overflow-hidden text-white bg-gradient-to-r from-mint-400 to-lavender-400 p-7">
-        {/* 감성적인 일러스트(예시: 창문) */}
+    <div className="flex flex-col gap-8 max-w-xl mx-auto px-4 pb-28">
+      {/* 히어로 섹션 */}
+      <Card color="mint" rounded shadow className="relative overflow-hidden text-white bg-gradient-to-r from-mint-400 to-lavender-400 p-8 flex flex-col gap-2">
         <div className="absolute left-6 bottom-2 opacity-60 pointer-events-none select-none hidden md:block">
           <Image src={windowSvg} alt="감성 창문 일러스트" width={110} height={110} className="drop-shadow-lg" />
         </div>
         <div className="absolute right-6 top-4 opacity-30 pointer-events-none select-none">
           <Star className="w-32 h-32 text-yellow-200 animate-spin-slow" />
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold mb-2 drop-shadow">{quote}</h1>
-        <p className="text-white/80 mb-4 md:text-lg">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
-        <Button color="primary" size="lg" className="mt-2 mb-2" asChild>
-          <Link href="/reflection/new" className="inline-flex items-center">
+        <h1 className="text-2xl md:text-3xl font-bold mb-1 drop-shadow text-white">{quote}</h1>
+        <p className="text-white/90 mb-4 md:text-lg">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
+        <Button color="primary" size="lg" className="mt-2 mb-2 w-full" asChild>
+          <Link href="/reflection/new" className="inline-flex items-center justify-center w-full">
             <Zap className="h-5 w-5 mr-2" /> 성찰 시작하기
           </Link>
         </Button>
-        {/* 서비스 안내 */}
-        <Card color="white" rounded className="mt-5 p-4 shadow border border-gray-100 text-gray-700 backdrop-blur-sm">
-          <h2 className="text-lg font-semibold mb-2">reflect-ai란?</h2>
-          <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">
-            <li>AI 기반 감정/일정 기록</li>
-            <li>맞춤 일정 추천 & 인사이트</li>
-            <li>나만의 성장 데이터</li>
-          </ul>
-        </Card>
+      </Card>
+
+      {/* 서비스 안내 */}
+      <Card color="white" rounded shadow className="p-5 flex flex-col gap-2 border border-gray-100 text-gray-700">
+        <h2 className="text-lg font-semibold mb-1">reflect-ai란?</h2>
+        <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">
+          <li>AI 기반 감정/일정 기록</li>
+          <li>맞춤 일정 추천 & 인사이트</li>
+          <li>나만의 성장 데이터</li>
+        </ul>
       </Card>
 
       {/* 요약 카드 섹션 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* 최근 성찰 요약 */}
-        <Card color="lavender" rounded shadow className="flex items-center gap-4 hover:shadow-lg transition-all">
-          <div className="text-3xl">{latestReflection ? (latestReflection.emotion === "기쁨" ? "😄" : latestReflection.emotion === "슬픔" ? "😢" : latestReflection.emotion === "화남" ? "😠" : latestReflection.emotion === "평온" ? "😌" : latestReflection.emotion === "불안" ? "😰" : latestReflection.emotion === "지루함" ? "😑" : "😐") : ""}</div>
-          <div className="flex-1">
-            <div className="text-gray-700 text-sm mb-1 font-semibold">최근 성찰</div>
-            <div className="text-gray-900 font-medium line-clamp-1">{latestReflection ? latestReflection.content : "작성된 성찰이 없습니다."}</div>
+        <Card color="lavender" rounded shadow className="flex items-center gap-4 px-5 py-4">
+          <div className="text-3xl">
+            {latestReflection ? (latestReflection.emotion === "기쁨" ? "😄" : latestReflection.emotion === "슬픔" ? "😢" : latestReflection.emotion === "화남" ? "😠" : latestReflection.emotion === "평온" ? "😌" : latestReflection.emotion === "불안" ? "😰" : latestReflection.emotion === "지루함" ? "😑" : "😐") : ""}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-gray-700 text-xs mb-1 font-semibold">최근 성찰</div>
+            <div className="text-gray-900 font-medium truncate text-sm">{latestReflection ? latestReflection.content : "작성된 성찰이 없습니다."}</div>
             <div className="text-xs text-gray-400">{latestReflection ? new Date(latestReflection.createdAt).toLocaleDateString("ko-KR") : ""}</div>
           </div>
           <Button color="secondary" size="sm" asChild>
-            <Link href="/reflection">더 보기</Link>
+            <Link href="/reflection">더보기</Link>
           </Button>
         </Card>
-        {/* 오늘의 추천 일정 요약 */}
-        <Card color="mint" rounded shadow className="flex items-center gap-4 hover:shadow-lg transition-all">
-          <CalendarDays className="w-8 h-8 text-indigo-400" />
-          <div className="flex-1">
-            <div className="text-gray-700 text-sm mb-1 font-semibold">오늘의 추천 일정</div>
-            <div className="text-gray-900 font-medium line-clamp-1">{todaySchedule.summary}</div>
-            <div className="text-xs text-gray-400">{todaySchedule.title}</div>
+        <Card color="mint" rounded shadow className="flex items-center gap-4 px-5 py-4">
+          <div className="text-3xl">
+            <CalendarDays className="w-7 h-7 text-mint-600" />
           </div>
-          <Button color="primary" size="sm" asChild>
-            <Link href="/schedule">일정 보기</Link>
+          <div className="flex-1 min-w-0">
+            <div className="text-gray-700 text-xs mb-1 font-semibold">오늘의 일정</div>
+            <div className="text-gray-900 font-medium truncate text-sm">{todaySchedule.title}</div>
+            <div className="text-xs text-gray-400">{todaySchedule.summary}</div>
+          </div>
+          <Button color="mint" size="sm" asChild>
+            <Link href="/schedule">더보기</Link>
           </Button>
         </Card>
       </div>
