@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   format,
   startOfMonth,
@@ -10,18 +10,21 @@ import {
   isSameDay,
   addMonths,
   subMonths,
-  getDay
-} from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { CalendarEvent } from '@/app/types/calendar';
+  getDay,
+} from "date-fns";
+import { ko } from "date-fns/locale";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarEvent } from "@/app/types/calendar";
 
 type CalendarComponentProps = {
   events?: CalendarEvent[];
   onSelectDate?: (date: Date) => void;
 };
 
-export default function CalendarComponent({ events = [], onSelectDate }: CalendarComponentProps) {
+export default function CalendarComponent({
+  events = [],
+  onSelectDate,
+}: CalendarComponentProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -52,11 +55,11 @@ export default function CalendarComponent({ events = [], onSelectDate }: Calenda
   const startDay = getDay(monthStart);
 
   // 요일 이름 배열
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
   // 특정 날짜에 이벤트가 있는지 확인
   const hasEvents = (date: Date) => {
-    return events.some(event => isSameDay(new Date(event.date), date));
+    return events.some((event) => isSameDay(new Date(event.date), date));
   };
 
   return (
@@ -70,7 +73,7 @@ export default function CalendarComponent({ events = [], onSelectDate }: Calenda
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h2 className="text-xl font-bold">
-          {format(currentMonth, 'yyyy년 MM월', { locale: ko })}
+          {format(currentMonth, "yyyy년 MM월", { locale: ko })}
         </h2>
         <button
           onClick={nextMonth}
@@ -86,8 +89,8 @@ export default function CalendarComponent({ events = [], onSelectDate }: Calenda
           <div
             key={index}
             className={`text-center text-sm py-2 font-medium
-              ${index === 0 ? 'text-red-500' : ''} 
-              ${index === 6 ? 'text-blue-500' : ''}`}
+              ${index === 0 ? "text-red-500" : ""} 
+              ${index === 6 ? "text-blue-500" : ""}`}
           >
             {weekday}
           </div>
@@ -107,21 +110,23 @@ export default function CalendarComponent({ events = [], onSelectDate }: Calenda
           const isSelected = isSameDay(day, selectedDate);
           const hasEvent = hasEvents(day);
           const dayOfWeek = getDay(day);
-          
+
           return (
             <div
               key={day.toString()}
               onClick={() => handleDateClick(day)}
               className={`relative p-1 h-12 flex flex-col items-center cursor-pointer hover:bg-gray-100 rounded
-                ${!isSameMonth(day, currentMonth) ? 'text-gray-300' : ''}
-                ${isToday ? 'bg-blue-50' : ''}
-                ${isSelected ? 'bg-blue-100' : ''}
-                ${dayOfWeek === 0 ? 'text-red-500' : ''}
-                ${dayOfWeek === 6 ? 'text-blue-500' : ''}`}
+                ${!isSameMonth(day, currentMonth) ? "text-gray-300" : ""}
+                ${isToday ? "bg-blue-50" : ""}
+                ${isSelected ? "bg-blue-100" : ""}
+                ${dayOfWeek === 0 ? "text-red-500" : ""}
+                ${dayOfWeek === 6 ? "text-blue-500" : ""}`}
             >
-              <span className={`text-sm w-7 h-7 flex items-center justify-center 
-                ${isToday ? 'bg-blue-500 text-white rounded-full' : ''}`}>
-                {format(day, 'd')}
+              <span
+                className={`text-sm w-7 h-7 flex items-center justify-center 
+                ${isToday ? "bg-blue-500 text-white rounded-full" : ""}`}
+              >
+                {format(day, "d")}
               </span>
               {hasEvent && (
                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-0.5"></div>

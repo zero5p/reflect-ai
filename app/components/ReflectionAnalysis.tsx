@@ -1,8 +1,14 @@
 // app/components/ReflectionAnalysis.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Sparkles, LightbulbIcon, BarChart2, Brain, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  Sparkles,
+  LightbulbIcon,
+  BarChart2,
+  Brain,
+  RefreshCw,
+} from "lucide-react";
 
 interface ReflectionAnalysisProps {
   reflectionId: string;
@@ -15,7 +21,9 @@ interface AnalysisData {
   recommendedActions: string[];
 }
 
-export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisProps) {
+export default function ReflectionAnalysis({
+  reflectionId,
+}: ReflectionAnalysisProps) {
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,24 +32,26 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
     try {
       setIsLoading(true);
       setError(null);
-      
-      const response = await fetch('/api/reflections/analyze', {
-        method: 'POST',
+
+      const response = await fetch("/api/reflections/analyze", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ reflectionId }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '성찰 분석 중 오류가 발생했습니다.');
+        throw new Error(errorData.error || "성찰 분석 중 오류가 발생했습니다.");
       }
-      
+
       const data = await response.json();
       setAnalysis(data.analysis);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      setError(
+        err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +61,7 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
     if (reflectionId) {
       analyzeReflection();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reflectionId]);
 
   if (isLoading) {
@@ -96,7 +106,7 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
         <Sparkles className="h-6 w-6 text-purple-500 mr-2" />
         <h2 className="text-xl font-semibold">AI 성찰 분석</h2>
       </div>
-      
+
       <div className="space-y-6">
         {/* 요약 */}
         <div className="bg-purple-50 p-4 rounded-lg">
@@ -106,7 +116,7 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
           </h3>
           <p className="text-gray-700">{analysis.summary}</p>
         </div>
-        
+
         {/* 주요 인사이트 */}
         <div>
           <h3 className="font-medium flex items-center mb-3">
@@ -115,13 +125,16 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
           </h3>
           <ul className="space-y-2">
             {analysis.keyInsights.map((insight, index) => (
-              <li key={index} className="bg-amber-50 p-3 rounded-md text-gray-700">
+              <li
+                key={index}
+                className="bg-amber-50 p-3 rounded-md text-gray-700"
+              >
                 {insight}
               </li>
             ))}
           </ul>
         </div>
-        
+
         {/* 감정 패턴 */}
         <div>
           <h3 className="font-medium flex items-center mb-3">
@@ -132,7 +145,7 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
             {analysis.emotionalPatterns}
           </div>
         </div>
-        
+
         {/* 추천 행동 */}
         <div>
           <h3 className="font-medium flex items-center mb-3">
@@ -141,7 +154,10 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
           </h3>
           <ul className="space-y-2">
             {analysis.recommendedActions.map((action, index) => (
-              <li key={index} className="bg-green-50 p-3 rounded-md text-gray-700 flex items-start">
+              <li
+                key={index}
+                className="bg-green-50 p-3 rounded-md text-gray-700 flex items-start"
+              >
                 <span className="text-green-600 mr-2">•</span>
                 {action}
               </li>
@@ -149,7 +165,7 @@ export default function ReflectionAnalysis({ reflectionId }: ReflectionAnalysisP
           </ul>
         </div>
       </div>
-      
+
       <div className="mt-6 pt-4 border-t text-right">
         <button
           onClick={analyzeReflection}

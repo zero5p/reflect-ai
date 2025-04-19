@@ -1,11 +1,19 @@
 // app/components/AIScheduleRecommendations.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { format, parseISO } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { Sparkles, Check, X, Calendar, Clock, RefreshCw, Activity } from 'lucide-react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { format, parseISO } from "date-fns";
+import { ko } from "date-fns/locale";
+import {
+  Sparkles,
+  Check,
+  X,
+  Calendar,
+  Clock,
+  RefreshCw,
+  Activity,
+} from "lucide-react";
+import Link from "next/link";
 
 interface Recommendation {
   id: string;
@@ -25,19 +33,23 @@ export default function AIScheduleRecommendations() {
 
   const fetchRecommendations = async () => {
     try {
-      const response = await fetch('/api/recommendations', {
-        method: 'GET',
+      const response = await fetch("/api/recommendations", {
+        method: "GET",
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '추천 목록을 가져오는 중 오류가 발생했습니다.');
+        throw new Error(
+          errorData.error || "추천 목록을 가져오는 중 오류가 발생했습니다.",
+        );
       }
-      
+
       const data = await response.json();
       setRecommendations(data.recommendations || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      setError(
+        err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.",
+      );
     }
   };
 
@@ -45,23 +57,25 @@ export default function AIScheduleRecommendations() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const response = await fetch('/api/recommendations/generate', {
-        method: 'POST',
+
+      const response = await fetch("/api/recommendations/generate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '추천 생성 중 오류가 발생했습니다.');
+        throw new Error(errorData.error || "추천 생성 중 오류가 발생했습니다.");
       }
-      
+
       const data = await response.json();
       setRecommendations(data.recommendations || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      setError(
+        err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -69,49 +83,53 @@ export default function AIScheduleRecommendations() {
 
   const handleAccept = async (id: string) => {
     try {
-      const response = await fetch('/api/recommendations/generate', {
-        method: 'PUT',
+      const response = await fetch("/api/recommendations/generate", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ recommendationId: id, isAccepted: true }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '추천 수락 중 오류가 발생했습니다.');
+        throw new Error(errorData.error || "추천 수락 중 오류가 발생했습니다.");
       }
-      
+
       // 로컬 상태 업데이트
       setRecommendations(
         recommendations.map((rec) =>
-          rec.id === id ? { ...rec, isAccepted: true } : rec
-        )
+          rec.id === id ? { ...rec, isAccepted: true } : rec,
+        ),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      setError(
+        err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.",
+      );
     }
   };
 
   const handleReject = async (id: string) => {
     try {
-      const response = await fetch('/api/recommendations/generate', {
-        method: 'PUT',
+      const response = await fetch("/api/recommendations/generate", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ recommendationId: id, isAccepted: false }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '추천 거절 중 오류가 발생했습니다.');
+        throw new Error(errorData.error || "추천 거절 중 오류가 발생했습니다.");
       }
-      
+
       // 로컬 상태에서 제거
       setRecommendations(recommendations.filter((rec) => rec.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      setError(
+        err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.",
+      );
     }
   };
 
@@ -163,8 +181,10 @@ export default function AIScheduleRecommendations() {
           AI 추천 작동 방식
         </h3>
         <p className="text-blue-700 mt-2">
-          리플렉트 AI는 귀하의 과거 성찰 기록과 일정 패턴을 분석하여 최적화된 일정을 추천합니다. 
-          긍정적인 감정과 연관된 활동을 찾아 적절한 시간에 배치하고, 간격 반복 학습 원리를 적용하여 중요한 활동을 주기적으로 상기시켜 드립니다.
+          리플렉트 AI는 귀하의 과거 성찰 기록과 일정 패턴을 분석하여 최적화된
+          일정을 추천합니다. 긍정적인 감정과 연관된 활동을 찾아 적절한 시간에
+          배치하고, 간격 반복 학습 원리를 적용하여 중요한 활동을 주기적으로
+          상기시켜 드립니다.
         </p>
       </div>
 
@@ -179,19 +199,25 @@ export default function AIScheduleRecommendations() {
               key={recommendation.id}
               className={`bg-white p-4 rounded-lg shadow border-l-4 ${
                 recommendation.isAccepted
-                  ? 'border-green-500'
-                  : 'border-blue-500'
+                  ? "border-green-500"
+                  : "border-blue-500"
               }`}
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-semibold text-lg">{recommendation.title}</h3>
+                  <h3 className="font-semibold text-lg">
+                    {recommendation.title}
+                  </h3>
                   <div className="flex items-center text-gray-500 text-sm mt-1">
                     <Calendar className="h-4 w-4 mr-1" />
                     <span>
-                      {format(parseISO(recommendation.date), 'yyyy년 MM월 dd일 (EEEE)', {
-                        locale: ko,
-                      })}
+                      {format(
+                        parseISO(recommendation.date),
+                        "yyyy년 MM월 dd일 (EEEE)",
+                        {
+                          locale: ko,
+                        },
+                      )}
                     </span>
                     <Clock className="h-4 w-4 ml-3 mr-1" />
                     <span>
@@ -223,22 +249,24 @@ export default function AIScheduleRecommendations() {
                     </button>
                   </div>
                 )}
-                
+
                 {recommendation.isAccepted && (
                   <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                     <Check className="h-3 w-3 mr-1" /> 수락됨
                   </span>
                 )}
               </div>
-              
+
               <div className="mt-3 bg-gray-50 p-3 rounded text-sm text-gray-700">
-                <p><strong>추천 이유:</strong> {recommendation.reasoning}</p>
+                <p>
+                  <strong>추천 이유:</strong> {recommendation.reasoning}
+                </p>
               </div>
-              
+
               {recommendation.isAccepted && (
                 <div className="mt-3 text-right">
-                  <Link 
-                    href="/calendar" 
+                  <Link
+                    href="/calendar"
                     className="text-blue-500 hover:text-blue-700 text-sm font-medium"
                   >
                     캘린더에서 보기

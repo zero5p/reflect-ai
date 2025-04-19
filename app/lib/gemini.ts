@@ -2,14 +2,16 @@
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 
 // API 키는 환경 변수에서 가져옵니다
-const apiKey = process.env.GEMINI_API_KEY || '';
+const apiKey = process.env.GEMINI_API_KEY || "";
 
 // API 키가 없을 때 모의 응답을 반환할지 여부
-const useMockResponses = !apiKey || process.env.NODE_ENV === 'development';
+const useMockResponses = !apiKey || process.env.NODE_ENV === "development";
 
 // API 키가 없으면 경고 표시
 if (!apiKey) {
-  console.warn('GEMINI_API_KEY가 설정되지 않았습니다. 모의 데이터를 사용합니다.');
+  console.warn(
+    "GEMINI_API_KEY가 설정되지 않았습니다. 모의 데이터를 사용합니다.",
+  );
 }
 
 // Gemini API 초기화 (사용 가능한 경우)
@@ -17,10 +19,10 @@ let genAI: GoogleGenerativeAI | null = null;
 try {
   if (apiKey) {
     genAI = new GoogleGenerativeAI(apiKey);
-    console.log('Gemini API가 초기화되었습니다.');
+    console.log("Gemini API가 초기화되었습니다.");
   }
 } catch (error) {
-  console.error('Gemini API 초기화 오류:', error);
+  console.error("Gemini API 초기화 오류:", error);
   genAI = null;
 }
 
@@ -31,7 +33,7 @@ export const getGeminiModel = (): GenerativeModel | null => {
     // 모델명을 "gemini-2.0-flash"로 명시적으로 지정 (curl 예시와 동일)
     return genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   } catch (error) {
-    console.error('Gemini 모델 생성 오류:', error);
+    console.error("Gemini 모델 생성 오류:", error);
     return null;
   }
 };
@@ -42,7 +44,10 @@ export const getGeminiModel = (): GenerativeModel | null => {
  * @param emotion 감정 상태
  * @returns 분석 결과 객체
  */
-export async function analyzeReflection(reflectionContent: string, emotion: string) {
+export async function analyzeReflection(
+  reflectionContent: string,
+  emotion: string,
+) {
   if (useMockResponses || !genAI) {
     return {};
   }
@@ -74,15 +79,15 @@ export async function analyzeReflection(reflectionContent: string, emotion: stri
     });
     const response = await result.response;
     const textResult = await response.text();
-    
+
     // JSON 형식 추출 (텍스트 응답에서 JSON 부분만 파싱)
-    const jsonStart = textResult.indexOf('{');
-    const jsonEnd = textResult.lastIndexOf('}') + 1;
+    const jsonStart = textResult.indexOf("{");
+    const jsonEnd = textResult.lastIndexOf("}") + 1;
     const jsonStr = textResult.substring(jsonStart, jsonEnd);
-    
+
     return JSON.parse(jsonStr);
   } catch (error) {
-    console.error('성찰 분석 중 오류 발생:', error);
+    console.error("성찰 분석 중 오류 발생:", error);
     return {};
   }
 }
@@ -93,7 +98,10 @@ export async function analyzeReflection(reflectionContent: string, emotion: stri
  * @param existingEvents 기존 일정 데이터 배열
  * @returns 추천 일정 객체 배열
  */
-export async function generateScheduleRecommendations(reflections: unknown[], existingEvents: unknown[]) {
+export async function generateScheduleRecommendations(
+  reflections: unknown[],
+  existingEvents: unknown[],
+) {
   if (useMockResponses || !genAI) {
     return [];
   }
@@ -134,12 +142,12 @@ export async function generateScheduleRecommendations(reflections: unknown[], ex
     const textResult = await response.text();
 
     // JSON 배열만 추출
-    const jsonStart = textResult.indexOf('[');
-    const jsonEnd = textResult.lastIndexOf(']') + 1;
+    const jsonStart = textResult.indexOf("[");
+    const jsonEnd = textResult.lastIndexOf("]") + 1;
     const jsonStr = textResult.substring(jsonStart, jsonEnd);
     return JSON.parse(jsonStr);
   } catch (error) {
-    console.error('일정 추천 생성 중 오류 발생:', error);
+    console.error("일정 추천 생성 중 오류 발생:", error);
     return [];
   }
 }
@@ -150,7 +158,10 @@ export async function generateScheduleRecommendations(reflections: unknown[], ex
  * @param reflectionDate 성찰 작성일
  * @returns 복습 일정 날짜 배열
  */
-export function generateSpacedRepetitionDates(reflectionId: string, reflectionDate: Date): Date[] {
+export function generateSpacedRepetitionDates(
+  reflectionId: string,
+  reflectionDate: Date,
+): Date[] {
   const dates: Date[] = [];
   const intervals = [1, 3, 7, 14, 30]; // days later
   for (const interval of intervals) {

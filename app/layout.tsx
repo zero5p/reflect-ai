@@ -38,9 +38,7 @@ export default function RootLayout({
           <header className="bg-white p-4 border-b">
             <h1 className="text-xl font-bold">리플렉트 AI</h1>
           </header>
-          <main className="p-4">
-            {children}
-          </main>
+          <main className="p-4">{children}</main>
           <Navigation />
         </div>
       </body>
