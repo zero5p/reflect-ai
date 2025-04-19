@@ -9,84 +9,144 @@ import {
   Star,
   Clock,
 } from "lucide-react";
+import { mockReflections } from "./data/mockReflections";
+import Image from "next/image";
+import windowSvg from "../public/window.svg";
+
+// 랜덤 멘트 리스트 (더 세련되고 위트 있게)
+const MOTIVATION_QUOTES = [
+  "오늘은 어떤 생각이 머물렀나요?",
+  "나만의 리듬을 찾아가는 중이에요.",
+  "작은 기록이 큰 변화를 만듭니다.",
+  "마음의 온도를 체크해보세요.",
+  "어제보다 한 걸음 더 가까이.",
+  "지금 이 순간, 나를 위한 시간.",
+  "오늘의 나, 충분히 괜찮아요.",
+  "생각을 기록하면 마음이 가벼워져요.",
+  "나를 이해하는 첫걸음, 성찰.",
+  "AI가 함께, 나만의 일상 코치." 
+];
 
 export default function Home() {
+  // 최근 성찰 1개, 오늘의 추천 일정 mock
+  const latestReflection = mockReflections[0];
+  const todaySchedule = {
+    title: "집중력 최적화 일정",
+    summary: "오전 집중 작업, 오후 협업 및 가벼운 작업",
+  };
+  // 랜덤 멘트
+  const quote = MOTIVATION_QUOTES[Math.floor(Math.random() * MOTIVATION_QUOTES.length)];
+
   return (
-    <div className="space-y-4">
-      {/* 히어로 섹션 */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-5 text-white shadow-md">
-        <h1 className="text-xl font-bold mb-2">
-          안녕하세요, 성찰의 시간입니다
-        </h1>
-        <p className="text-indigo-100 mb-3">
-          자신을 돌아보고 더 나은 일상을 디자인하세요
-        </p>
+    <div className="space-y-6">
+      {/* 히어로 섹션 + 그래픽 */}
+      <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-7 text-white shadow-md overflow-hidden">
+        {/* 감성적인 일러스트(예시: 창문) */}
+        <div className="absolute left-6 bottom-2 opacity-60 pointer-events-none select-none hidden md:block">
+          <Image src={windowSvg} alt="감성 창문 일러스트" width={110} height={110} className="drop-shadow-lg" />
+        </div>
+        <div className="absolute right-6 top-4 opacity-30 pointer-events-none select-none">
+          <Star className="w-32 h-32 text-yellow-200 animate-spin-slow" />
+        </div>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2 drop-shadow">{quote}</h1>
+        <p className="text-indigo-100 mb-4 md:text-lg">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
         <Link
           href="/reflection/new"
-          className="inline-flex items-center px-4 py-2 bg-white text-indigo-600 rounded-lg font-medium shadow-sm hover:bg-indigo-50 transition-colors"
+          className="inline-flex items-center px-5 py-3 bg-white text-indigo-600 rounded-lg font-semibold shadow-lg hover:bg-indigo-50 transition-colors text-lg"
         >
-          <Zap className="h-4 w-4 mr-2" />
-          성찰 시작하기
+          <Zap className="h-5 w-5 mr-2" /> 성찰 시작하기
         </Link>
+        {/* 서비스 안내 */}
+        <div className="mt-5 p-4 bg-white/80 rounded-xl shadow border border-gray-100 text-gray-700 backdrop-blur-sm">
+          <h2 className="text-lg font-semibold mb-2">reflect-ai란?</h2>
+          <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">
+            <li>AI 기반 감정/일정 기록</li>
+            <li>맞춤 일정 추천 & 인사이트</li>
+            <li>나만의 성장 데이터</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* 요약 카드 섹션 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 최근 성찰 요약 */}
+        <div className="bg-white rounded-xl shadow border border-gray-100 flex items-center p-4 gap-4 hover:shadow-lg transition-all">
+          <div className="text-3xl">{latestReflection ? (latestReflection.emotion === "기쁨" ? "😄" : latestReflection.emotion === "슬픔" ? "😢" : latestReflection.emotion === "화남" ? "😠" : latestReflection.emotion === "평온" ? "😌" : latestReflection.emotion === "불안" ? "😰" : latestReflection.emotion === "지루함" ? "😑" : "😐") : ""}</div>
+          <div className="flex-1">
+            <div className="text-gray-700 text-sm mb-1 font-semibold">최근 성찰</div>
+            <div className="text-gray-900 font-medium line-clamp-1">{latestReflection ? latestReflection.content : "작성된 성찰이 없습니다."}</div>
+            <div className="text-xs text-gray-400">{latestReflection ? new Date(latestReflection.createdAt).toLocaleDateString("ko-KR") : ""}</div>
+          </div>
+          <Link href="/reflection" className="text-indigo-600 hover:underline text-sm font-medium">더 보기</Link>
+        </div>
+        {/* 오늘의 추천 일정 요약 */}
+        <div className="bg-white rounded-xl shadow border border-gray-100 flex items-center p-4 gap-4 hover:shadow-lg transition-all">
+          <CalendarDays className="w-8 h-8 text-indigo-400" />
+          <div className="flex-1">
+            <div className="text-gray-700 text-sm mb-1 font-semibold">오늘의 추천 일정</div>
+            <div className="text-gray-900 font-medium line-clamp-1">{todaySchedule.summary}</div>
+            <div className="text-xs text-gray-400">{todaySchedule.title}</div>
+          </div>
+          <Link href="/schedule" className="text-indigo-600 hover:underline text-sm font-medium">일정 보기</Link>
+        </div>
       </div>
 
       {/* 주요 기능 카드 */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow">
-          <div className="rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mb-3">
-            <BookText className="h-5 w-5 text-blue-600" />
+        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-blue-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <BookText className="h-6 w-6 text-blue-600" />
           </div>
           <h2 className="text-lg font-semibold mb-2">오늘의 성찰</h2>
-          <p className="text-gray-600 mb-3">
-            당신의 하루는 어땠나요? 감정과 생각을 기록해보세요.
-          </p>
+          <p className="text-gray-600 mb-3">당신의 하루는 어땠나요? 감정과 생각을 기록해보세요.</p>
           <Link
             href="/reflection/new"
             className="text-blue-600 font-medium hover:text-blue-800 flex items-center"
           >
             성찰 기록하기
-            <svg
-              className="w-4 h-4 ml-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
         </div>
-
-        <div className="bg-white p-4 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow">
-          <div className="rounded-full bg-green-100 w-10 h-10 flex items-center justify-center mb-3">
-            <LineChart className="h-5 w-5 text-green-600" />
+        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-green-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <LineChart className="h-6 w-6 text-green-600" />
           </div>
           <h2 className="text-lg font-semibold mb-2">AI 일정 추천</h2>
-          <p className="text-gray-600 mb-3">
-            과거 경험을 바탕으로 최적화된 일정을 추천받아보세요.
-          </p>
+          <p className="text-gray-600 mb-3">과거 경험을 바탕으로 최적화된 일정을 추천받아보세요.</p>
           <Link
             href="/schedule"
             className="text-green-600 font-medium hover:text-green-800 flex items-center"
           >
             일정 추천받기
-            <svg
-              className="w-4 h-4 ml-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+        </div>
+        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-purple-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <BarChart2 className="h-6 w-6 text-purple-600" />
+          </div>
+          <h2 className="text-lg font-semibold mb-2">나의 인사이트</h2>
+          <p className="text-gray-600 mb-3">성찰과 일정 데이터를 기반으로 AI 인사이트를 확인하세요.</p>
+          <Link
+            href="/schedule"
+            className="text-purple-600 font-medium hover:text-purple-800 flex items-center"
+          >
+            인사이트 보기
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+          </Link>
+        </div>
+        <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-xl transition-transform hover:-translate-y-1 duration-200 group">
+          <div className="rounded-full bg-yellow-100 w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <Clock className="h-6 w-6 text-yellow-600" />
+          </div>
+          <h2 className="text-lg font-semibold mb-2">캘린더</h2>
+          <p className="text-gray-600 mb-3">월별로 감정/일정/성찰을 한눈에 확인할 수 있어요.</p>
+          <Link
+            href="/calendar"
+            className="text-yellow-600 font-medium hover:text-yellow-800 flex items-center"
+          >
+            캘린더 보기
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
           </Link>
         </div>
       </div>

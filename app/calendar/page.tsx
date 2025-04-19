@@ -12,6 +12,10 @@ import {
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  // [추가] 모달 상태 및 선택 날짜 상태
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // 달력에 표시될 날짜를 계산하는 함수
   const getDaysInMonth = (date: Date) => {
@@ -66,6 +70,19 @@ export default function CalendarPage() {
     return emotions[type];
   };
 
+  // 날짜 클릭 핸들러
+  type DayObj = {
+    day: number | null;
+    isCurrentMonth: boolean;
+    hasEvent?: boolean;
+    emotionType?: number | null;
+  };
+  const handleDayClick = (dayObj: DayObj) => {
+    if (!dayObj.isCurrentMonth || !dayObj.day) return;
+    setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayObj.day));
+    setShowDetailModal(true);
+  };
+
   return (
     <div>
       <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6">
@@ -101,7 +118,7 @@ export default function CalendarPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center">
+        <div className="grid grid-cols-7 gap-2 mt-4">
           {["일", "월", "화", "수", "목", "금", "토"].map((day, idx) => (
             <div
               key={day}
@@ -114,41 +131,18 @@ export default function CalendarPage() {
             </div>
           ))}
 
-          {days.map((day, index) => (
-            <div
-              key={index}
-              className={`p-1 min-h-[80px] rounded-lg border 
-                ${
-                  day.isCurrentMonth
-                    ? "bg-white hover:bg-gray-50"
-                    : "bg-gray-50 text-gray-400"
-                }
-                ${index % 7 === 0 ? "text-red-500" : ""}  
-                ${index % 7 === 6 ? "text-blue-500" : ""}
-              `}
+          {days.map((dayObj, idx) => (
+            <button
+              key={idx}
+              className={`aspect-square rounded-lg flex flex-col items-center justify-center border ${dayObj.isCurrentMonth ? 'bg-white text-gray-900 hover:bg-indigo-50' : 'bg-gray-50 text-gray-300'} ${selectedDate && dayObj.day === selectedDate.getDate() && dayObj.isCurrentMonth ? 'ring-2 ring-indigo-400' : ''}`}
+              onClick={() => handleDayClick(dayObj)}
+              disabled={!dayObj.isCurrentMonth || !dayObj.day}
             >
-              {day.day && (
-                <>
-                  <div className="flex justify-between items-center p-1">
-                    <span
-                      className={`text-sm font-medium ${day.hasEvent ? "font-bold" : ""}`}
-                    >
-                      {day.day}
-                    </span>
-                    {day.hasEvent && (
-                      <span className="text-lg" title="오늘의 감정">
-                        {getEmotionEmoji(day.emotionType as number)}
-                      </span>
-                    )}
-                  </div>
-                  {day.hasEvent && (
-                    <div className="mt-1 p-1 text-xs bg-blue-50 rounded text-blue-800 text-left">
-                      성찰 기록 있음
-                    </div>
-                  )}
-                </>
+              <span className="font-medium">{dayObj.day}</span>
+              {dayObj.hasEvent && dayObj.emotionType !== null && (
+                <span className="text-xl mt-1">{getEmotionEmoji(dayObj.emotionType)}</span>
               )}
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -188,6 +182,42 @@ export default function CalendarPage() {
           </div>
         </div>
       </div>
+
+      {/* [UI/UX 개선] 플로팅 액션 버튼 */}
+      <button
+        className="fixed bottom-8 right-8 bg-indigo-600 text-white rounded-full w-14 h-14 shadow-lg flex items-center justify-center text-3xl hover:bg-indigo-700 transition-colors z-50"
+        title="일정/성찰 추가"
+        onClick={() => setShowAddModal(true)}
+      >
+        +
+      </button>
+
+      {/* 일정/성찰 추가 모달 */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-2">일정/성찰 추가</h3>
+            <p className="mb-4 text-gray-700 text-sm">(실제 입력 폼은 추후 구현)</p>
+            <div className="flex justify-end">
+              <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 mr-2" onClick={() => setShowAddModal(false)}>취소</button>
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" onClick={() => setShowAddModal(false)}>확인</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 날짜 상세 모달 */}
+      {showDetailModal && selectedDate && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-2">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일</h3>
+            <p className="mb-2 text-gray-700">해당 날짜의 성찰/일정/이벤트 상세 내용 (실제 연동은 추후 구현)</p>
+            <div className="flex justify-end">
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" onClick={() => setShowDetailModal(false)}>닫기</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

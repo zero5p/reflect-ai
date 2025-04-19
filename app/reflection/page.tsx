@@ -1,5 +1,6 @@
 // app/reflection/page.tsx
 import Link from "next/link";
+import { useState } from "react";
 import { mockReflections } from "../data/mockReflections";
 
 export default function ReflectionPage() {
@@ -31,10 +32,31 @@ export default function ReflectionPage() {
     });
   };
 
+  // [추가] 필터/검색 상태
+  interface ReflectionItem {
+    id: string;
+    content: string;
+    emotion: string;
+    createdAt: string;
+  }
+  const [search, setSearch] = useState("");
+  const [emotionFilter, setEmotionFilter] = useState("전체 감정");
+  const [detailModal, setDetailModal] = useState<{open: boolean, reflection: ReflectionItem}|null>(null);
+
+  // 필터/검색 적용
+  const filteredReflections = sortedReflections.filter((r) => {
+    const matchesSearch = search === "" || r.content.includes(search);
+    const matchesEmotion = emotionFilter === "전체 감정" || r.emotion === emotionFilter;
+    return matchesSearch && matchesEmotion;
+  });
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">성찰 기록</h1>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
+        <div>
+          <h1 className="text-2xl font-bold text-indigo-700 mb-1">나의 성찰 기록</h1>
+          <p className="text-gray-600 text-sm">감정과 생각을 기록하고, 나만의 인사이트를 발견하세요.</p>
+        </div>
         <Link
           href="/reflection/new"
           className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
@@ -42,38 +64,63 @@ export default function ReflectionPage() {
           새 성찰 작성
         </Link>
       </div>
-
-      <div className="space-y-4">
-        {sortedReflections.length > 0 ? (
-          sortedReflections.map((reflection) => (
-            <div key={reflection.id} className="bg-white p-4 rounded-lg shadow">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center">
-                  <span className="text-xl mr-2">
-                    {getEmotionEmoji(reflection.emotion)}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {formatDate(reflection.createdAt)}
-                  </span>
-                </div>
+      {/* 필터/검색 바 */}
+      <div className="flex gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="검색어 입력"
+          className="px-3 py-2 border rounded w-full md:w-1/3 text-sm"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <select
+          className="px-3 py-2 border rounded text-sm"
+          value={emotionFilter}
+          onChange={e => setEmotionFilter(e.target.value)}
+        >
+          <option>전체 감정</option>
+          <option>기쁨</option>
+          <option>슬픔</option>
+          <option>화남</option>
+          <option>평온</option>
+          <option>불안</option>
+          <option>지루함</option>
+        </select>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredReflections.length > 0 ? (
+          filteredReflections.map((reflection) => (
+            <button
+              key={reflection.id}
+              className="bg-white p-5 rounded-xl shadow border border-gray-100 flex flex-col text-left hover:ring-2 hover:ring-indigo-300 transition-all"
+              onClick={() => setDetailModal({open: true, reflection})}
+            >
+              <div className="flex items-center mb-2">
+                <span className="text-2xl mr-2">{getEmotionEmoji(reflection.emotion)}</span>
+                <span className="text-xs text-gray-400">{formatDate(reflection.createdAt)}</span>
               </div>
-              <p className="text-gray-800">{reflection.content}</p>
-              <div className="mt-2 flex justify-end">
-                <Link
-                  href={`/reflection/${reflection.id}`}
-                  className="text-sm text-indigo-600 hover:text-indigo-800"
-                >
-                  자세히 보기
-                </Link>
+              <p className="text-gray-800 text-sm mb-2 line-clamp-3">{reflection.content}</p>
+              <div className="mt-auto flex justify-end">
+                <span className="text-sm text-indigo-600 font-medium">자세히 보기</span>
               </div>
-            </div>
+            </button>
           ))
         ) : (
-          <div className="text-center py-8 bg-white rounded-lg shadow">
-            <p className="text-gray-500">아직 기록된 성찰이 없습니다.</p>
-          </div>
+          <div className="text-gray-500">아직 작성된 성찰이 없습니다.</div>
         )}
       </div>
+      {/* 상세 모달 */}
+      {detailModal && detailModal.open && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-2">{formatDate(detailModal.reflection.createdAt)} {getEmotionEmoji(detailModal.reflection.emotion)}</h3>
+            <p className="mb-4 text-gray-700 whitespace-pre-line">{detailModal.reflection.content}</p>
+            <div className="flex justify-end">
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" onClick={() => setDetailModal(null)}>닫기</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

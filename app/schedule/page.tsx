@@ -8,6 +8,7 @@ import {
 } from "@/app/components/ui/tabs";
 import { Sparkles, Calendar, List, Activity, BookText } from "lucide-react";
 import AIScheduleRecommendations from "@/app/components/AIScheduleRecommendations";
+import { useState } from "react";
 
 export default function SchedulePage() {
   // 샘플 템플릿 데이터
@@ -83,6 +84,13 @@ export default function SchedulePage() {
     },
   ];
 
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const handleAddSchedule = (title: string) => {
+    setToastMsg(`'${title}' 일정이 내 일정에 추가되었습니다!`);
+    setTimeout(() => setToastMsg(null), 2000);
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold mb-4">일정 최적화</h1>
@@ -104,88 +112,54 @@ export default function SchedulePage() {
         </TabsList>
 
         <TabsContent value="recommendations">
+          <div className="mb-6 p-4 bg-white rounded-xl shadow border border-gray-100">
+            <h1 className="text-2xl font-bold mb-2 text-indigo-700">AI가 추천하는 오늘의 일정</h1>
+            <p className="text-gray-600 text-sm">AI가 당신의 성찰 데이터를 분석해 맞춤 일정을 추천합니다. 원하는 템플릿을 바로 내 일정에 추가해보세요!</p>
+          </div>
           <AIScheduleRecommendations />
         </TabsContent>
 
         <TabsContent value="templates">
-          <div className="space-y-6">
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">일정 템플릿</h2>
-              <p className="text-gray-600 mb-4">
-                자주 사용하는 일정 패턴을 템플릿으로 저장하고 필요할 때 적용할
-                수 있습니다. 다음은 AI가 추천하는 기본 템플릿입니다.
-              </p>
-
-              <div className="space-y-4 mt-6">
-                {scheduleTemplates.map((template) => (
-                  <div key={template.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-semibold text-lg">
-                        {template.title}
-                      </h3>
-                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        적용하기
-                      </button>
-                    </div>
-                    <p className="text-gray-600 text-sm mb-3">
-                      {template.description}
-                    </p>
-                    <div className="space-y-2">
-                      {template.items.map((item, index) => (
-                        <div key={index} className="flex text-sm">
-                          <span className="w-28 text-gray-500 flex-shrink-0">
-                            {item.time}
-                          </span>
-                          <span className="text-gray-700">
-                            {item.description}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {scheduleTemplates.map((template) => (
+              <div key={template.id} className="bg-white p-6 rounded-xl shadow border border-gray-100 flex flex-col">
+                <h2 className="text-lg font-semibold mb-2 text-indigo-600">{template.title}</h2>
+                <p className="text-gray-700 mb-3">{template.description}</p>
+                <ul className="mb-4 space-y-1 text-sm text-gray-600">
+                  {template.items.map((item, idx) => (
+                    <li key={idx}>• <span className="font-medium">{item.time}</span> {item.description}</li>
+                  ))}
+                </ul>
+                <button className="mt-auto px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors" onClick={() => handleAddSchedule(template.title)}>내 일정에 추가</button>
               </div>
-            </div>
+            ))}
           </div>
         </TabsContent>
 
         <TabsContent value="insights">
-          <div className="space-y-6">
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">성찰 기반 인사이트</h2>
-              <p className="text-gray-600 mb-4">
-                AI가 분석한 과거 성찰 데이터를 기반으로 생성된 인사이트입니다.
-                이를 참고하여 일정을 최적화할 수 있습니다.
-              </p>
-
-              <div className="grid gap-4 mt-6">
-                {insights.map((insight) => (
-                  <div key={insight.id} className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-start">
-                      <div className="bg-white p-2 rounded-lg shadow-sm mr-3">
-                        {insight.icon}
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {insight.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm mt-1">
-                          {insight.description}
-                        </p>
-                        <div className="mt-2">
-                          <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                            {insight.category}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+          <div className="mb-8">
+            <h3 className="text-xl font-bold mb-4 text-indigo-700">AI 인사이트</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {insights.map((insight) => (
+                <div key={insight.id} className="bg-white rounded-xl shadow border border-gray-100 p-5 flex items-start">
+                  <div className="mr-4">{insight.icon}</div>
+                  <div>
+                    <div className="font-semibold text-indigo-600 mb-1">{insight.title}</div>
+                    <div className="text-gray-700 text-sm mb-1">{insight.description}</div>
+                    <span className="text-xs text-gray-400">카테고리: {insight.category}</span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </TabsContent>
       </Tabs>
+
+      {toastMsg && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-fadeIn">
+          {toastMsg}
+        </div>
+      )}
     </div>
   );
 }
