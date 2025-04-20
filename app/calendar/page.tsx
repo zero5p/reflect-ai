@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
+import FloatingActionButton from "../components/ui/FloatingActionButton"; // 추가
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -10,6 +11,8 @@ import {
   PlusCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { mockReflections } from "../data/mockReflections";
+import { mockEvents } from "../data/mockEvents";
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -132,12 +135,31 @@ export default function CalendarPage() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
             <h3 className="text-lg font-bold mb-2">
-              {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월{" "}
-              {selectedDate.getDate()}일
+              {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일
             </h3>
-            <p className="mb-2 text-gray-700">
-              해당 날짜의 성찰/일정/이벤트 상세 내용 (실제 연동은 추후 구현)
-            </p>
+            {/* 날짜별 mock 일정/성찰 표시 */}
+            <div className="mb-4">
+              <div className="font-semibold text-indigo-700 mb-1">일정</div>
+              {mockEvents.filter(e => e.date === selectedDate.toISOString().slice(0,10)).length === 0 ? (
+                <div className="text-gray-400 text-sm mb-2">등록된 일정이 없습니다.</div>
+              ) : (
+                <ul className="mb-2 text-sm">
+                  {mockEvents.filter(e => e.date === selectedDate.toISOString().slice(0,10)).map(e => (
+                    <li key={e.id} className="mb-1">• <span className="font-semibold">{e.title}</span> <span className="text-gray-500">{e.description}</span></li>
+                  ))}
+                </ul>
+              )}
+              <div className="font-semibold text-indigo-700 mt-4 mb-1">성찰</div>
+              {mockReflections.filter(r => r.createdAt.slice(0,10) === selectedDate.toISOString().slice(0,10)).length === 0 ? (
+                <div className="text-gray-400 text-sm">등록된 성찰이 없습니다.</div>
+              ) : (
+                <ul className="mb-2 text-sm">
+                  {mockReflections.filter(r => r.createdAt.slice(0,10) === selectedDate.toISOString().slice(0,10)).map(r => (
+                    <li key={r.id} className="mb-1">• <span className="font-semibold">{r.emotion}</span>: {r.content}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <div className="flex justify-end">
               <Button color="indigo" size="md" onClick={() => setShowDetailModal(false)}>
                 닫기
@@ -166,15 +188,10 @@ export default function CalendarPage() {
       )}
 
       {/* [UI/UX 개선] 플로팅 액션 버튼 */}
-      <Button
-        color="indigo"
-        size="lg"
-        className="fixed bottom-8 right-8 shadow-lg z-50"
-        title="일정/성찰 추가"
+      <FloatingActionButton
         onClick={() => setShowAddModal(true)}
-      >
-        +
-      </Button>
+        label="일정/성찰 추가"
+      />
     </div>
   );
 }

@@ -11,8 +11,9 @@ import AIScheduleRecommendations from "@/app/components/AIScheduleRecommendation
 import { useState } from "react";
 import Button from "@/app/components/ui/Button";
 import Card from "@/app/components/ui/Card";
-import { CalendarDays, PlusCircle } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import Link from "next/link";
+import FloatingActionButton from "../components/ui/FloatingActionButton";
 
 export default function SchedulePage() {
   // 샘플 템플릿 데이터
@@ -104,11 +105,6 @@ export default function SchedulePage() {
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 drop-shadow">일정 최적화</h1>
           <p className="text-white/90 mb-2 md:text-lg">계획을 세우고, 하루를 더 가볍게!</p>
         </div>
-        <Button color="lavender" size="md" asChild>
-          <Link href="/schedule/new" className="inline-flex items-center">
-            <PlusCircle className="w-5 h-5 mr-1" /> 새 일정 추가
-          </Link>
-        </Button>
       </Card>
 
       <Tabs defaultValue="recommendations">
@@ -204,6 +200,11 @@ export default function SchedulePage() {
           {toastMsg}
         </div>
       )}
+      {/* [UI/UX 개선] 플로팅 액션 버튼 */}
+      <FloatingActionButton
+        href="/schedule/new"
+        label="새 일정 추가"
+      />
     </div>
   );
 }

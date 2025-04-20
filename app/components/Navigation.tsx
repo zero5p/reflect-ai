@@ -28,12 +28,12 @@ export default function Navigation() {
             asChild
             color={pathname === item.href ? "mint" : "gray"}
             size="sm"
-            className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition-all ${pathname === item.href ? 'shadow-md scale-110' : ''}`}
+            className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-full transition-all duration-200 ${pathname === item.href ? 'shadow-lg scale-110 ring-2 ring-mint-300 bg-mint-50' : ''}`}
             aria-label={item.label}
           >
             <Link href={item.href} className="flex flex-col items-center">
-              <span className={`text-lg md:text-xl ${pathname === item.href ? 'text-mint-600' : 'text-gray-400'}`}>{item.icon}</span>
-              <span className={`text-xs font-medium ${pathname === item.href ? 'text-mint-700' : 'text-gray-400'}`}>{item.label}</span>
+              <span className={`text-xl md:text-2xl ${pathname === item.href ? 'text-mint-600' : 'text-gray-400'}`}>{item.icon}</span>
+              <span className={`text-[10px] font-semibold tracking-tight ${pathname === item.href ? 'text-mint-700' : 'text-gray-400'}`}>{item.label}</span>
             </Link>
           </Button>
         ))}
