@@ -20,8 +20,8 @@ const navItems: NavItem[] = [
 export default function Navigation() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-40 bg-white/90 border-t border-gray-100 backdrop-blur-md shadow-lg">
-      <div className="max-w-xl mx-auto flex flex-row justify-between items-center px-2 py-2 md:px-6 md:py-3">
+    <nav className="fixed bottom-0 left-0 w-full z-50 bg-white/95 border-t border-gray-100 backdrop-blur-md shadow-2xl" style={{minHeight:'64px'}}>
+      <div className="max-w-xl mx-auto flex flex-row justify-between items-center px-2 py-2 md:px-6 md:py-3 gap-2">
         {navItems.map((item) => (
           <Button
             key={item.href}

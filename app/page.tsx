@@ -14,6 +14,7 @@ import Image from "next/image";
 import windowSvg from "../public/window.svg";
 import Button from "./components/ui/Button";
 import Card from "./components/ui/Card";
+import LoginButton from "./components/LoginButton";
 
 // 랜덤 멘트 리스트 (더 세련되고 위트 있게)
 const MOTIVATION_QUOTES = [
@@ -42,20 +43,27 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-8 max-w-xl mx-auto px-4 pb-28">
       {/* 히어로 섹션 */}
-      <Card color="mint" rounded shadow className="relative overflow-hidden text-white bg-gradient-to-r from-mint-400 to-lavender-400 p-8 flex flex-col gap-2">
-        <div className="absolute left-6 bottom-2 opacity-60 pointer-events-none select-none hidden md:block">
+      <Card color="mint" rounded shadow className="relative overflow-hidden text-white bg-gradient-to-r from-mint-400 to-lavender-400 p-8 flex flex-col gap-2 min-h-[180px] md:min-h-[170px] md:pl-44">
+        <div className="absolute left-6 bottom-2 opacity-60 pointer-events-none select-none hidden md:block z-0">
           <Image src={windowSvg} alt="감성 창문 일러스트" width={110} height={110} className="drop-shadow-lg" />
         </div>
-        <div className="absolute right-6 top-4 opacity-30 pointer-events-none select-none">
+        <div className="absolute right-6 top-4 opacity-30 pointer-events-none select-none z-0">
           <Star className="w-32 h-32 text-yellow-200 animate-spin-slow" />
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold mb-1 drop-shadow text-white">{quote}</h1>
-        <p className="text-white/90 mb-4 md:text-lg">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
-        <Button color="primary" size="lg" className="mt-2 mb-2 w-full" asChild>
-          <Link href="/reflection/new" className="inline-flex items-center justify-center w-full">
-            <Zap className="h-5 w-5 mr-2" /> 성찰 시작하기
-          </Link>
-        </Button>
+        <div className="relative z-10">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 drop-shadow text-white">{quote}</h1>
+          <p className="text-white/90 mb-4 md:text-lg">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
+          <div className="flex flex-col md:flex-row md:items-center gap-2">
+            <Button color="primary" size="lg" className="mt-2 mb-2 w-full md:w-auto" asChild>
+              <Link href="/reflection/new" className="inline-flex items-center justify-center w-full">
+                <Zap className="h-5 w-5 mr-2" /> 성찰 시작하기
+              </Link>
+            </Button>
+            <div className="md:ml-4 flex justify-end md:justify-start">
+              <LoginButton />
+            </div>
+          </div>
+        </div>
       </Card>
 
       {/* 서비스 안내 */}
