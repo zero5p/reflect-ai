@@ -27,7 +27,7 @@ export default function Card({
         colorMap[color],
         rounded ? "rounded-3xl" : "rounded-lg",
         shadow ? "shadow-md" : "",
-        "p-5 transition-all",
+        "p-5 transition-all relative overflow-hidden",
         className
       )}
       {...props}
