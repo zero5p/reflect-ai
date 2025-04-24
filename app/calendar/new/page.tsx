@@ -1,155 +1,125 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import DatePicker from "react-datepicker";
-import { ko } from "date-fns/locale";
-import "react-datepicker/dist/react-datepicker.css";
-import { ArrowLeft } from "lucide-react";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { ArrowLeftIcon, SaveIcon, CalendarIcon, ClockIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { createCalendarEvent } from "@/app/lib/api"
 
-const categories = ["업무", "학습", "건강", "취미", "가족", "기타"];
-
+/**
+ * 새 일정 추가 페이지
+ * - 필수 항목 검증, 에러/로딩 안내, 실제 API 연동
+ * - 사용자 입력값 실시간 검증 및 UX 강화
+ */
 export default function NewCalendarEventPage() {
-  const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:00");
-  const [category, setCategory] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter()
+  const [title, setTitle] = useState("")
+  const [date, setDate] = useState("")
+  const [startTime, setStartTime] = useState("")
+  const [endTime, setEndTime] = useState("")
+  const [description, setDescription] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // 타입 수정: Date | null을 허용하도록 변경
-  const handleDateChange = (selectedDate: Date | null) => {
-    if (selectedDate) {
-      setDate(selectedDate);
+  // 입력값 검증
+  const validate = () => {
+    if (!title.trim()) return "제목을 입력하세요."
+    if (!date) return "날짜를 선택하세요."
+    if (!startTime) return "시작 시간을 선택하세요."
+    return null
+  }
+
+  // 저장 핸들러
+  const handleSave = async () => {
+    const validationError = validate()
+    if (validationError) {
+      setError(validationError)
+      return
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // 여기에 데이터베이스 저장 로직 추가 예정
-
-    // 임시: 폼 제출 시뮬레이션
-    setTimeout(() => {
-      setIsSubmitting(false);
-      router.push("/calendar");
-    }, 500);
-  };
+    setIsSaving(true)
+    setError(null)
+    try {
+      await createCalendarEvent({
+        title,
+        date,
+        startTime,
+        endTime: endTime || undefined,
+        category: undefined,
+        reflectionId: undefined,
+        isRecommended: false,
+      })
+      setIsSaving(false)
+      router.push("/calendar")
+    } catch {
+      setIsSaving(false)
+      setError("일정 저장에 실패했습니다. 다시 시도해 주세요.")
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center mb-4">
-        <button onClick={() => router.back()} className="mr-2">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <h1 className="text-2xl font-bold">새 일정 추가</h1>
+    <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex flex-col">
+      {/* Header */}
+      <div className="bg-white border-b border-violet-100 p-4 flex items-center justify-between">
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeftIcon className="h-5 w-5 text-emerald-700" />
+        </Button>
+        <h1 className="text-lg font-bold text-emerald-900">새 일정 추가</h1>
+        <Button variant="ghost" size="icon" className="invisible">
+          <ArrowLeftIcon className="h-5 w-5" />
+        </Button>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              일정 제목
-            </label>
-            <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="일정 제목을 입력하세요"
-              required
-            />
-          </div>
+      {/* Content */}
+      <div className="flex-1 p-5 space-y-4">
+        {/* Title */}
+        <Card className="p-4">
+          <h2 className="text-sm font-medium text-emerald-900 mb-2">일정 제목</h2>
+          <Input placeholder="일정 제목을 입력하세요" value={title} onChange={(e) => setTitle(e.target.value)} />
+        </Card>
 
-          <div>
-            <label
-              htmlFor="date"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              날짜
-            </label>
-            <DatePicker
-              selected={date}
-              onChange={handleDateChange}
-              locale={ko}
-              dateFormat="yyyy년 MM월 dd일"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
+        {/* Date and Time */}
+        <Card className="p-4">
+          <h2 className="text-sm font-medium text-emerald-900 mb-3">날짜 및 시간</h2>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-2 mb-3">
+            <CalendarIcon className="h-4 w-4 text-emerald-600" />
+            <h3 className="text-xs font-medium text-emerald-800">날짜</h3>
+          </div>
+          <Input type="date" className="mb-4" value={date} onChange={(e) => setDate(e.target.value)} />
+
+          <div className="flex items-center gap-2 mb-3">
+            <ClockIcon className="h-4 w-4 text-emerald-600" />
+            <h3 className="text-xs font-medium text-emerald-800">시간</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label
-                htmlFor="startTime"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                시작 시간
-              </label>
-              <input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
+              <label className="text-xs text-emerald-700 mb-1 block">시작 시간</label>
+              <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
             </div>
-
             <div>
-              <label
-                htmlFor="endTime"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                종료 시간
-              </label>
-              <input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
+              <label className="text-xs text-emerald-700 mb-1 block">종료 시간 (선택)</label>
+              <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             </div>
           </div>
+        </Card>
 
-          <div>
-            <label
-              htmlFor="category"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              카테고리
-            </label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">카테고리 선택</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Description */}
+        <Card className="p-4">
+          <h2 className="text-sm font-medium text-emerald-900 mb-2">설명 (선택)</h2>
+          <Textarea placeholder="일정에 대한 설명을 입력하세요" value={description} onChange={(e) => setDescription(e.target.value)} />
+        </Card>
+        {error && <div className="text-red-500 text-sm text-center pt-2">{error}</div>}
+      </div>
 
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
-            >
-              {isSubmitting ? "저장 중..." : "일정 저장하기"}
-            </button>
-          </div>
-        </form>
+      {/* Save Button */}
+      <div className="p-5">
+        <Button onClick={handleSave} disabled={isSaving} className="w-full bg-emerald-600 hover:bg-emerald-700">
+          <SaveIcon className="h-4 w-4 mr-2" /> 저장하기
+        </Button>
       </div>
     </div>
-  );
+  )
 }

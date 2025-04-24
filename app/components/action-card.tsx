@@ -1,0 +1,39 @@
+"use client"
+
+import type React from "react"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+
+interface ActionCardProps {
+  title: string
+  description: string
+  icon?: React.ReactNode
+  actionIcon?: React.ReactNode
+  onClick?: () => void
+  className?: string
+}
+
+export function ActionCard({ title, description, icon, actionIcon, onClick, className }: ActionCardProps) {
+  return (
+    <Card
+      className={cn(
+        "flex items-center justify-between p-4 cursor-pointer hover:bg-violet-50/50 dark:hover:bg-violet-900/30 transition-all duration-300",
+        className,
+      )}
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-3">
+        {icon && (
+          <div className="flex-shrink-0 p-2 bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-800/50 dark:to-indigo-800/50 rounded-lg text-violet-600 dark:text-violet-300">
+            {icon}
+          </div>
+        )}
+        <div>
+          <h3 className="font-medium text-foreground">{title}</h3>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </div>
+      </div>
+      {actionIcon && <div className="text-violet-500 dark:text-violet-400">{actionIcon}</div>}
+    </Card>
+  )
+}

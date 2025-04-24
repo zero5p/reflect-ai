@@ -1,142 +1,138 @@
-"use client";
+"use client"
 
-// app/reflection/page.tsx
-import Link from "next/link";
-import { useState } from "react";
-import { mockReflections } from "../data/mockReflections";
-import Button from "../components/ui/Button";
-import Card from "../components/ui/Card";
-import Image from "next/image";
-import { Zap } from "lucide-react";
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PlusIcon, ZapIcon } from "lucide-react"
+import Link from "next/link"
+import { NavBar } from "@/components/nav-bar"
+import { fetchReflections, deleteReflection } from "@/app/lib/api"
+
+interface Reflection {
+  id: string
+  date: string
+  emotion: string
+  content: string
+}
 
 export default function ReflectionPage() {
-  // 가장 최근 항목이 맨 위에 오도록 정렬
-  const sortedReflections = [...mockReflections].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  const [reflections, setReflections] = useState<Reflection[]>([])
+  const [filter, setFilter] = useState("")
+  const [emotionFilter, setEmotionFilter] = useState("전체 감정")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // 감정에 맞는 이모지 가져오기
-  const getEmotionEmoji = (emotion: string) => {
-    const emotionMap: Record<string, string> = {
-      기쁨: "😄",
-      슬픔: "😢",
-      화남: "😠",
-      평온: "😌",
-      불안: "😰",
-      지루함: "😑",
-    };
-    return emotionMap[emotion] || "😐";
-  };
+  // Fetch reflections from API
+  useEffect(() => {
+    setLoading(true)
+    fetchReflections()
+      .then((data) => {
+        setReflections(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setError("성찰 데이터를 불러오지 못했습니다.")
+        setLoading(false)
+      })
+  }, [])
 
-  // 날짜 포맷팅
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // Filter reflections based on search and emotion filter
+  const filteredReflections = reflections.filter((reflection) => {
+    const matchesSearch = reflection.content.includes(filter) || reflection.date.includes(filter)
+    const matchesEmotion = emotionFilter === "전체 감정" || reflection.emotion === emotionFilter
+    return matchesSearch && matchesEmotion
+  })
 
-  // [추가] 필터/검색 상태
-  interface ReflectionItem {
-    id: string;
-    content: string;
-    emotion: string;
-    createdAt: string;
+  // Handle delete
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("정말 삭제하시겠습니까?")) return
+    try {
+      await deleteReflection(id)
+      setReflections((prev) => prev.filter((r) => r.id !== id))
+    } catch {
+      alert("삭제에 실패했습니다.")
+    }
   }
-  const [search, setSearch] = useState("");
-  const [emotionFilter, setEmotionFilter] = useState("전체 감정");
-  const [detailModal, setDetailModal] = useState<{open: boolean, reflection: ReflectionItem}|null>(null);
-
-  // 필터/검색 적용
-  const filteredReflections = sortedReflections.filter((r) => {
-    const matchesSearch = search === "" || r.content.includes(search);
-    const matchesEmotion = emotionFilter === "전체 감정" || r.emotion === emotionFilter;
-    return matchesSearch && matchesEmotion;
-  });
 
   return (
-    <div className="flex flex-col gap-8 max-w-2xl mx-auto px-4 pb-28">
-      {/* 상단 히어로 섹션 */}
-      <Card color="lavender" rounded shadow className="mb-6 p-8 flex flex-col md:flex-row gap-6 items-center relative overflow-hidden">
-        <div className="absolute left-4 bottom-2 opacity-40 pointer-events-none select-none hidden md:block">
-          <Image src="/window.svg" alt="감성 창문 일러스트" width={90} height={90} className="drop-shadow-lg" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2 text-lavender-700 drop-shadow">나의 성찰 기록</h1>
-          <p className="text-lavender-600 mb-3 md:text-lg">감정과 생각을 기록하고, 나만의 인사이트를 발견하세요.</p>
-          <Button color="lavender" size="lg" className="mb-2 w-full md:w-auto" asChild>
-            <Link href="/reflection/new" className="inline-flex items-center justify-center w-full md:w-auto">
-              <Zap className="h-5 w-5 mr-2" /> 새 성찰 작성
-            </Link>
-          </Button>
+    <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex flex-col">
+      {/* Header */}
+      <Card className="mx-5 mt-5 mb-4 bg-violet-100/70 border-violet-200">
+        <div className="p-4">
+          <h1 className="text-lg font-bold text-violet-900">나의 성찰 기록</h1>
+          <p className="text-xs text-violet-700 mb-3">감정과 생각을 기록하고, 나만의 인사이트를 발견하세요.</p>
+          <Link href="/reflection/new">
+            <Button className="flex items-center gap-2">
+              <ZapIcon className="h-4 w-4" />새 성찰 작성
+            </Button>
+          </Link>
         </div>
       </Card>
 
-      {/* 필터/검색 바 */}
-      <Card color="white" rounded shadow className="mb-6 p-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-700">필터/검색</h2>
-        <div className="flex flex-col md:flex-row gap-2 mb-4">
-          <input
-            type="text"
-            placeholder="검색어 입력"
-            className="px-3 py-2 border rounded w-full md:w-1/3 text-sm"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          <select
-            className="px-3 py-2 border rounded text-sm w-full md:w-1/4"
-            value={emotionFilter}
-            onChange={e => setEmotionFilter(e.target.value)}
-          >
-            <option>전체 감정</option>
-            <option>기쁨</option>
-            <option>슬픔</option>
-            <option>화남</option>
-            <option>평온</option>
-            <option>불안</option>
-            <option>지루함</option>
-          </select>
+      {/* Filters */}
+      <Card className="mx-5 mb-4">
+        <div className="p-4">
+          <h2 className="text-sm font-medium text-violet-900 mb-3">필터/검색</h2>
+          <div className="flex gap-2">
+            <Input
+              placeholder="검색어 입력"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="flex-1"
+            />
+            <Select value={emotionFilter} onValueChange={setEmotionFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="전체 감정" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="전체 감정">전체 감정</SelectItem>
+                <SelectItem value="😊">😊 행복</SelectItem>
+                <SelectItem value="😡">😡 화남</SelectItem>
+                <SelectItem value="🤔">🤔 고민</SelectItem>
+                <SelectItem value="😢">😢 슬픔</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </Card>
 
-      {/* 성찰 리스트 */}
-      <div className="flex flex-col gap-4">
-        {filteredReflections.length === 0 ? (
-          <Card color="white" rounded shadow className="p-8 text-center text-gray-400">
-            성찰 기록이 없습니다.
-          </Card>
-        ) : (
+      {/* Reflection List */}
+      <div className="px-5 mb-20 space-y-3">
+        {loading ? (
+          <div className="text-center py-8 text-violet-500">불러오는 중...</div>
+        ) : error ? (
+          <div className="text-center py-8 text-red-500">{error}</div>
+        ) : filteredReflections.length > 0 ? (
           filteredReflections.map((reflection) => (
-            <Card key={reflection.id} color="white" rounded shadow className="flex flex-row items-center gap-4 p-5 hover:shadow-lg transition-all cursor-pointer" onClick={() => setDetailModal({open: true, reflection})}>
-              <div className="text-2xl md:text-3xl">
-                {getEmotionEmoji(reflection.emotion)}
+            <Card key={reflection.id} className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">{reflection.emotion}</div>
+                <div className="flex-1">
+                  <div className="text-xs text-violet-500 mb-1">{reflection.date}</div>
+                  <div className="text-sm text-violet-900">{reflection.content}</div>
+                </div>
+                <Button variant="ghost" size="sm" className="text-violet-500" onClick={() => handleDelete(reflection.id)}>
+                  삭제
+                </Button>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-gray-700 text-xs mb-1 font-semibold">{formatDate(reflection.createdAt)}</div>
-                <div className="text-gray-900 font-medium truncate text-sm">{reflection.content}</div>
-              </div>
-              <Button color="secondary" size="sm" asChild>
-                <Link href={`/reflection/${reflection.id}`}>상세</Link>
-              </Button>
             </Card>
           ))
+        ) : (
+          <div className="text-center py-8 text-violet-500">검색 결과가 없습니다.</div>
         )}
       </div>
 
-      {/* 상세 모달 (간소화) */}
-      {detailModal?.open && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <Card color="white" rounded shadow className="max-w-md w-full p-8 relative">
-            <button onClick={() => setDetailModal(null)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600">✕</button>
-            <div className="text-3xl mb-3">{getEmotionEmoji(detailModal.reflection.emotion)}</div>
-            <div className="text-lg font-bold mb-2">{formatDate(detailModal.reflection.createdAt)}</div>
-            <div className="text-gray-700 mb-4">{detailModal.reflection.content}</div>
-            <Button color="lavender" size="md" onClick={() => setDetailModal(null)} className="w-full">닫기</Button>
-          </Card>
-        </div>
-      )}
+      {/* Floating action button */}
+      <Link href="/reflection/new" className="fixed bottom-20 right-5">
+        <Button size="icon" className="h-12 w-12 rounded-full bg-violet-600 hover:bg-violet-700 shadow-lg">
+          <PlusIcon className="h-6 w-6" />
+        </Button>
+      </Link>
+
+      {/* Bottom Navigation */}
+      <NavBar activeTab="reflection" />
     </div>
-  );
+  )
 }

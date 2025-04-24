@@ -1,29 +1,28 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
-import Navigation from "./components/Navigation";
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "리플렉트 AI - 성찰 기반 일정 앱",
-  description: "과거의 나와 대화하는 AI 성찰 일기장",
-};
+  title: "Reflect AI - 당신의 AI 기반 성찰 및 일정 관리 도우미",
+  description: "AI를 활용한 감정 기록 및 일정 관리 서비스",
+}
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
-    <html lang="ko">
-      <body className="bg-mint-50 min-h-screen font-sans">
-        <main className="flex flex-col min-h-screen">
-          <div className="flex-1 w-full max-w-3xl mx-auto pt-4 pb-28 px-2 md:px-0">
-            {children}
-          </div>
-          <Navigation />
-        </main>
+    <html lang="ko" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider defaultTheme="system" storageKey="reflect-ai-theme">
+          {children}
+        </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
