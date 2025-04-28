@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { signIn } from "next-auth/react"
 
 interface GoogleLoginButtonProps {
   onSuccess?: () => void
@@ -13,13 +14,9 @@ export function GoogleLoginButton({ onSuccess, className }: GoogleLoginButtonPro
 
   const handleLogin = async () => {
     setIsLoading(true)
-    // Simulate authentication process
-    setTimeout(() => {
-      setIsLoading(false)
-      if (onSuccess) onSuccess()
-      // In a real implementation, you would redirect to Google OAuth
-      // and handle the callback
-    }, 1500)
+    await signIn("google")
+    setIsLoading(false)
+    if (onSuccess) onSuccess()
   }
 
   return (
