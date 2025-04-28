@@ -6,7 +6,7 @@ import { neon } from "@neondatabase/serverless";
 const sql = neon(process.env.DATABASE_URL!);
 
 // GET: 현재 로그인된 사용자 프로필 정보 조회
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) {
     return NextResponse.json({ error: "인증된 사용자가 아닙니다." }, { status: 401 });
