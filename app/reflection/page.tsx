@@ -39,7 +39,7 @@ export default function ReflectionPage() {
   }, [])
 
   // Filter reflections based on search and emotion filter
-  const filteredReflections = reflections.filter((reflection) => {
+  const filteredReflections = (reflections ?? []).filter((reflection) => {
     const matchesSearch = reflection.content.includes(filter) || reflection.date.includes(filter)
     const matchesEmotion = emotionFilter === "전체 감정" || reflection.emotion === emotionFilter
     return matchesSearch && matchesEmotion
@@ -50,7 +50,7 @@ export default function ReflectionPage() {
     if (!window.confirm("정말 삭제하시겠습니까?")) return
     try {
       await deleteReflection(id)
-      setReflections((prev) => prev.filter((r) => r.id !== id))
+      setReflections((prev) => (prev ?? []).filter((r) => r.id !== id))
     } catch {
       alert("삭제에 실패했습니다.")
     }

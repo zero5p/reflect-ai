@@ -47,14 +47,14 @@ export default function SchedulePage() {
   // Toggle completion status
   const toggleCompletion = (id: number) => {
     setSchedules(
-      schedules.map((schedule) => (schedule.id === id ? { ...schedule, completed: !schedule.completed } : schedule)),
+      (schedules ?? []).map((schedule) => (schedule.id === id ? { ...schedule, completed: !schedule.completed } : schedule)),
     )
   }
 
   // Handle AI recommendation acceptance
   const handleAcceptRecommendation = (recommendation: string) => {
     // In a real app, this would parse the recommendation and create a proper schedule
-    const newId = Math.max(...schedules.map((s) => s.id)) + 1
+    const newId = Math.max(...((schedules ?? []).map((s) => s.id))) + 1
     const newSchedule = {
       id: newId,
       title: recommendation.split(".")[0], // Just use the first sentence as the title
@@ -63,7 +63,7 @@ export default function SchedulePage() {
       completed: false,
     }
 
-    setSchedules([...schedules, newSchedule])
+    setSchedules([...(schedules ?? []), newSchedule])
     setShowAIRecommendation(false)
   }
 
@@ -109,8 +109,8 @@ export default function SchedulePage() {
       <div className="px-5 mb-20 space-y-3">
         <h2 className="text-sm font-medium text-blue-900 dark:text-blue-100 ml-1">다가오는 일정</h2>
 
-        {schedules.filter((s) => !s.completed).length > 0 ? (
-          schedules
+        {(schedules ?? []).filter((s) => !s.completed).length > 0 ? (
+          (schedules ?? [])
             .filter((schedule) => !schedule.completed)
             .map((schedule) => (
               <Card key={schedule.id} className="p-4 bg-card">
@@ -143,8 +143,8 @@ export default function SchedulePage() {
 
         <h2 className="text-sm font-medium text-blue-900 dark:text-blue-100 ml-1 mt-6">완료된 일정</h2>
 
-        {schedules.filter((s) => s.completed).length > 0 ? (
-          schedules
+        {(schedules ?? []).filter((s) => s.completed).length > 0 ? (
+          (schedules ?? [])
             .filter((schedule) => schedule.completed)
             .map((schedule) => (
               <Card key={schedule.id} className="p-4 bg-gray-50 dark:bg-gray-900/50">
