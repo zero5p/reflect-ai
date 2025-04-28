@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "인증된 사용자가 아닙니다." }, { status: 401 });
   }
   // id가 없으면 email을 userId로 사용
-  const userId = (session.user as any).id || session.user.email;
+  const userId = (session.user as { id?: string; email: string }).id || session.user.email;
   try {
     const rows = await sql`SELECT * FROM profiles WHERE user_id = ${userId}`;
     if (!rows[0]) {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   if (!session || !session.user?.email) {
     return NextResponse.json({ error: "인증된 사용자가 아닙니다." }, { status: 401 });
   }
-  const userId = (session.user as any).id || session.user.email;
+  const userId = (session.user as { id?: string; email: string }).id || session.user.email;
   try {
     const { name, bio, avatar } = await request.json();
     if (!name) {

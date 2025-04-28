@@ -25,12 +25,10 @@ interface Profile {
 
 export default function ProfilePage() {
   const { theme } = useTheme()
-  const [user, setUser] = useState<Profile | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState<Profile>({ name: "", email: "", bio: "", notifications: false, dataSharing: false, avatar: "" })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
 
   // 프로필 정보 불러오기
   useEffect(() => {
@@ -41,7 +39,6 @@ export default function ProfilePage() {
         return res.json()
       })
       .then((data) => {
-        setUser(data)
         setFormData(data)
         setLoading(false)
       })
@@ -63,7 +60,6 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setLoading(true)
     setError(null)
-    setSuccess(null)
     try {
       const res = await fetch("/api/profile", {
         method: "POST",
@@ -75,12 +71,11 @@ export default function ProfilePage() {
         throw new Error(err.error || "저장 실패")
       }
       const data = await res.json()
-      setUser(data)
       setFormData(data)
       setIsEditing(false)
-      setSuccess("프로필이 저장되었습니다.")
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : String(e)
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
