@@ -48,7 +48,7 @@ export default function Onboarding() {
         </div>
       </Card>
       <div className="mt-8 text-xs text-muted-foreground text-center">
-        © {new Date().getFullYear()} Reflect-AI. 모든 권리 보유.<br />
+        {new Date().getFullYear()} Reflect-AI. 모든 권리 보유.<br />
         <a href="#" className="underline">이용약관</a> · <a href="#" className="underline">개인정보 처리방침</a>
       </div>
     </div>
