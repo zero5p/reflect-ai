@@ -1,3 +1,4 @@
+"use client";
 // Next.js dynamic export: 빌드타임 프리렌더 방지
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,6 @@ function isMobile() {
 }
 
 export default function Page() {
-  "use client";
   const [mobile, setMobile] = useState(false);
 
   useEffect(() => {
