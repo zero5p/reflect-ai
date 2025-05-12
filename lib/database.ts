@@ -13,7 +13,7 @@ function toDbTask(task: Partial<Task>): Record<string, unknown> {
     investment_details: task.investmentDetails ? JSON.stringify(task.investmentDetails) : null,
   };
 }
-function fromDbTask(row: any): Task {
+function fromDbTask(row: Record<string, any>): Task {
   return {
     id: row.id.toString(),
     title: row.title,

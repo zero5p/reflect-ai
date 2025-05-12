@@ -1,7 +1,7 @@
 // Node.js 환경에서 fetch가 없을 수 있으므로 polyfill 적용
 if (typeof globalThis.fetch !== 'function') {
   import('node-fetch').then(mod => {
-    // @ts-expect-error
+    // @ts-expect-error: dynamic import for circular dependency workaround
     globalThis.fetch = mod.default;
   });
 }
@@ -70,7 +70,7 @@ export async function sendMainMenu(chatId: number): Promise<void> {
   });
 }
 
-export async function sendTaskRegistrationPrompt(chatId: number, step: 'title' | 'desc' | 'deadline', prev?: Partial<Task>): Promise<void> {
+export async function sendTaskRegistrationPrompt(chatId: number, step: 'title' | 'desc' | 'deadline'): Promise<void> {
   if (step === 'title') {
     await sendTelegramMessage(chatId, '새 일정의 제목을 입력해 주세요.');
   } else if (step === 'desc') {

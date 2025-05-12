@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { summarizeTelegramMessage } from '../../../lib/gemini';
 import { createTask, updateTask, deleteTask, getTasks } from '../../../lib/database';
-import { sendTaskTypeMenu, sendDateConfirmation, sendArchiveOrDeleteMenu, sendTelegramMessage, sendMainMenu, sendTaskRegistrationPrompt, sendTaskDetailMenu } from '../../../lib/telegram';
+import { sendDateConfirmation, sendTelegramMessage, sendMainMenu, sendTaskRegistrationPrompt, sendTaskDetailMenu } from '../../../lib/telegram';
 
 // 간단한 in-memory 유저 상태 관리 (배포 전에는 redis 등으로 대체 권장)
 const userState: Record<string, { step: 'idle'|'reg_title'|'reg_desc'|'reg_deadline', regData: Partial<import('../../../lib/types').Task> }> = {};
