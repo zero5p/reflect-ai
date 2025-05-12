@@ -1,4 +1,4 @@
-import { Task } from './types';
+import { Task, TaskType, TaskStatus } from './types';
 import { query } from '../app/lib/db';
 
 // Helper: camelCase <-> snake_case
@@ -13,18 +13,31 @@ function toDbTask(task: Partial<Task>): Record<string, unknown> {
     investment_details: task.investmentDetails ? JSON.stringify(task.investmentDetails) : null,
   };
 }
-function fromDbTask(row: Record<string, any>): Task {
+function fromDbTask(row: Record<string, unknown>): Task {
+  const assertString = (value: unknown): string => {
+    if (typeof value !== 'string') throw new Error(`Expected string, got ${typeof value}`);
+    return value;
+  };
+
+  const assertOptionalString = (value: unknown): string | undefined => {
+    return value === null || value === undefined ? undefined : assertString(value);
+  };
+
+  const assertDate = (value: unknown): Date | undefined => {
+    return value ? new Date(assertString(value)) : undefined;
+  };
+
   return {
-    id: row.id.toString(),
-    title: row.title,
-    description: row.description,
-    type: row.type,
-    status: row.status,
-    createdAt: row.created_at ? new Date(row.created_at) : new Date(),
-    updatedAt: row.updated_at ? new Date(row.updated_at) : new Date(),
-    deadline: row.deadline ? new Date(row.deadline) : undefined,
-    frequency: row.frequency || undefined,
-    investmentDetails: row.investment_details ? JSON.parse(row.investment_details) : undefined,
+    id: assertString(row.id),
+    title: assertString(row.title),
+    description: assertOptionalString(row.description),
+    type: assertString(row.type) as TaskType,
+    status: assertString(row.status) as TaskStatus,
+    createdAt: assertDate(row.created_at) || new Date(),
+    updatedAt: assertDate(row.updated_at) || new Date(),
+    deadline: assertDate(row.deadline),
+    frequency: row.frequency === 'daily' ? 'daily' : undefined,
+    investmentDetails: row.investment_details ? JSON.parse(assertString(row.investment_details)) : undefined,
   };
 }
 

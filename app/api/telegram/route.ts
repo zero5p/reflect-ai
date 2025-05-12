@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     if (text === '/tasks' || text === '일정 확인') {
       const tasks = await getTasks();
       // sendTaskListMenu는 한글 설명/버튼 포함
-      // @ts-ignore: 타입 호환 무시 (import 순환 방지)
+
       const { sendTaskListMenu } = await import('../../../lib/telegram');
       await sendTaskListMenu(chatId, tasks);
       return NextResponse.json({ ok: true });
