@@ -185,15 +185,13 @@ async function processMessage(message: TelegramMessage) {
       chatId,
       `이 메시지를 어디에 등록할까요?\n"${text}"`,
       {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              { text: '일정에 등록', callback_data: `record_type:일정` },
-              { text: '투자기록에 등록', callback_data: `record_type:투자` },
-              { text: '기타메모', callback_data: `record_type:기타` }
-            ]
+        inline_keyboard: [
+          [
+            { text: '일정에 등록', callback_data: `record_type:일정` },
+            { text: '투자기록에 등록', callback_data: `record_type:투자` },
+            { text: '기타메모', callback_data: `record_type:기타` }
           ]
-        }
+        ]
       }
     );
     return NextResponse.json({ ok: true });
