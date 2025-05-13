@@ -11,7 +11,12 @@ export async function sendTelegramMessage(chatId: number, text: string, reply_ma
   try {
     const payload: Record<string, unknown> = { chat_id: chatId, text };
     if (reply_markup) {
-      payload.reply_markup = reply_markup;
+      // 혹시라도 reply_markup가 중첩되어 들어오면 한 번 풀어줌
+      if ('reply_markup' in reply_markup && (reply_markup as unknown as { reply_markup?: { inline_keyboard?: unknown } }).reply_markup?.inline_keyboard) {
+        payload.reply_markup = (reply_markup as unknown as { reply_markup: { inline_keyboard: unknown } }).reply_markup;
+      } else {
+        payload.reply_markup = reply_markup;
+      }
     }
     console.log('[TELEGRAM SEND]', JSON.stringify(payload, null, 2));
     const res = await fetch(telegramApiUrl, {
