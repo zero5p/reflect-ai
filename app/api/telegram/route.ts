@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 import { createTask, updateTask, deleteTask, getTasks } from '../../../lib/database';
 import { sendTelegramMessage, sendMainMenu, sendTaskRegistrationPrompt, sendTaskDetailMenu, sendTaskListMenu } from '../../../lib/telegram';
 import type { Task } from '../../../lib/types';
-import type { ParsedResult } from 'chrono-node';
-import * as chrono from 'chrono-node';
+
 import { summarizeToTitle } from '../../lib/ai-summary';
 import { parseKoDate } from './chrono-ko';
 
