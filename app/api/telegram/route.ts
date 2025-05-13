@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { summarizeTelegramMessage } from '../../../lib/gemini';
+
 import { createTask, updateTask, deleteTask, getTasks } from '../../../lib/database';
 import { sendTelegramMessage, sendMainMenu, sendTaskRegistrationPrompt, sendTaskDetailMenu, sendTaskListMenu } from '../../../lib/telegram';
 import type { Task } from '../../../lib/types';
@@ -158,10 +158,22 @@ async function processMessage(message: TelegramMessage) {
         return NextResponse.json({ ok: true });
       }
     }
-    const summary = await summarizeTelegramMessage(text);
-    if (summary && summary.date) {
-      // 날짜가 추출되면 확인 UI (TODO)
-    }
+    // 메시지 등록 유형 선택 안내창 전송
+    await sendTelegramMessage(
+      chatId,
+      `이 메시지를 어디에 등록할까요?\n"${text}"`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '일정에 등록', callback_data: `record_type:일정` },
+              { text: '투자기록에 등록', callback_data: `record_type:투자` },
+              { text: '기타메모', callback_data: `record_type:기타` }
+            ]
+          ]
+        }
+      }
+    );
     return NextResponse.json({ ok: true });
   } catch (messageError) {
     console.error('Telegram Message Processing Error:', messageError);
