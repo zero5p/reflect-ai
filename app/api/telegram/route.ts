@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { createTask, updateTask, deleteTask, getTasks } from '../../../lib/database';
 import { sendTelegramMessage, sendMainMenu, sendTaskRegistrationPrompt, sendTaskDetailMenu, sendTaskListMenu } from '../../../lib/telegram';
 import type { Task } from '../../../lib/types';
+import * as chrono from 'chrono-node';
+import { summarizeToTitle } from '../../lib/ai-summary';
 
 // 간단한 in-memory 유저 상태 관리 (배포 전에는 redis 등으로 대체 권장)
 const userState: Record<string, { step: 'idle'|'reg_title'|'reg_desc'|'reg_deadline', regData: Partial<Task> }> = {};
@@ -42,8 +44,13 @@ async function processCallbackQuery(callback_query: TelegramCallbackQuery) {
       if (type === '일정') taskType = 'deadline';
       else if (type === '투자') taskType = 'investment';
       else taskType = 'daily';
-      userState[userId] = { step: 'reg_desc', regData: { title: callback_query.message.text, type: taskType } };
-      await sendTaskRegistrationPrompt(chatId, 'desc');
+      // 메시지에서 날짜 추출 및 AI 요약 적용
+      const text = callback_query.message.text || '';
+      const chronoDate = chrono.parseDate(text);
+      const deadline: Date | undefined = chronoDate ? chronoDate : undefined;
+      const summary = await summarizeToTitle(text);
+      userState[userId] = { step: deadline ? 'reg_desc' : 'reg_deadline', regData: { title: summary, type: taskType, deadline } };
+      await sendTelegramMessage(chatId, `선택하신 유형: ${type}\n제목: ${summary}${deadline ? `\n날짜: ${deadline.toLocaleDateString('ko-KR')}` : ''}\n설명을 입력해 주세요.`);
       return NextResponse.json({ ok: true });
     }
     if (data.startsWith('task_complete:')) {
@@ -106,6 +113,7 @@ async function processMessage(message: TelegramMessage) {
 
     if (text === '/tasks' || text === '일정 확인') {
       const tasks = await getTasks();
+      // 제목+날짜 보이도록 sendTaskListMenu 개선 필요 (함수 내부에서 처리 가정)
       await sendTaskListMenu(chatId, tasks);
       return NextResponse.json({ ok: true });
     }
@@ -114,9 +122,23 @@ async function processMessage(message: TelegramMessage) {
       userState[userId] = { step: 'idle', regData: {} };
       return NextResponse.json({ ok: true });
     }
-    if (text === '일정 등록') {
-      userState[userId] = { step: 'reg_title', regData: {} };
-      await sendTaskRegistrationPrompt(chatId, 'title');
+    if (text === '/addtask' || text === '일정 등록') {
+      userState[userId] = { step: 'reg_title', regData: { type: 'deadline' } };
+      await sendTelegramMessage(chatId, '새 일정을 등록합니다. 일정 제목을 입력해 주세요.');
+      return NextResponse.json({ ok: true });
+    }
+    if (text === '/addinvestment' || text === '투자 등록') {
+      userState[userId] = { step: 'reg_title', regData: { type: 'investment' } };
+      await sendTelegramMessage(chatId, '새 투자 기록을 등록합니다. 투자 내역의 제목을 입력해 주세요.');
+      return NextResponse.json({ ok: true });
+    }
+    if (text === '/help' || text === '도움말') {
+      await sendTelegramMessage(chatId,
+        `사용 가능한 명령어:\n` +
+        `/tasks - 등록된 일정/투자/메모 확인\n` +
+        `/addtask - 새 일정 등록\n` +
+        `/addinvestment - 새 투자 기록 등록\n` +
+        `/help - 도움말 보기`);
       return NextResponse.json({ ok: true });
     }
     const state = userState[userId];
