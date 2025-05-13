@@ -3,11 +3,20 @@ import { NextResponse } from 'next/server';
 import { createTask, updateTask, deleteTask, getTasks } from '../../../lib/database';
 import { sendTelegramMessage, sendMainMenu, sendTaskRegistrationPrompt, sendTaskDetailMenu, sendTaskListMenu } from '../../../lib/telegram';
 import type { Task } from '../../../lib/types';
+import type { ParsedResult } from 'chrono-node';
 import * as chrono from 'chrono-node';
 import { summarizeToTitle } from '../../lib/ai-summary';
+import { parseKoDate } from './chrono-ko';
 
 // 간단한 in-memory 유저 상태 관리 (배포 전에는 redis 등으로 대체 권장)
-const userState: Record<string, { step: 'idle'|'reg_title'|'reg_desc'|'reg_deadline', regData: Partial<Task> }> = {};
+type UserState = {
+  step: 'idle' | 'reg_title' | 'reg_desc' | 'reg_deadline' | 'pick_deadline' | 'confirm_deadline',
+  regData: Partial<Task> & {
+    candidateDeadline?: Date;
+    candidateDates?: Date[];
+  }
+};
+const userState: Record<string, UserState> = {};
 
 type TelegramMessage = {
   chat: { id: number };
@@ -46,7 +55,7 @@ async function processCallbackQuery(callback_query: TelegramCallbackQuery) {
       else taskType = 'daily';
       // 메시지에서 날짜 추출 및 AI 요약 적용
       const text = callback_query.message.text || '';
-      const chronoDate = chrono.parseDate(text);
+      const chronoDate = parseKoDate(text);
       const deadline: Date | undefined = chronoDate ? chronoDate : undefined;
       const summary = await summarizeToTitle(text);
       userState[userId] = { step: deadline ? 'reg_desc' : 'reg_deadline', regData: { title: summary, type: taskType, deadline } };
@@ -63,6 +72,63 @@ async function processCallbackQuery(callback_query: TelegramCallbackQuery) {
       userState[userId] = { step: 'reg_title', regData: { id: data.split(':')[1] } };
       await sendTaskRegistrationPrompt(chatId, 'title');
       return NextResponse.json({ ok: true });
+    }
+    if (data.startsWith('pick_date:')) {
+      // 날짜 선택 콜백
+      const pickedDateStr = data.split(':')[1];
+      const pickedDate = new Date(pickedDateStr);
+      if (!isNaN(pickedDate.getTime())) {
+        userState[userId].regData.deadline = pickedDate;
+        // 등록 완료 처리 (기존 reg_deadline과 동일)
+        let task;
+        if (userState[userId].regData.id) {
+          await updateTask(userState[userId].regData.id, userState[userId].regData);
+          task = (await getTasks({ id: userState[userId].regData.id }))[0];
+        } else {
+          if (!userState[userId].regData.type) userState[userId].regData.type = 'deadline';
+          task = await createTask(userState[userId].regData);
+        }
+        let typeLabel = '일정';
+        if (task.type === 'investment') typeLabel = '투자 기록';
+        else if (task.type === 'daily') typeLabel = '메모/기타';
+        await sendTelegramMessage(chatId, `${typeLabel}이(가) 성공적으로 등록되었습니다!\n\n제목: ${task.title}\n설명: ${task.description || '없음'}\n날짜: ${task.deadline ? new Date(task.deadline).toLocaleDateString('ko-KR') : '없음'}`);
+        await sendTaskDetailMenu(chatId, task);
+        userState[userId] = { step: 'idle', regData: {} };
+        return NextResponse.json({ ok: true });
+      } else {
+        await sendTelegramMessage(chatId, '날짜 형식이 올바르지 않습니다. 다시 시도해 주세요.');
+        return NextResponse.json({ ok: true });
+      }
+    }
+    if (data.startsWith('confirm_date:')) {
+      // 날짜 확인 콜백
+      const answer = data.split(':')[1];
+      if (answer === 'yes') {
+        if (userState[userId].regData.candidateDeadline) {
+          userState[userId].regData.deadline = userState[userId].regData.candidateDeadline;
+        }
+        // 등록 완료 처리 (기존 reg_deadline과 동일)
+        let task;
+        if (userState[userId].regData.id) {
+          await updateTask(userState[userId].regData.id, userState[userId].regData);
+          task = (await getTasks({ id: userState[userId].regData.id }))[0];
+        } else {
+          if (!userState[userId].regData.type) userState[userId].regData.type = 'deadline';
+          task = await createTask(userState[userId].regData);
+        }
+        let typeLabel = '일정';
+        if (task.type === 'investment') typeLabel = '투자 기록';
+        else if (task.type === 'daily') typeLabel = '메모/기타';
+        await sendTelegramMessage(chatId, `${typeLabel}이(가) 성공적으로 등록되었습니다!\n\n제목: ${task.title}\n설명: ${task.description || '없음'}\n날짜: ${task.deadline ? new Date(task.deadline).toLocaleDateString('ko-KR') : '없음'}`);
+        await sendTaskDetailMenu(chatId, task);
+        userState[userId] = { step: 'idle', regData: {} };
+        return NextResponse.json({ ok: true });
+      } else {
+        // 아니오: 날짜 재입력 유도
+        userState[userId].step = 'reg_deadline';
+        await sendTelegramMessage(chatId, '날짜를 다시 입력해 주세요. (예: 내일, 2025-05-13, 다음주 금요일, 없음)');
+        return NextResponse.json({ ok: true });
+      }
     }
     if (data.startsWith('task_detail:')) {
       const taskId = data.split(':')[1];
@@ -151,18 +217,30 @@ async function processMessage(message: TelegramMessage) {
       } else if (state.step === 'reg_desc') {
         state.regData.description = (text === '없음' ? '' : text);
         state.step = 'reg_deadline';
-        await sendTaskRegistrationPrompt(chatId, 'deadline');
+        await sendTelegramMessage(chatId, '날짜를 입력해 주세요. (예: 내일, 2025-05-13, 다음주 금요일, 없음)');
         return NextResponse.json({ ok: true });
       } else if (state.step === 'reg_deadline') {
         if (text !== '없음') {
-          const date = new Date(text);
-          if (!isNaN(date.getTime())) {
-            state.regData.deadline = date;
-          } else {
-            await sendTelegramMessage(chatId, '날짜 형식이 올바르지 않습니다. (예: 2025-05-13)');
+          // 여러 날짜 추출 및 UX 개선
+          const date = parseKoDate(text);
+          if (!date) {
+            await sendTelegramMessage(chatId, '날짜를 인식할 수 없습니다. 예: 내일, 2025-05-13, 다음주 금요일');
             return NextResponse.json({ ok: true });
           }
+          userState[userId].regData.candidateDeadline = date;
+          userState[userId].step = 'confirm_deadline';
+          await sendTelegramMessage(chatId, `이 날짜(${date.toLocaleDateString('ko-KR')})가 맞나요?`, {
+            inline_keyboard: [
+              [
+                { text: '네', callback_data: `confirm_date:yes` },
+                { text: '아니오', callback_data: `confirm_date:no` }
+              ]
+            ]
+          });
+          return NextResponse.json({ ok: true });
         }
+        // '없음' 입력 시 기존대로 진행
+        state.regData.deadline = undefined;
         let task;
         if (state.regData.id) {
           await updateTask(state.regData.id, state.regData);
@@ -174,11 +252,18 @@ async function processMessage(message: TelegramMessage) {
         let typeLabel = '일정';
         if (task.type === 'investment') typeLabel = '투자 기록';
         else if (task.type === 'daily') typeLabel = '메모/기타';
-        await sendTelegramMessage(chatId, `${typeLabel}이(가) 성공적으로 등록되었습니다!`);
+        await sendTelegramMessage(chatId, `${typeLabel}이(가) 성공적으로 등록되었습니다!\n\n제목: ${task.title}\n설명: ${task.description || '없음'}\n날짜: ${task.deadline ? new Date(task.deadline).toLocaleDateString('ko-KR') : '없음'}`);
         await sendTaskDetailMenu(chatId, task);
         userState[userId] = { step: 'idle', regData: {} };
         return NextResponse.json({ ok: true });
       }
+    }
+    // 명령어(/로 시작) 입력 시에는 인라인 메뉴를 띄우지 않고 명령어만 처리
+    if (text.startsWith('/')) {
+      // 명령어 처리 로직은 기존대로 (예: /tasks 등)
+      // 인라인 메뉴 띄우지 않음
+      // (아래 일반 메시지 플로우로 빠지지 않게 반드시 return)
+      return NextResponse.json({ ok: true });
     }
     // 명령어/등록 플로우가 아닌 일반 메시지는 무조건 인라인 메뉴 노출
     await sendTelegramMessage(
@@ -195,6 +280,11 @@ async function processMessage(message: TelegramMessage) {
       }
     );
     return NextResponse.json({ ok: true });
+    // (참고) chrono-node 한국어 자연어 인식 적용 예시:
+    // import * as chrono from 'chrono-node';
+    // const results = chrono.ko.parse(text);
+    // if (results.length > 0) { const date = results[0].start.date(); ... }
+
   } catch (messageError) {
     console.error('Telegram Message Processing Error:', messageError);
     return NextResponse.json({ error: 'Message Processing Error' }, { status: 500 });
