@@ -63,9 +63,12 @@ import type { Task } from './types';
 export async function sendMainMenu(chatId: number): Promise<void> {
   await sendTelegramMessage(chatId, '원하는 작업을 선택하세요!', {
     reply_markup: {
-      keyboard: [[{ text: '일정 확인' }, { text: '일정 등록' }]],
-      resize_keyboard: true,
-      one_time_keyboard: true
+      inline_keyboard: [
+        [
+          { text: '일정 확인', callback_data: 'list' },
+          { text: '일정 등록', callback_data: 'register' }
+        ]
+      ]
     }
   });
 }
