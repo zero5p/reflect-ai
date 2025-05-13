@@ -20,3 +20,32 @@ export async function summarizeToTitle(text: string): Promise<string> {
     return text;
   }
 }
+
+/**
+ * Gemini를 사용하여 한 번에 제목과 날짜를 추출
+ * @param text 입력 문장
+ * @returns { title: string, deadline?: Date }
+ */
+export async function extractTitleAndDate(text: string): Promise<{ title: string, deadline?: Date }> {
+  if (!genAI) return { title: text };
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const prompt = `아래 문장에서 일정 제목과 날짜를 각각 한 줄로 추출해줘.\n- 제목: (한 줄 요약)\n- 날짜: (YYYY-MM-DD 또는 YYYY-MM-DD HH:mm 형식, 없으면 '없음')\n문장: ${text}\n결과:`;
+    const result = await model.generateContent(prompt);
+    const lines = result.response.text().split('\n').map(l => l.trim());
+    let title = text, deadline: Date | undefined = undefined;
+    for (const line of lines) {
+      if (line.startsWith('제목:')) title = line.replace('제목:', '').trim();
+      if (line.startsWith('날짜:')) {
+        const dateStr = line.replace('날짜:', '').trim();
+        if (dateStr && dateStr !== '없음') {
+          const d = new Date(dateStr);
+          if (!isNaN(d.getTime())) deadline = d;
+        }
+      }
+    }
+    return { title, deadline };
+  } catch {
+    return { title: text };
+  }
+}

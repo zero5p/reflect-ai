@@ -4,8 +4,7 @@ import { createTask, updateTask, deleteTask, getTasks } from '../../../lib/datab
 import { sendTelegramMessage, sendMainMenu, sendTaskRegistrationPrompt, sendTaskDetailMenu, sendTaskListMenu } from '../../../lib/telegram';
 import type { Task } from '../../../lib/types';
 
-import { summarizeToTitle } from '../../lib/ai-summary';
-import { parseKoDate } from './chrono-ko';
+import { extractTitleAndDate } from '../../lib/ai-summary';
 
 // 간단한 in-memory 유저 상태 관리 (배포 전에는 redis 등으로 대체 권장)
 type UserState = {
@@ -54,11 +53,10 @@ async function processCallbackQuery(callback_query: TelegramCallbackQuery) {
       else taskType = 'daily';
       // 메시지에서 날짜 추출 및 AI 요약 적용
       const text = callback_query.message.text || '';
-      const chronoDate = parseKoDate(text);
-      const deadline: Date | undefined = chronoDate ? chronoDate : undefined;
-      const summary = await summarizeToTitle(text);
-      userState[userId] = { step: deadline ? 'reg_desc' : 'reg_deadline', regData: { title: summary, type: taskType, deadline } };
-      await sendTelegramMessage(chatId, `선택하신 유형: ${type}\n제목: ${summary}${deadline ? `\n날짜: ${deadline.toLocaleDateString('ko-KR')}` : ''}\n설명을 입력해 주세요.`);
+      // Gemini로 제목/날짜 동시 추출
+      const { title, deadline } = await extractTitleAndDate(text);
+      userState[userId] = { step: deadline ? 'reg_desc' : 'reg_deadline', regData: { title, type: taskType, deadline } };
+      await sendTelegramMessage(chatId, `선택하신 유형: ${type}\n제목: ${title}${deadline ? `\n날짜: ${deadline.toLocaleDateString('ko-KR')}` : ''}\n설명을 입력해 주세요.`);
       return NextResponse.json({ ok: true });
     }
     if (data.startsWith('task_complete:')) {
@@ -209,7 +207,12 @@ async function processMessage(message: TelegramMessage) {
     const state = userState[userId];
     if (state && state.step.startsWith('reg_')) {
       if (state.step === 'reg_title') {
-        state.regData.title = text;
+        // Gemini로 제목/날짜 동시 추출
+        const { title, deadline } = await extractTitleAndDate(text);
+        state.regData.title = title;
+        if (deadline) {
+          state.regData.candidateDeadline = deadline;
+        }
         state.step = 'reg_desc';
         await sendTaskRegistrationPrompt(chatId, 'desc');
         return NextResponse.json({ ok: true });
@@ -220,15 +223,15 @@ async function processMessage(message: TelegramMessage) {
         return NextResponse.json({ ok: true });
       } else if (state.step === 'reg_deadline') {
         if (text !== '없음') {
-          // 여러 날짜 추출 및 UX 개선
-          const date = parseKoDate(text);
-          if (!date) {
+          // Gemini로 날짜 추출만 시도
+          const { deadline } = await extractTitleAndDate(text);
+          if (!deadline) {
             await sendTelegramMessage(chatId, '날짜를 인식할 수 없습니다. 예: 내일, 2025-05-13, 다음주 금요일');
             return NextResponse.json({ ok: true });
           }
-          userState[userId].regData.candidateDeadline = date;
+          userState[userId].regData.candidateDeadline = deadline;
           userState[userId].step = 'confirm_deadline';
-          await sendTelegramMessage(chatId, `이 날짜(${date.toLocaleDateString('ko-KR')})가 맞나요?`, {
+          await sendTelegramMessage(chatId, `이 날짜(${deadline.toLocaleDateString('ko-KR')})가 맞나요?`, {
             inline_keyboard: [
               [
                 { text: '네', callback_data: `confirm_date:yes` },
