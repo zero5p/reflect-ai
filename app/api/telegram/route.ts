@@ -180,7 +180,7 @@ async function processMessage(message: TelegramMessage) {
         return NextResponse.json({ ok: true });
       }
     }
-    // 메시지 등록 유형 선택 안내창 전송
+    // 명령어/등록 플로우가 아닌 일반 메시지는 무조건 인라인 메뉴 노출
     await sendTelegramMessage(
       chatId,
       `이 메시지를 어디에 등록할까요?\n"${text}"`,
