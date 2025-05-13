@@ -9,10 +9,15 @@ if (typeof globalThis.fetch !== 'function') {
 export async function sendTelegramMessage(chatId: number, text: string, reply_markup?: Record<string, unknown>) {
   const telegramApiUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
   try {
+    const payload: Record<string, unknown> = { chat_id: chatId, text };
+    if (reply_markup) {
+      payload.reply_markup = JSON.stringify(reply_markup);
+    }
+    console.log('[TELEGRAM SEND]', JSON.stringify(payload, null, 2));
     const res = await fetch(telegramApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text, reply_markup }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       const errText = await res.text();
