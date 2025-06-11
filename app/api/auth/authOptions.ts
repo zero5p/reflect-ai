@@ -1,26 +1,11 @@
 import { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
+import GoogleProvider from "next-auth/providers/google"
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        // 현재는 개발용 더미 인증
-        // 나중에 실제 데이터베이스 인증으로 교체 필요
-        if (credentials?.email === "test@example.com" && credentials?.password === "password") {
-          return {
-            id: "1",
-            name: "Test User",
-            email: "test@example.com",
-          }
-        }
-        return null
-      }
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     })
   ],
   pages: {
@@ -30,4 +15,15 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-development",
+  callbacks: {
+    async session({ session, token }) {
+      return session
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
+  },
 }
