@@ -88,13 +88,30 @@ export default function ReflectionPage() {
   }
 
   const formatAiResponse = (response: string) => {
-    return response
+    // 마크다운 포맷 제거 및 섹션별 분리
+    const cleaned = response
       .replace(/##\s*/g, '')
       .replace(/\*\*(.*?)\*\*/g, '$1')
       .replace(/^\d+\.\s*/gm, '')
-      .split('\n\n')
-      .filter(paragraph => paragraph.trim())
-      .map(paragraph => paragraph.trim())
+      .trim()
+
+    const sections = cleaned.split('\n\n').filter(section => section.trim())
+    
+    // 감정 관련 키워드를 찾아서 하이라이트할 섹션 구분
+    return sections.map(section => {
+      const trimmed = section.trim()
+      if (trimmed.includes('공감') || trimmed.includes('인정') || trimmed.includes('마음')) {
+        return { type: 'empathy', content: trimmed }
+      } else if (trimmed.includes('통찰') || trimmed.includes('관점') || trimmed.includes('생각')) {
+        return { type: 'insight', content: trimmed }
+      } else if (trimmed.includes('조언') || trimmed.includes('실천') || trimmed.includes('방법')) {
+        return { type: 'advice', content: trimmed }
+      } else if (trimmed.includes('격려') || trimmed.includes('응원') || trimmed.includes('믿')) {
+        return { type: 'encouragement', content: trimmed }
+      } else {
+        return { type: 'general', content: trimmed }
+      }
+    })
   }
 
   const toggleExpanded = (reflectionId: number) => {
@@ -182,16 +199,46 @@ export default function ReflectionPage() {
                 
                 {expandedReflection === reflection.id && reflection.ai_response && (
                   <div className="mt-4 pt-4 border-t border-violet-200 dark:border-violet-700">
-                    <div className="flex items-center gap-2 mb-3">
-                      <SparklesIcon className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-                      <span className="text-sm font-medium text-violet-700 dark:text-violet-300">AI 상담사 응답</span>
-                    </div>
-                    <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                      {formatAiResponse(reflection.ai_response).map((paragraph, index) => (
-                        <p key={index} className="leading-relaxed">
-                          {paragraph}
+                    <div className="space-y-4">
+                      {/* 사용자 성찰 원문 요약 */}
+                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xl">{getEmotionEmoji(reflection.emotion)}</span>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">나의 성찰</span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {reflection.content.length > 200 
+                            ? reflection.content.substring(0, 200) + "..." 
+                            : reflection.content}
                         </p>
-                      ))}
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span>감정: {getEmotionLabel(reflection.emotion)}</span>
+                          <span>강도: {reflection.intensity}</span>
+                        </div>
+                      </div>
+
+                      {/* AI 상담사 응답 */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <SparklesIcon className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                          <span className="text-sm font-medium text-violet-700 dark:text-violet-300">AI 상담사의 따뜻한 응답</span>
+                        </div>
+                        <div className="space-y-3">
+                          {formatAiResponse(reflection.ai_response).map((section, index) => (
+                            <div key={index} className={`p-3 rounded-lg leading-relaxed text-sm ${
+                              section.type === 'empathy' ? 'bg-pink-50 dark:bg-pink-900/20 border-l-4 border-pink-300 dark:border-pink-700' :
+                              section.type === 'insight' ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-300 dark:border-blue-700' :
+                              section.type === 'advice' ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-300 dark:border-green-700' :
+                              section.type === 'encouragement' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-300 dark:border-yellow-700' :
+                              'bg-gray-50 dark:bg-gray-800/50'
+                            }`}>
+                              <p className="text-gray-700 dark:text-gray-300">
+                                {section.content}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
