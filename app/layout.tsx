@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import NextAuthSessionProvider from "./session-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -20,11 +19,9 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={inter.className}>
-        <NextAuthSessionProvider>
-          <ThemeProvider defaultTheme="system" storageKey="reflect-ai-theme">
-            {children}
-          </ThemeProvider>
-        </NextAuthSessionProvider>
+        <ThemeProvider defaultTheme="system" storageKey="reflect-ai-theme">
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
