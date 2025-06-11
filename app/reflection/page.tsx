@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { BookOpenIcon, ArrowLeftIcon, PlusIcon, SparklesIcon } from "lucide-react"
+import { BookOpenIcon, ArrowLeftIcon, PlusIcon, SparklesIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
@@ -25,6 +25,7 @@ export default function ReflectionPage() {
   const router = useRouter()
   const [reflections, setReflections] = useState<Reflection[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [expandedReflection, setExpandedReflection] = useState<number | null>(null)
 
   if (!session) {
     router.push("/login")
@@ -84,6 +85,20 @@ export default function ReflectionPage() {
       month: 'long',
       day: 'numeric'
     })
+  }
+
+  const formatAiResponse = (response: string) => {
+    return response
+      .replace(/##\s*/g, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/^\d+\.\s*/gm, '')
+      .split('\n\n')
+      .filter(paragraph => paragraph.trim())
+      .map(paragraph => paragraph.trim())
+  }
+
+  const toggleExpanded = (reflectionId: number) => {
+    setExpandedReflection(expandedReflection === reflectionId ? null : reflectionId)
   }
 
   return (
@@ -148,12 +163,38 @@ export default function ReflectionPage() {
                     감정: {getEmotionLabel(reflection.emotion)} | 강도: {reflection.intensity}
                   </div>
                   {reflection.ai_response && (
-                    <div className="flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpanded(reflection.id)}
+                      className="flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400 h-6 px-2"
+                    >
                       <SparklesIcon className="h-3 w-3" />
                       <span>AI 응답</span>
-                    </div>
+                      {expandedReflection === reflection.id ? (
+                        <ChevronUpIcon className="h-3 w-3" />
+                      ) : (
+                        <ChevronDownIcon className="h-3 w-3" />
+                      )}
+                    </Button>
                   )}
                 </div>
+                
+                {expandedReflection === reflection.id && reflection.ai_response && (
+                  <div className="mt-4 pt-4 border-t border-violet-200 dark:border-violet-700">
+                    <div className="flex items-center gap-2 mb-3">
+                      <SparklesIcon className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                      <span className="text-sm font-medium text-violet-700 dark:text-violet-300">AI 상담사 응답</span>
+                    </div>
+                    <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                      {formatAiResponse(reflection.ai_response).map((paragraph, index) => (
+                        <p key={index} className="leading-relaxed">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Card>
             ))}
           </div>

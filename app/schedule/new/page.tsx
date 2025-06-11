@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { CalendarIcon, ArrowLeftIcon, CheckIcon } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { CalendarIcon, ArrowLeftIcon, CheckIcon, SparklesIcon, PlusIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,11 +13,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
 
+interface AIRecommendation {
+  category: string
+  title: string
+  description: string
+  recommendedTime: string
+  type: string
+}
+
 export default function NewSchedulePage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
+  const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[]>([])
+  const [showAiRecommendations, setShowAiRecommendations] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -29,6 +41,62 @@ export default function NewSchedulePage() {
   if (!session) {
     router.push("/login")
     return null
+  }
+
+  useEffect(() => {
+    // AI 추천에서 온 경우 세션 스토리지에서 추천 데이터 로드
+    if (searchParams.get('from') === 'ai') {
+      const recommendations = sessionStorage.getItem('aiRecommendations')
+      if (recommendations) {
+        setAiRecommendations(JSON.parse(recommendations))
+        setShowAiRecommendations(true)
+        sessionStorage.removeItem('aiRecommendations')
+      }
+    }
+  }, [searchParams])
+
+  const generateAIRecommendations = async () => {
+    setIsGeneratingAI(true)
+    try {
+      const response = await fetch("/api/ai/recommendations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setAiRecommendations(data.recommendations || [])
+        setShowAiRecommendations(true)
+      } else {
+        throw new Error(data.error || "AI 추천 생성에 실패했습니다.")
+      }
+    } catch (error) {
+      console.error("Error generating AI recommendations:", error)
+      toast({
+        title: "오류가 발생했습니다",
+        description: "AI 추천 생성에 실패했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGeneratingAI(false)
+    }
+  }
+
+  const selectRecommendation = (rec: AIRecommendation) => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    setFormData({
+      title: rec.title,
+      description: rec.description,
+      date: tomorrow.toISOString().split('T')[0],
+      time: rec.recommendedTime || '09:00',
+      type: 'ai_recommended'
+    })
+    setShowAiRecommendations(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,7 +165,62 @@ export default function NewSchedulePage() {
 
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto">
-        <Card className="p-6">
+        {showAiRecommendations ? (
+          <div className="space-y-4">
+            <Card className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-200 dark:border-violet-800">
+              <div className="flex items-center gap-2 mb-2">
+                <SparklesIcon className="h-5 w-5 text-violet-600" />
+                <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300">AI 맞춤 일정 추천</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">성찰 내용을 바탕으로 생성된 맞춤 일정 추천입니다. 원하는 일정을 선택하세요.</p>
+            </Card>
+
+            {aiRecommendations.map((rec, index) => (
+              <Card key={index} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectRecommendation(rec)}>
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs px-2 py-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-full">
+                      {rec.category}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{rec.recommendedTime}</span>
+                  </div>
+                  <PlusIcon className="h-4 w-4 text-violet-600" />
+                </div>
+                <h3 className="font-medium text-foreground mb-1">{rec.title}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{rec.description}</p>
+              </Card>
+            ))}
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowAiRecommendations(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                직접 작성하기
+              </Button>
+              <Button
+                onClick={generateAIRecommendations}
+                disabled={isGeneratingAI}
+                variant="outline"
+                className="flex-1"
+              >
+                {isGeneratingAI ? "새 추천 생성 중..." : "새로운 추천 받기"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <Button
+              onClick={generateAIRecommendations}
+              disabled={isGeneratingAI}
+              className="w-full flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+            >
+              <SparklesIcon className="h-4 w-4" />
+              {isGeneratingAI ? "AI 추천 생성 중..." : "성찰 기반 AI 일정 추천 받기"}
+            </Button>
+
+            <Card className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">일정 제목</Label>
@@ -177,7 +300,9 @@ export default function NewSchedulePage() {
               )}
             </Button>
           </form>
-        </Card>
+            </Card>
+          </div>
+        )}
       </main>
     </div>
   )

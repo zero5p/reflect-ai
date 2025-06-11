@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-import { BookOpenIcon, ArrowLeftIcon, SaveIcon, SparklesIcon, HomeIcon } from "lucide-react"
+import { BookOpenIcon, ArrowLeftIcon, SaveIcon, SparklesIcon, HomeIcon, CalendarPlusIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,7 @@ export default function NewReflectionPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [aiResponse, setAiResponse] = useState("")
   const [showAiResponse, setShowAiResponse] = useState(false)
+  const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false)
 
   if (!session) {
     router.push("/login")
@@ -70,6 +71,33 @@ export default function NewReflectionPage() {
     }
   }
 
+  const handleGenerateSchedule = async () => {
+    setIsGeneratingSchedule(true)
+    try {
+      const response = await fetch("/api/ai/recommendations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        // 일정 페이지로 이동하면서 추천 데이터 전달
+        sessionStorage.setItem('aiRecommendations', JSON.stringify(data.recommendations))
+        router.push("/schedule/new?from=ai")
+      } else {
+        throw new Error(data.error || "일정 추천 생성에 실패했습니다.")
+      }
+    } catch (error) {
+      console.error("Error generating schedule recommendations:", error)
+      alert("일정 추천 생성 중 오류가 발생했습니다. 다시 시도해주세요.")
+    } finally {
+      setIsGeneratingSchedule(false)
+    }
+  }
+
   if (showAiResponse) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
@@ -106,20 +134,32 @@ export default function NewReflectionPage() {
               ))}
             </div>
 
-            <div className="flex gap-3 mt-6">
+            <div className="space-y-3 mt-6">
               <Button
-                onClick={() => router.push("/reflection")}
-                className="flex-1"
+                onClick={handleGenerateSchedule}
+                disabled={isGeneratingSchedule}
+                className="w-full flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
               >
-                성찰 목록으로
+                <CalendarPlusIcon className="h-4 w-4" />
+                {isGeneratingSchedule ? "AI 일정 추천 생성 중..." : "성찰 기반 AI 일정 추천 받기"}
               </Button>
-              <Button
-                onClick={() => router.push("/")}
-                variant="outline"
-                className="flex-1"
-              >
-                홈으로
-              </Button>
+              
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => router.push("/reflection")}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  성찰 목록으로
+                </Button>
+                <Button
+                  onClick={() => router.push("/")}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  홈으로
+                </Button>
+              </div>
             </div>
           </Card>
         </main>
