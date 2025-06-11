@@ -107,8 +107,8 @@ export default function ProfilePage() {
         {/* Logout */}
         <Card className="p-6">
           <Button 
-            variant="destructive" 
-            className="w-full justify-start"
+            variant="outline" 
+            className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
             onClick={handleSignOut}
           >
             <LogOutIcon className="h-4 w-4 mr-2" />
