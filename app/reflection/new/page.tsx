@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { BookOpenIcon, ArrowLeftIcon, SaveIcon, SparklesIcon, HomeIcon, CalendarPlusIcon } from "lucide-react"
+import { BookOpenIcon, ArrowLeftIcon, SaveIcon, SparklesIcon, HomeIcon, CalendarPlusIcon, HeartIcon, StarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -21,11 +21,35 @@ export default function NewReflectionPage() {
   const [aiResponse, setAiResponse] = useState("")
   const [showAiResponse, setShowAiResponse] = useState(false)
   const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false)
+  const [currentQuote, setCurrentQuote] = useState(0)
+
+  const inspirationalQuotes = [
+    { text: "당신의 하루를 성찰하는 시간은 당신을 더 나은 사람으로 만들어갑니다.", author: "소크라테스" },
+    { text: "어제는 지나갔고, 내일은 아직 오지 않았다. 오늘이 선물이다.", author: "엘리너 루즈벨트" },
+    { text: "감정을 표현하는 것은 용기입니다. 그 용기가 치유의 시작입니다.", author: "브레네 브라운" },
+    { text: "자신을 알아가는 여행에서 가장 중요한 것은 진실함입니다.", author: "랄프 왈도 에머슨" },
+    { text: "마음의 평화는 내면에서 나옵니다. 밖에서 찾지 마세요.", author: "부처" },
+    { text: "모든 감정은 가치가 있습니다. 그것들이 당신을 가르치고 있습니다.", author: "마야 안젤루" },
+    { text: "성장은 편안함을 벗어날 때 시작됩니다.", author: "네빌 고다드" },
+    { text: "당신의 이야기는 세상에 하나뿐입니다. 소중히 여기세요.", author: "브랜딩 밀러" },
+    { text: "희망은 어둠 속에서도 빛을 보는 능력입니다.", author: "데스몬드 투투" },
+    { text: "자기 성찰은 지혜의 시작입니다.", author: "아리스토텔레스" }
+  ]
 
   if (!session) {
     router.push("/login")
     return null
   }
+
+  // 로딩 중일 때 명언 로테이션
+  useEffect(() => {
+    if (isLoading) {
+      const interval = setInterval(() => {
+        setCurrentQuote((prev) => (prev + 1) % inspirationalQuotes.length)
+      }, 3000) // 3초마다 명언 변경
+      return () => clearInterval(interval)
+    }
+  }, [isLoading, inspirationalQuotes.length])
 
   const handleSave = async () => {
     if (!title.trim() || !content.trim()) {
@@ -94,6 +118,54 @@ export default function NewReflectionPage() {
     }
   }
 
+  // 로딩 화면
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col items-center justify-center px-5">
+        <Card className="p-8 max-w-md w-full text-center bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
+          <div className="flex items-center justify-center mb-6">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-violet-200 dark:border-violet-800"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-violet-500 border-t-transparent absolute top-0"></div>
+              <SparklesIcon className="h-6 w-6 text-violet-600 absolute top-5 left-5" />
+            </div>
+          </div>
+          
+          <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300 mb-2">
+            AI가 당신의 마음을 분석하고 있습니다
+          </h2>
+          <p className="text-sm text-violet-600 dark:text-violet-400 mb-6">
+            감정을 파악하고 맞춤형 상담을 준비하는 중...
+          </p>
+
+          <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4 min-h-[120px] flex flex-col justify-center">
+            <div className="flex items-center justify-center mb-3">
+              <HeartIcon className="h-5 w-5 text-pink-500 mr-2" />
+              <StarIcon className="h-4 w-4 text-yellow-500" />
+            </div>
+            <blockquote className="text-sm text-gray-700 dark:text-gray-300 italic text-center leading-relaxed">
+              "{inspirationalQuotes[currentQuote].text}"
+            </blockquote>
+            <cite className="text-xs text-gray-500 dark:text-gray-400 mt-3 block">
+              - {inspirationalQuotes[currentQuote].author}
+            </cite>
+          </div>
+
+          <div className="flex items-center justify-center mt-4 space-x-1">
+            {inspirationalQuotes.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentQuote ? 'bg-violet-500' : 'bg-violet-200 dark:bg-violet-700'
+                }`}
+              />
+            ))}
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
   if (showAiResponse) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
@@ -136,8 +208,17 @@ export default function NewReflectionPage() {
                 disabled={isGeneratingSchedule}
                 className="w-full flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
               >
-                <CalendarPlusIcon className="h-4 w-4" />
-                {isGeneratingSchedule ? "AI 일정 추천 생성 중..." : "성찰 기반 AI 일정 추천 받기"}
+                {isGeneratingSchedule ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    AI 일정 추천 생성 중...
+                  </>
+                ) : (
+                  <>
+                    <CalendarPlusIcon className="h-4 w-4" />
+                    성찰 기반 AI 일정 추천 받기
+                  </>
+                )}
               </Button>
               
               <div className="flex gap-3">
