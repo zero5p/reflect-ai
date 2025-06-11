@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { CalendarIcon, ArrowLeftIcon, CheckIcon, SparklesIcon, PlusIcon } from "lucide-react"
@@ -21,7 +21,7 @@ interface AIRecommendation {
   type: string
 }
 
-export default function NewSchedulePage() {
+function NewSchedulePageContent() {
   const { data: session } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -305,5 +305,13 @@ export default function NewSchedulePage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function NewSchedulePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewSchedulePageContent />
+    </Suspense>
   )
 }

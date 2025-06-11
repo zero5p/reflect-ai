@@ -21,6 +21,15 @@ interface Event {
   created_at: string
 }
 
+interface Reflection {
+  id: number
+  title: string
+  content: string
+  emotion: string
+  intensity: string
+  created_at: string
+}
+
 export default function CalendarPage() {
   const { data: session } = useSession()
   const router = useRouter()

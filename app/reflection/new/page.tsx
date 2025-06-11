@@ -17,8 +17,6 @@ export default function NewReflectionPage() {
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
-  const [emotion, setEmotion] = useState("")
-  const [intensity, setIntensity] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [aiResponse, setAiResponse] = useState("")
   const [showAiResponse, setShowAiResponse] = useState(false)
@@ -45,8 +43,6 @@ export default function NewReflectionPage() {
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
-          emotion,
-          intensity,
         }),
       })
 
@@ -212,39 +208,14 @@ export default function NewReflectionPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>감정</Label>
-                <Select value={emotion} onValueChange={setEmotion}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="감정을 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="happy">😊 기쁨</SelectItem>
-                    <SelectItem value="sad">😢 슬픔</SelectItem>
-                    <SelectItem value="angry">😠 분노</SelectItem>
-                    <SelectItem value="anxious">😰 불안</SelectItem>
-                    <SelectItem value="excited">🤩 흥분</SelectItem>
-                    <SelectItem value="calm">😌 평온</SelectItem>
-                    <SelectItem value="confused">🤔 혼란</SelectItem>
-                    <SelectItem value="grateful">🙏 감사</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center gap-2 mb-2">
+                <SparklesIcon className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">AI 감정 분석</span>
               </div>
-
-              <div>
-                <Label>강도</Label>
-                <Select value={intensity} onValueChange={setIntensity}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="강도를 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">낮음</SelectItem>
-                    <SelectItem value="medium">보통</SelectItem>
-                    <SelectItem value="high">높음</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                AI가 당신의 성찰 내용을 분석하여 감정과 강도를 자동으로 파악하고 맞춤형 상담을 제공합니다.
+              </p>
             </div>
 
             <Button 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/authOptions"
-import { generateReflectionResponse } from "@/lib/gemini"
+import { analyzeEmotionAndGenerateResponse } from "@/lib/gemini"
 import { sql, createTables } from "@/lib/db"
 
 export async function POST(request: NextRequest) {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, content, emotion, intensity } = body
+    const { title, content } = body
 
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 })
@@ -37,18 +37,21 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Generate AI response
+    // Analyze emotion and generate AI response
+    let emotion = "calm"
+    let intensity = "medium"
     let aiResponse
     try {
-      aiResponse = await generateReflectionResponse({
+      const analysis = await analyzeEmotionAndGenerateResponse({
         title,
-        content,
-        emotion,
-        intensity
+        content
       })
+      emotion = analysis.emotion
+      intensity = analysis.intensity
+      aiResponse = analysis.response
     } catch (aiError) {
-      console.error("AI response generation failed:", aiError)
-      aiResponse = "AI 응답 생성에 실패했습니다."
+      console.error("AI emotion analysis failed:", aiError)
+      aiResponse = "AI 감정 분석 및 응답 생성에 실패했습니다."
     }
 
     // Save to database

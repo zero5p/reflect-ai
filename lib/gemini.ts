@@ -4,6 +4,60 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
 export const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
 
+export async function analyzeEmotionAndGenerateResponse(reflection: {
+  title: string
+  content: string
+}) {
+  try {
+    const prompt = `
+당신은 따뜻하고 공감적인 심리 상담사입니다. 사용자의 성찰 일기를 분석하여 감정을 파악하고 상담 응답을 제공해주세요.
+
+성찰 제목: ${reflection.title}
+내용: ${reflection.content}
+
+다음 JSON 형식으로 응답해주세요:
+{
+  "emotion": "감정 (happy/sad/angry/anxious/excited/calm/confused/grateful 중 하나)",
+  "intensity": "강도 (low/medium/high 중 하나)",
+  "response": "상담사 응답 (4개 섹션: 1.공감과 인정 2.통찰과 관점 3.실천적 조언 4.격려 메시지)"
+}
+
+감정 분석 기준:
+- happy: 기쁨, 만족, 성취감, 즐거움이 드러나는 경우
+- sad: 슬픔, 실망, 우울, 상실감이 드러나는 경우  
+- angry: 분노, 짜증, 화, 불만이 드러나는 경우
+- anxious: 불안, 걱정, 두려움, 긴장이 드러나는 경우
+- excited: 흥분, 기대, 열정이 드러나는 경우
+- calm: 평온, 안정, 차분함이 드러나는 경우
+- confused: 혼란, 갈등, 확신이 서지 않는 경우
+- grateful: 감사, 고마움이 드러나는 경우
+
+강도 분석 기준:
+- low: 약한 감정 표현, 담담한 서술
+- medium: 보통 정도의 감정 표현
+- high: 강한 감정 표현, 격한 언어 사용
+
+따뜻하고 개인적인 톤으로 응답을 작성하되, 한국어로 답변하세요.
+`
+
+    const result = await geminiModel.generateContent(prompt)
+    const response = await result.response
+    const text = response.text()
+    
+    // JSON 응답에서 코드 블록 제거
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0])
+    }
+    
+    throw new Error("Invalid JSON response")
+  } catch (error) {
+    console.error("Error analyzing emotion and generating response:", error)
+    throw new Error("AI 감정 분석 및 응답 생성에 실패했습니다.")
+  }
+}
+
+// 기존 함수 호환성 유지
 export async function generateReflectionResponse(reflection: {
   title: string
   content: string
@@ -11,26 +65,11 @@ export async function generateReflectionResponse(reflection: {
   intensity: string
 }) {
   try {
-    const prompt = `
-당신은 따뜻하고 공감적인 심리 상담사입니다. 사용자의 성찰 일기를 읽고 격려와 통찰을 제공해주세요.
-
-성찰 제목: ${reflection.title}
-내용: ${reflection.content}
-감정: ${reflection.emotion}
-강도: ${reflection.intensity}
-
-다음 형식으로 답변해주세요:
-1. 공감과 인정 (2-3문장)
-2. 통찰과 관점 (2-3문장) 
-3. 실천적 조언 (2-3문장)
-4. 격려 메시지 (1-2문장)
-
-따뜻하고 개인적인 톤으로 작성하되, 한국어로 답변하세요.
-`
-
-    const result = await geminiModel.generateContent(prompt)
-    const response = await result.response
-    return response.text()
+    const result = await analyzeEmotionAndGenerateResponse({
+      title: reflection.title,
+      content: reflection.content
+    })
+    return result.response
   } catch (error) {
     console.error("Error generating reflection response:", error)
     throw new Error("AI 응답 생성에 실패했습니다.")
