@@ -15,9 +15,12 @@
 
 ## 기술 스택
 
-- **프론트엔드**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **백엔드**: Vercel Serverless Functions
-- **데이터베이스**: Vercel Postgres (예정)
+- **프론트엔드**: Next.js 15 (App Router), TypeScript, Tailwind CSS
+- **백엔드**: Vercel Serverless Functions  
+- **데이터베이스**: Neon PostgreSQL
+- **AI**: Google Gemini API
+- **인증**: NextAuth.js
+- **봇 연동**: Telegram Bot API
 - **AI**: Google Gemini API
 - **배포**: Vercel
 - **버전 관리**: GitHub
@@ -37,6 +40,59 @@ npm run dev
 ```
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 앱을 확인할 수 있습니다.
+
+## 환경 변수 설정
+
+`.env.local` 파일을 생성하고 다음 환경 변수들을 설정하세요:
+
+```bash
+# 데이터베이스
+DATABASE_URL=your_neon_database_url
+POSTGRES_URL=your_postgres_url
+POSTGRES_USER=your_postgres_user
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_HOST=your_postgres_host
+POSTGRES_DATABASE=your_postgres_database
+
+# API 키
+GEMINI_API_KEY=your_gemini_api_key
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+
+# NextAuth (배포시 필수)
+NEXTAUTH_URL=https://your-app-name.vercel.app
+NEXTAUTH_SECRET=your_32_char_secret_key
+```
+
+## Vercel 배포
+
+### 1단계: Vercel에 연결
+1. [Vercel 대시보드](https://vercel.com/dashboard)에 로그인
+2. "New Project" 클릭
+3. 이 GitHub 저장소 선택
+
+### 2단계: 환경 변수 설정
+Vercel 프로젝트 설정에서 다음 환경 변수들을 추가:
+
+- `DATABASE_URL` - Neon 데이터베이스 연결 문자열
+- `GEMINI_API_KEY` - Google Gemini API 키
+- `TELEGRAM_BOT_TOKEN` - Telegram Bot 토큰
+- `NEXTAUTH_URL` - 배포된 앱의 URL (예: `https://your-app.vercel.app`)
+- `NEXTAUTH_SECRET` - 32자 이상의 랜덤 문자열
+
+### 3단계: 데이터베이스 설정
+1. [Neon](https://neon.tech)에서 PostgreSQL 데이터베이스 생성
+2. 제공된 SQL 스크립트로 테이블 생성:
+   ```sql
+   -- create_reflections_table.sql 파일 실행
+   -- neon_init_dummy.sql 파일 실행 (샘플 데이터)
+   ```
+
+### 4단계: 외부 서비스 설정
+- **Google Cloud**: Gemini API 활성화 및 API 키 생성
+- **Telegram**: Bot Father를 통해 봇 생성 및 토큰 획득
+
+### 5단계: 배포
+"Deploy" 버튼 클릭하면 자동으로 빌드 및 배포가 시작됩니다.
 
 ## 프로젝트 구조
 

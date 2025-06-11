@@ -1,0 +1,10 @@
+{
+  "env": {
+    "NEXTAUTH_URL": "@nextauth-url"
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}
