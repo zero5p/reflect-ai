@@ -6,6 +6,13 @@ import { sql, createTables } from "@/lib/db"
 
 export async function POST(request: NextRequest) {
   try {
+    // Environment check
+    console.log("Environment check:", {
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      hasGeminiKey: !!process.env.GEMINI_API_KEY,
+      hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET
+    })
+
     const session = await getServerSession(authOptions)
     
     if (!session) {
