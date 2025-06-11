@@ -27,14 +27,14 @@ export default function ReflectionPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [expandedReflection, setExpandedReflection] = useState<number | null>(null)
 
+  useEffect(() => {
+    fetchReflections()
+  }, [])
+
   if (!session) {
     router.push("/login")
     return null
   }
-
-  useEffect(() => {
-    fetchReflections()
-  }, [])
 
   const fetchReflections = async () => {
     try {
@@ -177,7 +177,7 @@ export default function ReflectionPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">
-                    감정: {getEmotionLabel(reflection.emotion)} | 강도: {reflection.intensity}
+                    감정: {getEmotionLabel(reflection.emotion)}
                   </div>
                   {reflection.ai_response && (
                     <Button
@@ -213,7 +213,6 @@ export default function ReflectionPage() {
                         </p>
                         <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                           <span>감정: {getEmotionLabel(reflection.emotion)}</span>
-                          <span>강도: {reflection.intensity}</span>
                         </div>
                       </div>
 

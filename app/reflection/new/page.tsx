@@ -8,9 +8,9 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useRouter } from "next/navigation"
+import { getRandomQuote } from "@/lib/quotes"
 
 export default function NewReflectionPage() {
   const { data: session } = useSession()
@@ -21,35 +21,19 @@ export default function NewReflectionPage() {
   const [aiResponse, setAiResponse] = useState("")
   const [showAiResponse, setShowAiResponse] = useState(false)
   const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false)
-  const [currentQuote, setCurrentQuote] = useState(0)
+  const [currentQuote, setCurrentQuote] = useState(getRandomQuote())
 
-  const inspirationalQuotes = [
-    { text: "당신의 하루를 성찰하는 시간은 당신을 더 나은 사람으로 만들어갑니다.", author: "소크라테스" },
-    { text: "어제는 지나갔고, 내일은 아직 오지 않았다. 오늘이 선물이다.", author: "엘리너 루즈벨트" },
-    { text: "감정을 표현하는 것은 용기입니다. 그 용기가 치유의 시작입니다.", author: "브레네 브라운" },
-    { text: "자신을 알아가는 여행에서 가장 중요한 것은 진실함입니다.", author: "랄프 왈도 에머슨" },
-    { text: "마음의 평화는 내면에서 나옵니다. 밖에서 찾지 마세요.", author: "부처" },
-    { text: "모든 감정은 가치가 있습니다. 그것들이 당신을 가르치고 있습니다.", author: "마야 안젤루" },
-    { text: "성장은 편안함을 벗어날 때 시작됩니다.", author: "네빌 고다드" },
-    { text: "당신의 이야기는 세상에 하나뿐입니다. 소중히 여기세요.", author: "브랜딩 밀러" },
-    { text: "희망은 어둠 속에서도 빛을 보는 능력입니다.", author: "데스몬드 투투" },
-    { text: "자기 성찰은 지혜의 시작입니다.", author: "아리스토텔레스" }
-  ]
+  // 로딩 시작 시 랜덤 명언 선택
+  useEffect(() => {
+    if (isLoading) {
+      setCurrentQuote(getRandomQuote())
+    }
+  }, [isLoading])
 
   if (!session) {
     router.push("/login")
     return null
   }
-
-  // 로딩 중일 때 명언 로테이션
-  useEffect(() => {
-    if (isLoading) {
-      const interval = setInterval(() => {
-        setCurrentQuote((prev) => (prev + 1) % inspirationalQuotes.length)
-      }, 3000) // 3초마다 명언 변경
-      return () => clearInterval(interval)
-    }
-  }, [isLoading, inspirationalQuotes.length])
 
   const handleSave = async () => {
     if (!title.trim() || !content.trim()) {
@@ -144,22 +128,11 @@ export default function NewReflectionPage() {
               <StarIcon className="h-4 w-4 text-yellow-500" />
             </div>
             <blockquote className="text-sm text-gray-700 dark:text-gray-300 italic text-center leading-relaxed">
-              "{inspirationalQuotes[currentQuote].text}"
+              "{currentQuote.text}"
             </blockquote>
             <cite className="text-xs text-gray-500 dark:text-gray-400 mt-3 block">
-              - {inspirationalQuotes[currentQuote].author}
+              - {currentQuote.author}
             </cite>
-          </div>
-
-          <div className="flex items-center justify-center mt-4 space-x-1">
-            {inspirationalQuotes.map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentQuote ? 'bg-violet-500' : 'bg-violet-200 dark:bg-violet-700'
-                }`}
-              />
-            ))}
           </div>
         </Card>
       </div>

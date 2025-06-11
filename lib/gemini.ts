@@ -37,7 +37,14 @@ export async function analyzeEmotionAndGenerateResponse(reflection: {
 - medium: 보통 정도의 감정 표현
 - high: 강한 감정 표현, 격한 언어 사용
 
-따뜻하고 개인적인 톤으로 응답을 작성하되, 한국어로 답변하세요.
+응답 스타일:
+- 전문적이지만 친근하고 따뜻한 톤
+- 마크다운 포맷 (##, **, 1. 2. 3. 등) 절대 사용하지 말고 자연스러운 문장으로 작성
+- "당신"보다는 좀 더 친근한 표현 사용
+- 공감과 격려가 느껴지는 따뜻한 말투
+- 4개 섹션을 자연스럽게 이어지는 하나의 글로 작성
+
+한국어로 답변하세요.
 `
 
     const result = await geminiModel.generateContent(prompt)

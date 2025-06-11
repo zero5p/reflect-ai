@@ -34,28 +34,38 @@ export default function CalendarPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const [events, setEvents] = useState<Event[]>([])
+  const [reflections, setReflections] = useState<Reflection[]>([])
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   if (!session) {
     router.push("/login")
     return null
   }
 
-  useEffect(() => {
-    fetchEvents()
-  }, [])
-
-  const fetchEvents = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch('/api/events')
-      if (response.ok) {
-        const data = await response.json()
-        setEvents(data)
+      const [eventsResponse, reflectionsResponse] = await Promise.all([
+        fetch('/api/events'),
+        fetch('/api/reflections')
+      ])
+      
+      if (eventsResponse.ok) {
+        const eventsData = await eventsResponse.json()
+        setEvents(eventsData)
+      }
+      
+      if (reflectionsResponse.ok) {
+        const reflectionsData = await reflectionsResponse.json()
+        setReflections(reflectionsData.reflections || [])
       }
     } catch (error) {
-      console.error('Error fetching events:', error)
+      console.error('Error fetching data:', error)
     } finally {
       setIsLoading(false)
     }
@@ -87,6 +97,27 @@ export default function CalendarPage() {
   const getEventsForDate = (date: Date) => {
     const dateString = date.toISOString().split('T')[0]
     return events.filter(event => event.date === dateString)
+  }
+
+  const getReflectionForDate = (date: Date) => {
+    const dateString = date.toISOString().split('T')[0]
+    return reflections.find(reflection => 
+      reflection.created_at.split('T')[0] === dateString
+    )
+  }
+
+  const getEmotionEmoji = (emotion: string) => {
+    const emotions: { [key: string]: string } = {
+      happy: '😊',
+      sad: '😢',
+      angry: '😠',
+      anxious: '😰',
+      excited: '🤩',
+      calm: '😌',
+      confused: '🤔',
+      grateful: '🙏'
+    }
+    return emotions[emotion] || '😐'
   }
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -191,6 +222,7 @@ export default function CalendarPage() {
                   }
 
                   const dayEvents = getEventsForDate(day)
+                  const dayReflection = getReflectionForDate(day)
                   const isToday = day.toDateString() === new Date().toDateString()
                   const isSelected = selectedDate?.toDateString() === day.toDateString()
 
@@ -200,26 +232,35 @@ export default function CalendarPage() {
                       onClick={() => setSelectedDate(day)}
                       className={`h-12 flex flex-col items-center justify-center rounded-lg text-sm transition-colors relative ${
                         isToday
-                          ? 'bg-violet-500 text-white'
+                          ? 'bg-violet-500 text-white font-semibold'
                           : isSelected
-                          ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
-                          : 'hover:bg-muted'
+                          ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-200 font-medium'
+                          : 'hover:bg-muted text-foreground'
                       }`}
                     >
                       <span>{day.getDate()}</span>
-                      {dayEvents.length > 0 && (
-                        <div className="absolute bottom-1 flex gap-0.5">
-                          {dayEvents.slice(0, 3).map((event, eventIndex) => (
-                            <div
-                              key={eventIndex}
-                              className={`w-1.5 h-1.5 rounded-full ${getEventTypeColor(event.type)}`}
-                            />
-                          ))}
-                          {dayEvents.length > 3 && (
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                          )}
-                        </div>
-                      )}
+                      <div className="absolute bottom-1 flex items-center gap-0.5">
+                        {/* 감정 이모지 표시 */}
+                        {dayReflection && (
+                          <span className="text-xs leading-none">
+                            {getEmotionEmoji(dayReflection.emotion)}
+                          </span>
+                        )}
+                        {/* 일정 점 표시 */}
+                        {dayEvents.length > 0 && (
+                          <div className="flex gap-0.5">
+                            {dayEvents.slice(0, 2).map((event, eventIndex) => (
+                              <div
+                                key={eventIndex}
+                                className={`w-1.5 h-1.5 rounded-full ${getEventTypeColor(event.type)}`}
+                              />
+                            ))}
+                            {dayEvents.length > 2 && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </button>
                   )
                 })}
