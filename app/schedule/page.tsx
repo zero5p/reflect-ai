@@ -1,21 +1,114 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { CalendarIcon, ArrowLeftIcon, PlusIcon } from "lucide-react"
+import { CalendarIcon, ArrowLeftIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
+
+interface Event {
+  id: number
+  title: string
+  description: string
+  date: string
+  time: string
+  type: string
+  user_email: string
+  created_at: string
+}
 
 export default function SchedulePage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const { toast } = useToast()
+  const [events, setEvents] = useState<Event[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   if (!session) {
     router.push("/login")
     return null
+  }
+
+  useEffect(() => {
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch('/api/events')
+      if (response.ok) {
+        const data = await response.json()
+        setEvents(data)
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const deleteEvent = async (eventId: number) => {
+    try {
+      const response = await fetch(`/api/events?id=${eventId}`, {
+        method: 'DELETE',
+      })
+      
+      if (response.ok) {
+        setEvents(events.filter(event => event.id !== eventId))
+        toast({
+          title: "일정이 삭제되었습니다",
+          description: "선택한 일정이 성공적으로 삭제되었습니다.",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "오류가 발생했습니다",
+        description: "일정 삭제에 실패했습니다.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const getEventTypeColor = (type: string) => {
+    const colors: { [key: string]: string } = {
+      personal: 'green',
+      work: 'blue',
+      health: 'red',
+      study: 'purple',
+      social: 'yellow',
+      ai_recommended: 'amber'
+    }
+    return colors[type] || 'gray'
+  }
+
+  const getEventTypeLabel = (type: string) => {
+    const labels: { [key: string]: string } = {
+      personal: '개인 일정',
+      work: '업무',
+      health: '건강/운동',
+      study: '학습',
+      social: '사교/모임',
+      ai_recommended: 'AI 추천'
+    }
+    return labels[type] || type
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short'
+    })
+  }
+
+  const formatTime = (timeString: string) => {
+    return timeString.slice(0, 5)
   }
 
   return (
@@ -48,52 +141,58 @@ export default function SchedulePage() {
           </Link>
         </div>
 
-        <Card className="p-6 text-center">
-          <CalendarIcon className="h-16 w-16 text-violet-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">일정 관리</h2>
-          <p className="text-muted-foreground mb-4">
-            AI가 추천하는 일정과 개인 스케줄을 관리해보세요.
-          </p>
-          
-          {/* Sample schedule items */}
-          <div className="space-y-3 text-left">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">오늘 14:00</span>
-                <span className="text-xs text-muted-foreground bg-blue-100 dark:bg-blue-900/40 px-2 py-1 rounded">AI 추천</span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">🧘</span>
-                <span className="text-sm text-blue-700 dark:text-blue-300">10분 명상 시간</span>
-              </div>
-              <div className="text-xs text-muted-foreground">스트레스 해소를 위한 명상을 추천드려요</div>
-            </div>
-            
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-green-700 dark:text-green-300">내일 09:00</span>
-                <span className="text-xs text-muted-foreground bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded">개인 일정</span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">💼</span>
-                <span className="text-sm text-green-700 dark:text-green-300">팀 미팅</span>
-              </div>
-              <div className="text-xs text-muted-foreground">프로젝트 진행 상황 논의</div>
-            </div>
-
-            <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-amber-700 dark:text-amber-300">금요일 19:00</span>
-                <span className="text-xs text-muted-foreground bg-amber-100 dark:bg-amber-900/40 px-2 py-1 rounded">AI 추천</span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">🎬</span>
-                <span className="text-sm text-amber-700 dark:text-amber-300">영화 감상 시간</span>
-              </div>
-              <div className="text-xs text-muted-foreground">한 주의 피로를 풀어주는 여가 시간</div>
-            </div>
+        {isLoading ? (
+          <Card className="p-6 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4"></div>
+            <p className="text-muted-foreground">일정을 불러오는 중...</p>
+          </Card>
+        ) : events.length === 0 ? (
+          <Card className="p-6 text-center">
+            <CalendarIcon className="h-16 w-16 text-violet-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold mb-2">일정이 없습니다</h2>
+            <p className="text-muted-foreground mb-4">
+              첫 번째 일정을 추가해보세요!
+            </p>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {events.map((event) => {
+              const colorClass = getEventTypeColor(event.type)
+              return (
+                <Card key={event.id} className={`p-4 bg-${colorClass}-50 dark:bg-${colorClass}-900/20 border-${colorClass}-200 dark:border-${colorClass}-800`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-sm font-medium text-${colorClass}-700 dark:text-${colorClass}-300`}>
+                      {formatDate(event.date)} {formatTime(event.time)}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs text-muted-foreground bg-${colorClass}-100 dark:bg-${colorClass}-900/40 px-2 py-1 rounded`}>
+                        {getEventTypeLabel(event.type)}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteEvent(event.id)}
+                        className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2Icon className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`text-sm font-medium text-${colorClass}-700 dark:text-${colorClass}-300`}>
+                      {event.title}
+                    </span>
+                  </div>
+                  {event.description && (
+                    <div className="text-xs text-muted-foreground">
+                      {event.description}
+                    </div>
+                  )}
+                </Card>
+              )
+            })}
           </div>
-        </Card>
+        )}
       </main>
 
       {/* Bottom Navigation */}
