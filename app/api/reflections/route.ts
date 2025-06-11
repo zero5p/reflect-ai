@@ -20,22 +20,38 @@ export async function POST(request: NextRequest) {
     }
 
     // Ensure tables exist
-    await createTables()
+    try {
+      await createTables()
+    } catch (tableError) {
+      console.error("Error creating tables:", tableError)
+      return NextResponse.json({ 
+        error: "Database connection failed",
+        details: tableError instanceof Error ? tableError.message : String(tableError)
+      }, { status: 500 })
+    }
 
     // Generate AI response
-    const aiResponse = await generateReflectionResponse({
-      title,
-      content,
-      emotion,
-      intensity
-    })
+    let aiResponse
+    try {
+      aiResponse = await generateReflectionResponse({
+        title,
+        content,
+        emotion,
+        intensity
+      })
+    } catch (aiError) {
+      console.error("AI response generation failed:", aiError)
+      aiResponse = "AI 응답 생성에 실패했습니다."
+    }
 
     // Save to database
+    console.log("Attempting to save reflection to database...")
     const result = await sql`
       INSERT INTO reflections (user_email, title, content, emotion, intensity, ai_response)
       VALUES (${session.user?.email}, ${title}, ${content}, ${emotion}, ${intensity}, ${aiResponse})
       RETURNING *
     `
+    console.log("Reflection saved successfully:", result[0]?.id)
 
     const reflection = result[0]
 
@@ -47,7 +63,15 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error saving reflection:", error)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error("Error details:", {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    })
+    return NextResponse.json({ 
+      error: "Internal Server Error",
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 })
   }
 }
 
