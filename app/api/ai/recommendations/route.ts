@@ -22,15 +22,22 @@ export async function POST(request: NextRequest) {
     `
 
     // If no reflections exist, use sample data for recommendations
-    const reflectionData = reflections.length > 0 ? reflections : [
-      {
-        title: "첫 번째 성찰을 위한 추천",
-        content: "아직 성찰 기록이 없어서 일반적인 웰빙 활동을 추천드립니다.",
-        emotion: "calm",
-        intensity: "medium",
-        created_at: new Date().toISOString()
-      }
-    ]
+    const reflectionData = reflections.length > 0 ? 
+      reflections.map(r => ({
+        title: r.title,
+        content: r.content,
+        emotion: r.emotion,
+        intensity: r.intensity,
+        createdAt: r.created_at
+      })) : [
+        {
+          title: "첫 번째 성찰을 위한 추천",
+          content: "아직 성찰 기록이 없어서 일반적인 웰빙 활동을 추천드립니다.",
+          emotion: "calm",
+          intensity: "medium",
+          createdAt: new Date().toISOString()
+        }
+      ]
 
     const recommendations = await generateScheduleRecommendations(reflectionData)
 
