@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { CalendarIcon, ArrowLeftIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { CalendarIcon, ArrowLeftIcon, PlusIcon, Trash2Icon, SparklesIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
@@ -28,6 +28,7 @@ export default function SchedulePage() {
   const { toast } = useToast()
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false)
 
   if (!session) {
     router.push("/login")
@@ -111,6 +112,38 @@ export default function SchedulePage() {
     return timeString.slice(0, 5)
   }
 
+  const getAiRecommendations = async () => {
+    setIsLoadingRecommendations(true)
+    try {
+      const response = await fetch('/api/ai/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.recommendations) {
+          toast({
+            title: "AI 추천 일정이 생성되었습니다!",
+            description: `${data.recommendations.length}개의 맞춤 일정을 추천합니다.`,
+          })
+          // 추천 일정을 실제로 추가하는 로직은 여기서 구현
+          // 지금은 토스트 메시지만 표시
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "AI 추천 생성 실패",
+        description: "일정 추천을 생성하는 중 오류가 발생했습니다.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoadingRecommendations(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
       {/* Header */}
@@ -132,13 +165,23 @@ export default function SchedulePage() {
 
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto mb-16">
-        <div className="mb-4">
+        <div className="mb-4 space-y-3">
           <Link href="/schedule/new">
             <Button className="w-full flex items-center gap-2">
               <PlusIcon className="h-4 w-4" />
               새로운 일정 추가하기
             </Button>
           </Link>
+          
+          <Button 
+            onClick={getAiRecommendations}
+            disabled={isLoadingRecommendations}
+            variant="outline"
+            className="w-full flex items-center gap-2 border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+          >
+            <SparklesIcon className="h-4 w-4" />
+            {isLoadingRecommendations ? "AI가 추천 중..." : "AI 맞춤 일정 추천"}
+          </Button>
         </div>
 
         {isLoading ? (

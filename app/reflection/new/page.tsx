@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-import { BookOpenIcon, ArrowLeftIcon, SaveIcon } from "lucide-react"
+import { BookOpenIcon, ArrowLeftIcon, SaveIcon, SparklesIcon, HomeIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -19,16 +19,112 @@ export default function NewReflectionPage() {
   const [content, setContent] = useState("")
   const [emotion, setEmotion] = useState("")
   const [intensity, setIntensity] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [aiResponse, setAiResponse] = useState("")
+  const [showAiResponse, setShowAiResponse] = useState(false)
 
   if (!session) {
     router.push("/login")
     return null
   }
 
-  const handleSave = () => {
-    // TODO: 실제 저장 로직 구현
-    alert("성찰이 저장되었습니다!")
-    router.push("/reflection")
+  const handleSave = async () => {
+    if (!title.trim() || !content.trim()) {
+      alert("제목과 내용을 모두 입력해주세요.")
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/reflections", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim(),
+          emotion,
+          intensity,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        if (data.aiResponse) {
+          setAiResponse(data.aiResponse)
+          setShowAiResponse(true)
+        } else {
+          alert(data.message || "성찰이 저장되었습니다!")
+          router.push("/reflection")
+        }
+      } else {
+        throw new Error(data.error || "저장에 실패했습니다.")
+      }
+    } catch (error) {
+      console.error("Error saving reflection:", error)
+      alert("저장 중 오류가 발생했습니다. 다시 시도해주세요.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (showAiResponse) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
+        {/* Header */}
+        <header className="flex items-center px-5 py-4 bg-background border-b border-border">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/")}
+            className="mr-2"
+          >
+            <HomeIcon className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-2 flex-1">
+            <SparklesIcon className="h-6 w-6 text-violet-600" />
+            <span className="font-bold text-foreground text-lg">AI 성찰 응답</span>
+          </div>
+          <ThemeToggle />
+        </header>
+
+        {/* AI Response */}
+        <main className="flex-1 px-5 py-6 overflow-y-auto">
+          <Card className="p-6 bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
+            <div className="flex items-center gap-2 mb-4">
+              <SparklesIcon className="h-5 w-5 text-violet-600" />
+              <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300">당신의 성찰에 대한 AI 응답</h2>
+            </div>
+            
+            <div className="space-y-4 text-sm leading-relaxed">
+              {aiResponse.split('\n').map((paragraph, index) => (
+                paragraph.trim() && (
+                  <p key={index} className="text-foreground">{paragraph}</p>
+                )
+              ))}
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={() => router.push("/reflection")}
+                className="flex-1"
+              >
+                성찰 목록으로
+              </Button>
+              <Button
+                onClick={() => router.push("/")}
+                variant="outline"
+                className="flex-1"
+              >
+                홈으로
+              </Button>
+            </div>
+          </Card>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -111,9 +207,13 @@ export default function NewReflectionPage() {
               </div>
             </div>
 
-            <Button onClick={handleSave} className="w-full flex items-center gap-2">
+            <Button 
+              onClick={handleSave} 
+              className="w-full flex items-center gap-2"
+              disabled={isLoading}
+            >
               <SaveIcon className="h-4 w-4" />
-              성찰 저장하기
+              {isLoading ? "저장 중..." : "성찰 저장하기"}
             </Button>
           </div>
         </Card>
