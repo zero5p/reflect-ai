@@ -21,6 +21,8 @@ export default function NewReflectionPage() {
   const [aiResponse, setAiResponse] = useState("")
   const [showAiResponse, setShowAiResponse] = useState(false)
   const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false)
+  const [showCustomRequest, setShowCustomRequest] = useState(false)
+  const [customRequest, setCustomRequest] = useState("")
   const [currentQuote, setCurrentQuote] = useState(getRandomQuote())
 
   // 로딩 시작 시 랜덤 명언 선택
@@ -75,7 +77,7 @@ export default function NewReflectionPage() {
     }
   }
 
-  const handleGenerateSchedule = async () => {
+  const handleGenerateSchedule = async (userRequest?: string) => {
     setIsGeneratingSchedule(true)
     try {
       const response = await fetch("/api/ai/recommendations", {
@@ -83,6 +85,9 @@ export default function NewReflectionPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          userRequest: userRequest || customRequest
+        }),
       })
 
       const data = await response.json()
@@ -99,6 +104,8 @@ export default function NewReflectionPage() {
       alert("일정 추천 생성 중 오류가 발생했습니다. 다시 시도해주세요.")
     } finally {
       setIsGeneratingSchedule(false)
+      setShowCustomRequest(false)
+      setCustomRequest("")
     }
   }
 
@@ -122,7 +129,7 @@ export default function NewReflectionPage() {
             감정을 파악하고 맞춤형 상담을 준비하는 중...
           </p>
 
-          <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4 min-h-[120px] flex flex-col justify-center">
+          <div className="bg-white/70 dark:bg-gray-700/80 rounded-lg p-4 min-h-[120px] flex flex-col justify-center">
             <div className="flex items-center justify-center mb-3">
               <HeartIcon className="h-5 w-5 text-pink-500 mr-2" />
               <StarIcon className="h-4 w-4 text-yellow-500" />
@@ -176,29 +183,81 @@ export default function NewReflectionPage() {
             </div>
 
             <div className="space-y-3 mt-6">
-              <Button
-                onClick={handleGenerateSchedule}
-                disabled={isGeneratingSchedule}
-                className="w-full flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-              >
-                {isGeneratingSchedule ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                    AI 일정 추천 생성 중...
-                  </>
-                ) : (
-                  <>
-                    <CalendarPlusIcon className="h-4 w-4" />
-                    성찰 기반 AI 일정 추천 받기
-                  </>
-                )}
-              </Button>
+              {!showCustomRequest ? (
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => handleGenerateSchedule()}
+                    disabled={isGeneratingSchedule}
+                    className="w-full flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                  >
+                    {isGeneratingSchedule ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                        AI 일정 추천 생성 중...
+                      </>
+                    ) : (
+                      <>
+                        <CalendarPlusIcon className="h-4 w-4" />
+                        성찰 기반 AI 일정 추천 받기
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setShowCustomRequest(true)}
+                    variant="outline"
+                    className="w-full flex items-center gap-2"
+                    disabled={isGeneratingSchedule}
+                  >
+                    <SparklesIcon className="h-4 w-4" />
+                    맞춤형 AI 일정 추천 받기
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 p-4 bg-blue-50 dark:bg-gray-700/50 rounded-lg border border-blue-200 dark:border-gray-600">
+                  <div className="flex items-center gap-2">
+                    <SparklesIcon className="h-5 w-5 text-blue-600" />
+                    <h3 className="font-medium text-blue-700 dark:text-blue-300">어떤 일정을 원하시나요?</h3>
+                  </div>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">
+                    구체적으로 설명해주시면 성찰 내용과 함께 분석하여 더 정확한 추천을 드릴 수 있습니다.
+                  </p>
+                  <Textarea
+                    placeholder="예: 운동하는 습관을 만들고 싶어요, 새로운 취미를 시작하고 싶어요, 스트레스 관리 방법을 배우고 싶어요..."
+                    value={customRequest}
+                    onChange={(e) => setCustomRequest(e.target.value)}
+                    rows={3}
+                    className="w-full"
+                  />
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => {
+                        setShowCustomRequest(false)
+                        setCustomRequest("")
+                      }}
+                      variant="outline"
+                      className="flex-1"
+                      disabled={isGeneratingSchedule}
+                    >
+                      취소
+                    </Button>
+                    <Button
+                      onClick={() => handleGenerateSchedule()}
+                      disabled={isGeneratingSchedule || !customRequest.trim()}
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                    >
+                      {isGeneratingSchedule ? "추천 생성 중..." : "AI 추천 받기"}
+                    </Button>
+                  </div>
+                </div>
+              )}
               
               <div className="flex gap-3">
                 <Button
                   onClick={() => router.push("/reflection")}
                   variant="outline"
                   className="flex-1"
+                  disabled={isGeneratingSchedule}
                 >
                   성찰 목록으로
                 </Button>
@@ -206,6 +265,7 @@ export default function NewReflectionPage() {
                   onClick={() => router.push("/")}
                   variant="outline"
                   className="flex-1"
+                  disabled={isGeneratingSchedule}
                 >
                   홈으로
                 </Button>
@@ -262,7 +322,7 @@ export default function NewReflectionPage() {
               />
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+            <div className="bg-blue-50 dark:bg-gray-700/50 rounded-lg p-4 border border-blue-200 dark:border-gray-600">
               <div className="flex items-center gap-2 mb-2">
                 <SparklesIcon className="h-5 w-5 text-blue-600" />
                 <span className="text-sm font-medium text-blue-700 dark:text-blue-300">AI 감정 분석</span>

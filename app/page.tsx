@@ -47,7 +47,7 @@ export default function Page() {
               <h1 className="text-xl font-bold mb-2">생각을 기록하면 마음이 가벼워져요.</h1>
               <p className="text-sm opacity-90 mb-3">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
               <Link href={session ? "/reflection/new" : "/login"}>
-                <Button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg flex items-center gap-2">
+                <Button className="bg-white/20 hover:bg-white/30 dark:bg-gray-700/70 dark:hover:bg-gray-600/80 backdrop-blur-sm border border-white/30 dark:border-gray-500/50 shadow-lg flex items-center gap-2">
                   <SparklesIcon className="h-4 w-4" />
                   성찰 시작하기
                 </Button>

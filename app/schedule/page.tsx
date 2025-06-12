@@ -202,7 +202,7 @@ export default function SchedulePage() {
             {events.map((event) => {
               const colorClass = getEventTypeColor(event.type)
               return (
-                <Card key={event.id} className={`p-4 bg-${colorClass}-50 dark:bg-${colorClass}-900/20 border-${colorClass}-200 dark:border-${colorClass}-800`}>
+                <Card key={event.id} className={`p-4 bg-${colorClass}-50 dark:bg-gray-700/50 border-${colorClass}-200 dark:border-gray-600`}>
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-sm font-medium text-${colorClass}-700 dark:text-${colorClass}-300`}>
                       {formatDate(event.date)} {formatTime(event.time)}

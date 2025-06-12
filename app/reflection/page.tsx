@@ -164,7 +164,7 @@ export default function ReflectionPage() {
         ) : (
           <div className="space-y-3">
             {reflections.map((reflection) => (
-              <Card key={reflection.id} className="p-4 bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800">
+              <Card key={reflection.id} className="p-4 bg-violet-50 dark:bg-gray-700/50 border-violet-200 dark:border-gray-600">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-violet-700 dark:text-violet-300">{reflection.title}</span>
                   <span className="text-xs text-muted-foreground">{formatDate(reflection.created_at)}</span>
@@ -225,10 +225,10 @@ export default function ReflectionPage() {
                         <div className="space-y-3">
                           {formatAiResponse(reflection.ai_response).map((section, index) => (
                             <div key={index} className={`p-3 rounded-lg leading-relaxed text-sm ${
-                              section.type === 'empathy' ? 'bg-pink-50 dark:bg-pink-900/20 border-l-4 border-pink-300 dark:border-pink-700' :
-                              section.type === 'insight' ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-300 dark:border-blue-700' :
-                              section.type === 'advice' ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-300 dark:border-green-700' :
-                              section.type === 'encouragement' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-300 dark:border-yellow-700' :
+                              section.type === 'empathy' ? 'bg-pink-50 dark:bg-gray-700/60 border-l-4 border-pink-300 dark:border-pink-700' :
+                              section.type === 'insight' ? 'bg-blue-50 dark:bg-gray-700/60 border-l-4 border-blue-300 dark:border-blue-700' :
+                              section.type === 'advice' ? 'bg-green-50 dark:bg-gray-700/60 border-l-4 border-green-300 dark:border-green-700' :
+                              section.type === 'encouragement' ? 'bg-yellow-50 dark:bg-gray-700/60 border-l-4 border-yellow-300 dark:border-yellow-700' :
                               'bg-gray-50 dark:bg-gray-800/50'
                             }`}>
                               <p className="text-gray-700 dark:text-gray-300">

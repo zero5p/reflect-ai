@@ -68,19 +68,19 @@ export default function ProfilePage() {
         <Card className="p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">활동 통계</h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+            <div className="text-center p-4 bg-violet-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-2xl font-bold text-violet-600">12</div>
               <div className="text-sm text-muted-foreground">작성한 성찰</div>
             </div>
-            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="text-center p-4 bg-blue-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">8</div>
               <div className="text-sm text-muted-foreground">완료한 일정</div>
             </div>
-            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div className="text-center p-4 bg-green-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">15</div>
               <div className="text-sm text-muted-foreground">연속 사용일</div>
             </div>
-            <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+            <div className="text-center p-4 bg-amber-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-2xl font-bold text-amber-600">85%</div>
               <div className="text-sm text-muted-foreground">목표 달성률</div>
             </div>

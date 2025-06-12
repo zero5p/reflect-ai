@@ -89,7 +89,7 @@ export async function generateScheduleRecommendations(reflections: Array<{
   emotion: string
   intensity: string
   createdAt: string
-}>) {
+}>, userRequest?: string) {
   try {
     const reflectionSummary = reflections.map(r => 
       `날짜: ${r.createdAt}, 감정: ${r.emotion}, 내용: ${r.content.substring(0, 100)}...`
@@ -101,7 +101,12 @@ export async function generateScheduleRecommendations(reflections: Array<{
 최근 성찰 기록:
 ${reflectionSummary}
 
-사용자의 감정 패턴과 성찰 내용을 바탕으로 다음 5가지 카테고리에서 각각 1-2개의 구체적인 일정을 추천해주세요:
+${userRequest ? `사용자의 추가 요청사항:
+${userRequest}
+
+사용자의 요청사항을 우선적으로 고려하여 맞춤형 일정을 추천해주세요.` : ''}
+
+사용자의 감정 패턴과 성찰 내용${userRequest ? ' 및 요청사항' : ''}을 바탕으로 다음 5가지 카테고리에서 각각 1-2개의 구체적인 일정을 추천해주세요:
 
 1. 정신건강/자기관리
 2. 사회활동/인간관계  
