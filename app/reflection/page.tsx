@@ -149,14 +149,14 @@ export default function ReflectionPage() {
         </div>
 
         {isLoading ? (
-          <Card className="p-6 text-center">
+          <Card className="p-6 text-center bg-card dark:bg-card border-border">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4"></div>
             <p className="text-muted-foreground">성찰 목록을 불러오는 중...</p>
           </Card>
         ) : reflections.length === 0 ? (
-          <Card className="p-6 text-center">
+          <Card className="p-6 text-center bg-card dark:bg-card border-border">
             <BookOpenIcon className="h-16 w-16 text-violet-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">성찰 일기 목록</h2>
+            <h2 className="text-xl font-bold mb-2 text-card-foreground">성찰 일기 목록</h2>
             <p className="text-muted-foreground mb-4">
               아직 작성된 성찰 일기가 없습니다. 첫 번째 성찰을 시작해보세요!
             </p>
@@ -164,7 +164,7 @@ export default function ReflectionPage() {
         ) : (
           <div className="space-y-3">
             {reflections.map((reflection) => (
-              <Card key={reflection.id} className="p-4 bg-violet-50 dark:bg-gray-700/50 border-violet-200 dark:border-gray-600">
+              <Card key={reflection.id} className="p-4 bg-card dark:bg-card border-border bg-violet-50 dark:bg-gray-700/50 border-violet-200 dark:border-gray-600">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-violet-700 dark:text-violet-300">{reflection.title}</span>
                   <span className="text-xs text-muted-foreground">{formatDate(reflection.created_at)}</span>

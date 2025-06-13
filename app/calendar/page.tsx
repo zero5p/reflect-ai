@@ -197,14 +197,14 @@ function CalendarPageContent() {
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto mb-16">
         {isLoading ? (
-          <Card className="p-6 text-center">
+          <Card className="p-6 text-center bg-card dark:bg-card border-border">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4"></div>
             <p className="text-muted-foreground">캘린더를 불러오는 중...</p>
           </Card>
         ) : (
           <div className="space-y-4">
             {/* Calendar Header */}
-            <Card className="p-4">
+            <Card className="p-4 bg-card dark:bg-card border-border">
               <div className="flex items-center justify-between mb-4">
                 <Button
                   variant="ghost"
@@ -286,8 +286,8 @@ function CalendarPageContent() {
 
             {/* Selected Date Events */}
             {selectedDate && selectedEvents.length > 0 && (
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-3">
+              <Card className="p-4 bg-card dark:bg-card border-border">
+                <h3 className="text-lg font-semibold mb-3 text-card-foreground">
                   {selectedDate.toLocaleDateString('ko-KR', {
                     month: 'long',
                     day: 'numeric',
@@ -315,7 +315,7 @@ function CalendarPageContent() {
             )}
 
             {selectedDate && selectedEvents.length === 0 && (
-              <Card className="p-4 text-center">
+              <Card className="p-4 text-center bg-card dark:bg-card border-border">
                 <CalendarIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-muted-foreground">
                   {selectedDate.toLocaleDateString('ko-KR', {

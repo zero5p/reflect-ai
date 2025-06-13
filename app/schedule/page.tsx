@@ -185,14 +185,14 @@ export default function SchedulePage() {
         </div>
 
         {isLoading ? (
-          <Card className="p-6 text-center">
+          <Card className="p-6 text-center bg-card dark:bg-card border-border">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4"></div>
             <p className="text-muted-foreground">일정을 불러오는 중...</p>
           </Card>
         ) : events.length === 0 ? (
-          <Card className="p-6 text-center">
+          <Card className="p-6 text-center bg-card dark:bg-card border-border">
             <CalendarIcon className="h-16 w-16 text-violet-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">일정이 없습니다</h2>
+            <h2 className="text-xl font-bold mb-2 text-card-foreground">일정이 없습니다</h2>
             <p className="text-muted-foreground mb-4">
               첫 번째 일정을 추가해보세요!
             </p>
@@ -202,7 +202,7 @@ export default function SchedulePage() {
             {events.map((event) => {
               const colorClass = getEventTypeColor(event.type)
               return (
-                <Card key={event.id} className={`p-4 bg-${colorClass}-50 dark:bg-gray-700/50 border-${colorClass}-200 dark:border-gray-600`}>
+                <Card key={event.id} className={`p-4 bg-card dark:bg-card border-border bg-${colorClass}-50 dark:bg-gray-700/50 border-${colorClass}-200 dark:border-gray-600`}>
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-sm font-medium text-${colorClass}-700 dark:text-${colorClass}-300`}>
                       {formatDate(event.date)} {formatTime(event.time)}

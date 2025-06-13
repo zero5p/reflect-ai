@@ -113,7 +113,7 @@ export default function NewReflectionPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col items-center justify-center px-5">
-        <Card className="p-8 max-w-md w-full text-center bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
+        <Card className="p-8 max-w-md w-full text-center bg-card dark:bg-card border-border bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
           <div className="flex items-center justify-center mb-6">
             <div className="relative">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-violet-200 dark:border-violet-800"></div>
@@ -168,16 +168,16 @@ export default function NewReflectionPage() {
 
         {/* AI Response */}
         <main className="flex-1 px-5 py-6 overflow-y-auto">
-          <Card className="p-6 bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
+          <Card className="p-6 bg-card dark:bg-card border-border bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
             <div className="flex items-center gap-2 mb-4">
               <SparklesIcon className="h-5 w-5 text-violet-600" />
-              <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300">당신의 성찰에 대한 AI 응답</h2>
+              <h2 className="text-lg font-bold text-card-foreground text-violet-700 dark:text-violet-300">당신의 성찰에 대한 AI 응답</h2>
             </div>
             
             <div className="space-y-4 text-sm leading-relaxed">
               {aiResponse.split('\n').map((paragraph, index) => (
                 paragraph.trim() && (
-                  <p key={index} className="text-foreground">{paragraph}</p>
+                  <p key={index} className="text-card-foreground">{paragraph}</p>
                 )
               ))}
             </div>
@@ -298,7 +298,7 @@ export default function NewReflectionPage() {
 
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto">
-        <Card className="p-6">
+        <Card className="p-6 bg-card dark:bg-card border-border">
           <div className="space-y-6">
             <div>
               <Label htmlFor="title">제목</Label>

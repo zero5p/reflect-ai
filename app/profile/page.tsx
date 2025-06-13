@@ -44,7 +44,7 @@ export default function ProfilePage() {
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto mb-16">
         {/* User Info Card */}
-        <Card className="p-6 mb-6">
+        <Card className="p-6 mb-6 bg-card dark:bg-card border-border">
           <div className="flex items-center space-x-4 mb-4">
             <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center">
               {session.user?.image ? (
@@ -58,15 +58,15 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold">{session.user?.name || "사용자"}</h2>
+              <h2 className="text-xl font-bold text-card-foreground">{session.user?.name || "사용자"}</h2>
               <p className="text-muted-foreground">{session.user?.email}</p>
             </div>
           </div>
         </Card>
 
         {/* Stats Card */}
-        <Card className="p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-4">활동 통계</h3>
+        <Card className="p-6 mb-6 bg-card dark:bg-card border-border">
+          <h3 className="text-lg font-semibold mb-4 text-card-foreground">활동 통계</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-violet-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-2xl font-bold text-violet-600">12</div>
@@ -88,8 +88,8 @@ export default function ProfilePage() {
         </Card>
 
         {/* Settings Card */}
-        <Card className="p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-4">설정</h3>
+        <Card className="p-6 mb-6 bg-card dark:bg-card border-border">
+          <h3 className="text-lg font-semibold mb-4 text-card-foreground">설정</h3>
           <div className="space-y-3">
             <Button variant="ghost" className="w-full justify-start" disabled>
               <SettingsIcon className="h-4 w-4 mr-2" />
@@ -105,7 +105,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* Logout */}
-        <Card className="p-6">
+        <Card className="p-6 bg-card dark:bg-card border-border">
           <Button 
             variant="outline" 
             className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"

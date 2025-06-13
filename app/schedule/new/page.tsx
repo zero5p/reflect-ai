@@ -167,16 +167,16 @@ function NewSchedulePageContent() {
       <main className="flex-1 px-5 py-6 overflow-y-auto">
         {showAiRecommendations ? (
           <div className="space-y-4">
-            <Card className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-200 dark:border-violet-800">
+            <Card className="p-4 bg-card dark:bg-card border-border bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-200 dark:border-violet-800">
               <div className="flex items-center gap-2 mb-2">
                 <SparklesIcon className="h-5 w-5 text-violet-600" />
-                <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300">AI 맞춤 일정 추천</h2>
+                <h2 className="text-lg font-bold text-card-foreground text-violet-700 dark:text-violet-300">AI 맞춤 일정 추천</h2>
               </div>
               <p className="text-sm text-muted-foreground">성찰 내용을 바탕으로 생성된 맞춤 일정 추천입니다. 원하는 일정을 선택하세요.</p>
             </Card>
 
             {aiRecommendations.map((rec, index) => (
-              <Card key={index} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectRecommendation(rec)}>
+              <Card key={index} className="p-4 bg-card dark:bg-card border-border hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectRecommendation(rec)}>
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xs px-2 py-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-full">
@@ -186,7 +186,7 @@ function NewSchedulePageContent() {
                   </div>
                   <PlusIcon className="h-4 w-4 text-violet-600" />
                 </div>
-                <h3 className="font-medium text-foreground mb-1">{rec.title}</h3>
+                <h3 className="font-medium text-card-foreground mb-1">{rec.title}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2">{rec.description}</p>
               </Card>
             ))}
@@ -220,7 +220,7 @@ function NewSchedulePageContent() {
               {isGeneratingAI ? "AI 추천 생성 중..." : "성찰 기반 AI 일정 추천 받기"}
             </Button>
 
-            <Card className="p-6">
+            <Card className="p-6 bg-card dark:bg-card border-border">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">일정 제목</Label>

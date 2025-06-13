@@ -41,10 +41,10 @@ export default function Page() {
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto mb-16">
         {/* Hero Section */}
-        <Card className="mb-6 overflow-hidden bg-gradient-to-r from-emerald-400/90 to-violet-400/90 dark:from-emerald-600/50 dark:to-violet-600/50 border-0 text-white">
+        <Card className="mb-6 overflow-hidden bg-card dark:bg-card border-border bg-gradient-to-r from-emerald-400/90 to-violet-400/90 dark:from-emerald-600/50 dark:to-violet-600/50 border-0 text-white">
           <div className="flex p-4">
             <div className="flex-1 pr-4">
-              <h1 className="text-xl font-bold mb-2">생각을 기록하면 마음이 가벼워져요.</h1>
+              <h1 className="text-xl font-bold mb-2 text-card-foreground">생각을 기록하면 마음이 가벼워져요.</h1>
               <p className="text-sm opacity-90 mb-3">나를 돌아보고, 더 가벼운 하루를 만들어보세요.</p>
               <Link href={session ? "/reflection/new" : "/login"}>
                 <Button className="bg-white/20 hover:bg-white/30 dark:bg-gray-700/70 dark:hover:bg-gray-600/80 backdrop-blur-sm border border-white/30 dark:border-gray-500/50 shadow-lg flex items-center gap-2">
@@ -64,8 +64,8 @@ export default function Page() {
         </Card>
 
         {/* What is Reflect-AI */}
-        <Card className="mb-6 p-4 bg-card text-card-foreground">
-          <h2 className="text-lg font-bold mb-3">Reflect-AI란?</h2>
+        <Card className="mb-6 p-4 bg-card dark:bg-card border-border text-card-foreground">
+          <h2 className="text-lg font-bold mb-3 text-card-foreground">Reflect-AI란?</h2>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start">
               <span className="mr-2">•</span>
@@ -85,7 +85,7 @@ export default function Page() {
         {/* Recent Entries */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Link href={session ? "/reflection" : "/login"} className="block">
-            <Card className="bg-violet-100/70 dark:bg-violet-900/30 p-4 h-full border-violet-200 dark:border-violet-800">
+            <Card className="bg-card dark:bg-card border-border bg-violet-100/70 dark:bg-violet-900/30 p-4 h-full border-violet-200 dark:border-violet-800">
               <div className="flex flex-col h-full">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-medium text-violet-800 dark:text-violet-300">최근 일기</span>
@@ -103,7 +103,7 @@ export default function Page() {
           </Link>
 
           <Link href={session ? "/calendar" : "/login"} className="block">
-            <Card className="bg-emerald-100/70 dark:bg-emerald-900/30 p-4 h-full border-emerald-200 dark:border-emerald-800">
+            <Card className="bg-card dark:bg-card border-border bg-emerald-100/70 dark:bg-emerald-900/30 p-4 h-full border-emerald-200 dark:border-emerald-800">
               <div className="flex flex-col h-full">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">오늘의 일정</span>
