@@ -117,7 +117,7 @@ function NewSchedulePageContent() {
           title: "일정이 추가되었습니다",
           description: "새로운 일정이 성공적으로 저장되었습니다.",
         })
-        router.push('/schedule')
+        router.push('/calendar')
       } else {
         const error = await response.json()
         toast({
@@ -145,9 +145,18 @@ function NewSchedulePageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex flex-col relative overflow-hidden">
+      {/* 무무 마스코트 떠다니는 장식 */}
+      <div className="absolute top-20 right-4 w-16 h-16 animate-mumu-float opacity-30 pointer-events-none z-0">
+        <img 
+          src="/mumu_mascot.png" 
+          alt="무무" 
+          className="w-full h-full object-contain"
+        />
+      </div>
+      
       {/* Header */}
-      <header className="flex items-center px-5 py-4 bg-background border-b border-border">
+      <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent relative z-10">
         <Button
           variant="ghost"
           size="icon"
@@ -157,8 +166,14 @@ function NewSchedulePageContent() {
           <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2 flex-1">
-          <CalendarIcon className="h-6 w-6 text-violet-600" />
-          <span className="font-bold text-foreground text-lg">새 일정 추가</span>
+          <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
+            <img 
+              src="/mumu_mascot.png" 
+              alt="무무" 
+              className="w-6 h-6 object-contain"
+            />
+          </div>
+          <span className="font-bold text-mumu-brown-dark text-lg">새 일정 추가</span>
         </div>
         <ThemeToggle />
       </header>
@@ -167,16 +182,16 @@ function NewSchedulePageContent() {
       <main className="flex-1 px-5 py-6 overflow-y-auto">
         {showAiRecommendations ? (
           <div className="space-y-4">
-            <Card className="p-4 bg-card dark:bg-card border-border bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-200 dark:border-violet-800">
+            <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-2">
-                <SparklesIcon className="h-5 w-5 text-violet-600" />
-                <h2 className="text-lg font-bold text-card-foreground text-violet-700 dark:text-violet-300">AI 맞춤 일정 추천</h2>
+                <SparklesIcon className="h-5 w-5 text-mumu-brown-dark" />
+                <h2 className="text-lg font-bold text-mumu-brown-dark">AI 맞춤 일정 추천</h2>
               </div>
-              <p className="text-sm text-muted-foreground">성찰 내용을 바탕으로 생성된 맞춤 일정 추천입니다. 원하는 일정을 선택하세요.</p>
+              <p className="text-sm text-mumu-brown">성찰 내용을 바탕으로 생성된 맞춤 일정 추천입니다. 원하는 일정을 선택하세요.</p>
             </Card>
 
             {aiRecommendations.map((rec, index) => (
-              <Card key={index} className="p-4 bg-card dark:bg-card border-border hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectRecommendation(rec)}>
+              <Card key={index} className="p-4 bg-mumu-accent/50 dark:bg-mumu-brown/20 border-mumu-brown-light hover:shadow-md transition-shadow cursor-pointer" onClick={() => selectRecommendation(rec)}>
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xs px-2 py-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-full">
@@ -214,13 +229,13 @@ function NewSchedulePageContent() {
             <Button
               onClick={generateAIRecommendations}
               disabled={isGeneratingAI}
-              className="w-full flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+              className="w-full flex items-center gap-2 bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream"
             >
               <SparklesIcon className="h-4 w-4" />
               {isGeneratingAI ? "AI 추천 생성 중..." : "성찰 기반 AI 일정 추천 받기"}
             </Button>
 
-            <Card className="p-6 bg-card dark:bg-card border-border">
+            <Card className="p-6 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">일정 제목</Label>
@@ -287,7 +302,7 @@ function NewSchedulePageContent() {
 
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream" 
               disabled={isLoading || !formData.title || !formData.date || !formData.time}
             >
               {isLoading ? (

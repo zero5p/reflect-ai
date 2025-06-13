@@ -24,7 +24,7 @@ export function NavBar({ activeTab }: NavBarProps) {
     },
     {
       id: "calendar",
-      label: "캘린더",
+      label: "기록보기",
       icon: <CalendarIcon className="h-5 w-5" />,
       href: "/calendar",
     },

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
-import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, SparklesIcon } from "lucide-react"
+import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
@@ -41,7 +41,6 @@ function CalendarPageContent() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false)
 
   // 캐시된 데이터 가져오기
   const fetchData = useCallback(async () => {
@@ -177,37 +176,6 @@ function CalendarPageContent() {
     return colors[type] || 'bg-gray-500'
   }
 
-  const getAiRecommendations = async () => {
-    setIsLoadingRecommendations(true)
-    try {
-      const response = await fetch('/api/ai/recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.recommendations) {
-          toast({
-            title: "AI 추천 일정이 생성되었습니다!",
-            description: `${data.recommendations.length}개의 맞춤 일정을 추천합니다.`,
-          })
-          // 데이터 새로고침
-          fetchData()
-        }
-      }
-    } catch (error) {
-      toast({
-        title: "AI 추천 생성 실패",
-        description: "일정 추천을 생성하는 중 오류가 발생했습니다.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoadingRecommendations(false)
-    }
-  }
 
   const days = getDaysInMonth(currentDate)
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : []
@@ -241,7 +209,7 @@ function CalendarPageContent() {
               className="w-6 h-6 object-contain"
             />
           </div>
-          <span className="font-bold text-mumu-brown-dark text-lg">캘린더 & 일정</span>
+          <span className="font-bold text-mumu-brown-dark text-lg">나의 성찰 기록</span>
         </div>
         <ThemeToggle />
       </header>
@@ -263,25 +231,22 @@ function CalendarPageContent() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {/* 일정 관리 버튼들 */}
-            <div className="grid grid-cols-2 gap-3">
-              <Link href="/schedule/new">
-                <Button className="w-full flex items-center gap-2 bg-violet-600 hover:bg-violet-700">
-                  <PlusIcon className="h-4 w-4" />
-                  새 일정 추가
-                </Button>
-              </Link>
-              
-              <Button 
-                onClick={getAiRecommendations}
-                disabled={isLoadingRecommendations}
-                variant="outline"
-                className="w-full flex items-center gap-2 border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20"
-              >
-                <SparklesIcon className="h-4 w-4" />
-                {isLoadingRecommendations ? "AI 추천 중..." : "AI 일정 추천"}
-              </Button>
-            </div>
+            {/* 무무의 격려 메시지 */}
+            <Card className="p-4 bg-mumu-accent/30 dark:bg-mumu-brown/20 border-mumu-brown-light backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8">
+                  <img 
+                    src="/mumu_mascot.png" 
+                    alt="무무" 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-mumu-brown-dark">무무가 응원해요!</p>
+                  <p className="text-xs text-mumu-brown">성찰 기록을 통해 자신을 더 깊이 알아가세요.</p>
+                </div>
+              </div>
+            </Card>
             {/* Calendar Header */}
             <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
               <div className="flex items-center justify-between mb-4">
@@ -395,19 +360,23 @@ function CalendarPageContent() {
 
             {selectedDate && selectedEvents.length === 0 && (
               <Card className="p-4 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
-                <CalendarIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">
+                <div className="w-12 h-12 mx-auto mb-3">
+                  <img 
+                    src="/mumu_mascot.png" 
+                    alt="무무" 
+                    className="w-full h-full object-contain opacity-60"
+                  />
+                </div>
+                <p className="text-mumu-brown text-sm">
                   {selectedDate.toLocaleDateString('ko-KR', {
                     month: 'long',
                     day: 'numeric',
                     weekday: 'long'
-                  })}에는 일정이 없습니다.
+                  })}
                 </p>
-                <Link href="/schedule/new">
-                  <Button variant="outline" className="mt-2">
-                    일정 추가하기
-                  </Button>
-                </Link>
+                <p className="text-xs text-mumu-brown mt-1 opacity-80">
+                  이 날의 성찰 기록을 확인해보세요
+                </p>
               </Card>
             )}
           </div>
