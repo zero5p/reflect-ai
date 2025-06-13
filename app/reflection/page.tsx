@@ -119,9 +119,18 @@ export default function ReflectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex flex-col relative overflow-hidden">
+      {/* 무무 마스코트 떠다니는 장식 */}
+      <div className="absolute top-20 right-4 w-16 h-16 animate-mumu-float opacity-30 pointer-events-none z-0">
+        <img 
+          src="/mumu_mascot.png" 
+          alt="무무" 
+          className="w-full h-full object-contain"
+        />
+      </div>
+      
       {/* Header */}
-      <header className="flex items-center px-5 py-4 bg-background border-b border-border">
+      <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent relative z-10">
         <Button
           variant="ghost"
           size="icon"
@@ -131,8 +140,14 @@ export default function ReflectionPage() {
           <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2 flex-1">
-          <BookOpenIcon className="h-6 w-6 text-violet-600" />
-          <span className="font-bold text-foreground text-lg">성찰 일기</span>
+          <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
+            <img 
+              src="/mumu_mascot.png" 
+              alt="무무" 
+              className="w-6 h-6 object-contain"
+            />
+          </div>
+          <span className="font-bold text-mumu-brown-dark text-lg">성찰 일기</span>
         </div>
         <ThemeToggle />
       </header>
@@ -141,7 +156,7 @@ export default function ReflectionPage() {
       <main className="flex-1 px-5 py-6 overflow-y-auto mb-16">
         <div className="mb-4">
           <Link href="/reflection/new">
-            <Button className="w-full flex items-center gap-2">
+            <Button className="w-full flex items-center gap-2 bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream">
               <PlusIcon className="h-4 w-4" />
               새로운 성찰 작성하기
             </Button>
@@ -149,34 +164,48 @@ export default function ReflectionPage() {
         </div>
 
         {isLoading ? (
-          <Card className="p-6 text-center bg-card dark:bg-card border-border">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4"></div>
-            <p className="text-muted-foreground">성찰 목록을 불러오는 중...</p>
+          <Card className="p-6 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 mb-4 animate-mumu-float">
+                <img 
+                  src="/mumu_mascot.png" 
+                  alt="무무" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <p className="text-mumu-brown">무무가 성찰 목록을 불러오고 있어요...</p>
+            </div>
           </Card>
         ) : reflections.length === 0 ? (
-          <Card className="p-6 text-center bg-card dark:bg-card border-border">
-            <BookOpenIcon className="h-16 w-16 text-violet-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2 text-card-foreground">성찰 일기 목록</h2>
-            <p className="text-muted-foreground mb-4">
-              아직 작성된 성찰 일기가 없습니다. 첫 번째 성찰을 시작해보세요!
+          <Card className="p-6 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
+            <div className="w-16 h-16 mx-auto mb-4">
+              <img 
+                src="/mumu_mascot.png" 
+                alt="무무" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <h2 className="text-xl font-bold mb-2 text-mumu-brown-dark">성찰 일기 목록</h2>
+            <p className="text-mumu-brown mb-4">
+              아직 작성된 성찰 일기가 없습니다. 무무와 함께 첫 번째 성찰을 시작해보세요!
             </p>
           </Card>
         ) : (
           <div className="space-y-3">
             {reflections.map((reflection) => (
-              <Card key={reflection.id} className="p-4 bg-card dark:bg-card border-border bg-violet-50 dark:bg-gray-700/50 border-violet-200 dark:border-gray-600">
+              <Card key={reflection.id} className="p-4 bg-mumu-cream/60 dark:bg-mumu-brown/30 border-mumu-accent backdrop-blur-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300">{reflection.title}</span>
-                  <span className="text-xs text-muted-foreground">{formatDate(reflection.created_at)}</span>
+                  <span className="text-sm font-medium text-mumu-brown-dark">{reflection.title}</span>
+                  <span className="text-xs text-mumu-brown">{formatDate(reflection.created_at)}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">{getEmotionEmoji(reflection.emotion)}</span>
-                  <span className="text-sm text-violet-700 dark:text-violet-300 line-clamp-2">
+                  <span className="text-sm text-mumu-brown-dark line-clamp-2">
                     {reflection.content.substring(0, 100)}...
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-mumu-brown">
                     감정: {getEmotionLabel(reflection.emotion)}
                   </div>
                   {reflection.ai_response && (
@@ -184,7 +213,7 @@ export default function ReflectionPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleExpanded(reflection.id)}
-                      className="flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400 h-6 px-2"
+                      className="flex items-center gap-1 text-xs text-mumu-brown-dark h-6 px-2 hover:bg-mumu-accent"
                     >
                       <SparklesIcon className="h-3 w-3" />
                       <span>AI 응답</span>

@@ -17,25 +17,48 @@ export default function Page() {
   const [recentReflection, setRecentReflection] = useState<any>(null)
   const [todayEvents, setTodayEvents] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [memoryData, setMemoryData] = useState<{
+    days7: any,
+    days30: any,
+    days90: any
+  }>({ days7: null, days30: null, days90: null })
+  const [isLoadingMemory, setIsLoadingMemory] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
       if (!session?.user?.email) {
         setIsLoading(false)
+        setIsLoadingMemory(false)
         return
       }
 
       try {
+        // 대시보드 데이터 가져오기
         const data = await cachedFetch(`/api/dashboard?email=${session.user.email}`, undefined, 1)
         
         if (data.success) {
           setRecentReflection(data.data.recentReflection)
           setTodayEvents(data.data.todayEvents)
         }
+
+        // 메모리 데이터 가져오기 (7일, 30일, 90일 전)
+        const [memory7, memory30, memory90] = await Promise.all([
+          cachedFetch('/api/reflections/memory?days=7', undefined, 5),
+          cachedFetch('/api/reflections/memory?days=30', undefined, 5),
+          cachedFetch('/api/reflections/memory?days=90', undefined, 5)
+        ])
+
+        setMemoryData({
+          days7: memory7.success ? memory7.data : null,
+          days30: memory30.success ? memory30.data : null,
+          days90: memory90.success ? memory90.data : null
+        })
+
       } catch (error) {
         console.error('데이터를 가져오는 중 오류가 발생했습니다:', error)
       } finally {
         setIsLoading(false)
+        setIsLoadingMemory(false)
       }
     }
 
@@ -143,6 +166,106 @@ export default function Page() {
               src="/mumu_mascot.png" 
               alt="" 
               className="w-full h-full object-contain"
+            />
+          </div>
+        </Card>
+
+        {/* 무무의 시간여행 */}
+        <Card className="mb-6 p-4 bg-gradient-to-r from-mumu-accent/30 to-mumu-brown-light/20 dark:from-mumu-brown/40 dark:to-mumu-brown-dark/30 border-mumu-accent backdrop-blur-sm relative">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6">
+              <img 
+                src="/mumu_mascot.png" 
+                alt="무무" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <h2 className="text-lg font-bold text-mumu-brown-dark">무무의 시간여행</h2>
+            <span className="text-xs text-mumu-brown bg-mumu-cream/50 px-2 py-1 rounded-full">망각곡선 보완</span>
+          </div>
+          
+          {isLoadingMemory ? (
+            <div className="space-y-3">
+              {[7, 30, 90].map((days) => (
+                <div key={days} className="animate-pulse">
+                  <div className="h-4 bg-mumu-accent/30 rounded mb-1"></div>
+                  <div className="h-3 bg-mumu-accent/20 rounded w-32"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* 7일 전 */}
+              <div className="flex items-center gap-3 p-2 rounded-lg bg-mumu-cream/30 dark:bg-mumu-brown/20">
+                <span className="text-lg">🕐</span>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-mumu-brown-dark">7일 전의 나</div>
+                  {memoryData.days7 ? (
+                    <div className="text-xs text-mumu-brown">
+                      <span className="mr-2">
+                        {memoryData.days7.emotion === 'happy' ? '😊' : 
+                         memoryData.days7.emotion === 'sad' ? '😢' : 
+                         memoryData.days7.emotion === 'angry' ? '😠' : 
+                         memoryData.days7.emotion === 'excited' ? '😆' : '😐'}
+                      </span>
+                      {memoryData.days7.title?.substring(0, 20)}...
+                    </div>
+                  ) : (
+                    <div className="text-xs text-mumu-brown opacity-60">그때는 기록이 없었어요</div>
+                  )}
+                </div>
+              </div>
+
+              {/* 30일 전 */}
+              <div className="flex items-center gap-3 p-2 rounded-lg bg-mumu-cream/30 dark:bg-mumu-brown/20">
+                <span className="text-lg">🗓️</span>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-mumu-brown-dark">30일 전의 나</div>
+                  {memoryData.days30 ? (
+                    <div className="text-xs text-mumu-brown">
+                      <span className="mr-2">
+                        {memoryData.days30.emotion === 'happy' ? '😊' : 
+                         memoryData.days30.emotion === 'sad' ? '😢' : 
+                         memoryData.days30.emotion === 'angry' ? '😠' : 
+                         memoryData.days30.emotion === 'excited' ? '😆' : '😐'}
+                      </span>
+                      {memoryData.days30.title?.substring(0, 20)}...
+                    </div>
+                  ) : (
+                    <div className="text-xs text-mumu-brown opacity-60">한 달 전엔 무무와 함께하지 않았네요</div>
+                  )}
+                </div>
+              </div>
+
+              {/* 90일 전 */}
+              <div className="flex items-center gap-3 p-2 rounded-lg bg-mumu-cream/30 dark:bg-mumu-brown/20">
+                <span className="text-lg">⭐</span>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-mumu-brown-dark">90일 전의 나</div>
+                  {memoryData.days90 ? (
+                    <div className="text-xs text-mumu-brown">
+                      <span className="mr-2">
+                        {memoryData.days90.emotion === 'happy' ? '😊' : 
+                         memoryData.days90.emotion === 'sad' ? '😢' : 
+                         memoryData.days90.emotion === 'angry' ? '😠' : 
+                         memoryData.days90.emotion === 'excited' ? '😆' : '😐'}
+                      </span>
+                      {memoryData.days90.title?.substring(0, 20)}...
+                    </div>
+                  ) : (
+                    <div className="text-xs text-mumu-brown opacity-60">계절이 바뀌었지만 기록은 없었어요</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* 작은 무무 장식 */}
+          <div className="absolute top-2 right-2 w-4 h-4 opacity-30">
+            <img 
+              src="/mumu_mascot.png" 
+              alt="" 
+              className="w-full h-full object-contain animate-mumu-float"
             />
           </div>
         </Card>

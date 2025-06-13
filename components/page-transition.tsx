@@ -95,16 +95,29 @@ export function PageTransition({ children }: PageTransitionProps) {
           {/* 드래그 중일 때 이전 페이지 시뮬레이션 */}
           {isDragging && dragX > 50 && (
             <motion.div
-              className="absolute inset-0 bg-background border-r border-border shadow-lg"
+              className="absolute inset-0 bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background border-r border-mumu-accent shadow-lg"
               style={{
                 x: dragX - window.innerWidth,
                 zIndex: -1
               }}
             >
               <div className="p-4 pt-16">
-                <div className="w-8 h-8 bg-violet-600 rounded-lg mb-2"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="w-8 h-8 bg-mumu-brown rounded-lg mb-2 flex items-center justify-center">
+                  <img 
+                    src="/mumu_mascot.png" 
+                    alt="무무" 
+                    className="w-6 h-6 object-contain"
+                  />
+                </div>
+                <div className="h-4 bg-mumu-accent rounded mb-2"></div>
+                <div className="h-4 bg-mumu-accent rounded w-3/4"></div>
+                <div className="absolute bottom-4 right-4 w-12 h-12 opacity-30">
+                  <img 
+                    src="/mumu_mascot.png" 
+                    alt="무무" 
+                    className="w-full h-full object-contain animate-mumu-float"
+                  />
+                </div>
               </div>
             </motion.div>
           )}

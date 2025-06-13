@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
-import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, SparklesIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cachedFetch } from "@/lib/cache"
+import { useToast } from "@/hooks/use-toast"
 
 interface Event {
   id: number
@@ -34,11 +35,13 @@ interface Reflection {
 function CalendarPageContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { toast } = useToast()
   const [events, setEvents] = useState<Event[]>([])
   const [reflections, setReflections] = useState<Reflection[]>([])
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false)
 
   // 캐시된 데이터 가져오기
   const fetchData = useCallback(async () => {
@@ -174,13 +177,54 @@ function CalendarPageContent() {
     return colors[type] || 'bg-gray-500'
   }
 
+  const getAiRecommendations = async () => {
+    setIsLoadingRecommendations(true)
+    try {
+      const response = await fetch('/api/ai/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.recommendations) {
+          toast({
+            title: "AI 추천 일정이 생성되었습니다!",
+            description: `${data.recommendations.length}개의 맞춤 일정을 추천합니다.`,
+          })
+          // 데이터 새로고침
+          fetchData()
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "AI 추천 생성 실패",
+        description: "일정 추천을 생성하는 중 오류가 발생했습니다.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoadingRecommendations(false)
+    }
+  }
+
   const days = getDaysInMonth(currentDate)
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : []
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex flex-col relative overflow-hidden">
+      {/* 무무 마스코트 떠다니는 장식 */}
+      <div className="absolute top-20 right-4 w-16 h-16 animate-mumu-float opacity-30 pointer-events-none z-0">
+        <img 
+          src="/mumu_mascot.png" 
+          alt="무무" 
+          className="w-full h-full object-contain"
+        />
+      </div>
+      
       {/* Header */}
-      <header className="flex items-center px-5 py-4 bg-background border-b border-border">
+      <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent relative z-10">
         <Button
           variant="ghost"
           size="icon"
@@ -190,8 +234,14 @@ function CalendarPageContent() {
           <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2 flex-1">
-          <CalendarIcon className="h-6 w-6 text-violet-600" />
-          <span className="font-bold text-foreground text-lg">캘린더</span>
+          <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
+            <img 
+              src="/mumu_mascot.png" 
+              alt="무무" 
+              className="w-6 h-6 object-contain"
+            />
+          </div>
+          <span className="font-bold text-mumu-brown-dark text-lg">캘린더 & 일정</span>
         </div>
         <ThemeToggle />
       </header>
@@ -199,44 +249,41 @@ function CalendarPageContent() {
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto mb-16">
         {isLoading ? (
-          <div className="space-y-4">
-            {/* Calendar Header Skeleton */}
-            <Card className="p-4 bg-card dark:bg-card border-border">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                <div className="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          <Card className="p-6 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 mb-4 animate-mumu-float">
+                <img 
+                  src="/mumu_mascot.png" 
+                  alt="무무" 
+                  className="w-full h-full object-contain"
+                />
               </div>
-              
-              {/* Calendar Grid Skeleton */}
-              <div className="grid grid-cols-7 gap-1 mb-2">
-                {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">{day}</div>
-                ))}
-              </div>
-              
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: 42 }).map((_, i) => (
-                  <div key={i} className="aspect-square p-1">
-                    <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-            
-            {/* Selected Date Info Skeleton */}
-            <Card className="p-4 bg-card dark:bg-card border-border">
-              <div className="w-32 h-5 bg-gray-200 dark:bg-gray-700 rounded mb-3 animate-pulse"></div>
-              <div className="space-y-2">
-                <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                <div className="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              </div>
-            </Card>
-          </div>
+              <p className="text-mumu-brown">무무가 캘린더를 준비하고 있어요...</p>
+            </div>
+          </Card>
         ) : (
           <div className="space-y-4">
+            {/* 일정 관리 버튼들 */}
+            <div className="grid grid-cols-2 gap-3">
+              <Link href="/schedule/new">
+                <Button className="w-full flex items-center gap-2 bg-violet-600 hover:bg-violet-700">
+                  <PlusIcon className="h-4 w-4" />
+                  새 일정 추가
+                </Button>
+              </Link>
+              
+              <Button 
+                onClick={getAiRecommendations}
+                disabled={isLoadingRecommendations}
+                variant="outline"
+                className="w-full flex items-center gap-2 border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+              >
+                <SparklesIcon className="h-4 w-4" />
+                {isLoadingRecommendations ? "AI 추천 중..." : "AI 일정 추천"}
+              </Button>
+            </div>
             {/* Calendar Header */}
-            <Card className="p-4 bg-card dark:bg-card border-border">
+            <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
               <div className="flex items-center justify-between mb-4">
                 <Button
                   variant="ghost"
@@ -318,7 +365,7 @@ function CalendarPageContent() {
 
             {/* Selected Date Events */}
             {selectedDate && selectedEvents.length > 0 && (
-              <Card className="p-4 bg-card dark:bg-card border-border">
+              <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
                 <h3 className="text-lg font-semibold mb-3 text-card-foreground">
                   {selectedDate.toLocaleDateString('ko-KR', {
                     month: 'long',
@@ -347,7 +394,7 @@ function CalendarPageContent() {
             )}
 
             {selectedDate && selectedEvents.length === 0 && (
-              <Card className="p-4 text-center bg-card dark:bg-card border-border">
+              <Card className="p-4 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
                 <CalendarIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-muted-foreground">
                   {selectedDate.toLocaleDateString('ko-KR', {

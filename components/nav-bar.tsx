@@ -17,22 +17,16 @@ export function NavBar({ activeTab }: NavBarProps) {
       href: "/",
     },
     {
-      id: "calendar",
-      label: "캘린더",
-      icon: <CalendarIcon className="h-5 w-5" />,
-      href: "/calendar",
-    },
-    {
       id: "reflection",
       label: "성찰",
       icon: <BookOpenIcon className="h-5 w-5" />,
       href: "/reflection",
     },
     {
-      id: "schedule",
-      label: "일정",
-      icon: <BarChart3Icon className="h-5 w-5" />,
-      href: "/schedule",
+      id: "calendar",
+      label: "캘린더",
+      icon: <CalendarIcon className="h-5 w-5" />,
+      href: "/calendar",
     },
     {
       id: "profile",
@@ -43,7 +37,7 @@ export function NavBar({ activeTab }: NavBarProps) {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-2 py-2 flex justify-between items-center">
+    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3 pb-safe flex justify-between items-center">
       {navItems.map((item) => (
         <Link key={item.id} href={item.href} className="flex flex-col items-center justify-center">
           <div

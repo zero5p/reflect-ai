@@ -194,9 +194,18 @@ export default function NewReflectionPage() {
 
   if (showAiResponse) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
+      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex flex-col relative overflow-hidden">
+        {/* 무무 마스코트 떠다니는 장식 */}
+        <div className="absolute top-20 right-4 w-16 h-16 animate-mumu-float opacity-30 pointer-events-none z-0">
+          <img 
+            src="/mumu_mascot.png" 
+            alt="무무" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+        
         {/* Header */}
-        <header className="flex items-center px-5 py-4 bg-background border-b border-border">
+        <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent relative z-10">
           <Button
             variant="ghost"
             size="icon"
@@ -206,24 +215,30 @@ export default function NewReflectionPage() {
             <HomeIcon className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2 flex-1">
-            <SparklesIcon className="h-6 w-6 text-violet-600" />
-            <span className="font-bold text-foreground text-lg">AI 성찰 응답</span>
+            <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
+              <img 
+                src="/mumu_mascot.png" 
+                alt="무무" 
+                className="w-6 h-6 object-contain"
+              />
+            </div>
+            <span className="font-bold text-mumu-brown-dark text-lg">AI 성찰 응답</span>
           </div>
           <ThemeToggle />
         </header>
 
         {/* AI Response */}
         <main className="flex-1 px-5 py-6 overflow-y-auto">
-          <Card className="p-6 bg-card dark:bg-card border-border bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
+          <Card className="p-6 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-4">
-              <SparklesIcon className="h-5 w-5 text-violet-600" />
-              <h2 className="text-lg font-bold text-card-foreground text-violet-700 dark:text-violet-300">당신의 성찰에 대한 AI 응답</h2>
+              <SparklesIcon className="h-5 w-5 text-mumu-brown-dark" />
+              <h2 className="text-lg font-bold text-mumu-brown-dark">당신의 성찰에 대한 AI 응답</h2>
             </div>
             
             <div className="space-y-4 text-sm leading-relaxed">
               {aiResponse.split('\n').map((paragraph, index) => (
                 paragraph.trim() && (
-                  <p key={index} className="text-card-foreground">{paragraph}</p>
+                  <p key={index} className="text-mumu-brown-dark">{paragraph}</p>
                 )
               ))}
             </div>
@@ -234,7 +249,7 @@ export default function NewReflectionPage() {
                   <Button
                     onClick={() => handleGenerateSchedule()}
                     disabled={isGeneratingSchedule}
-                    className="w-full flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                    className="w-full flex items-center gap-2 bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream"
                   >
                     {isGeneratingSchedule ? (
                       <>
@@ -324,9 +339,18 @@ export default function NewReflectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex flex-col relative overflow-hidden">
+      {/* 무무 마스코트 떠다니는 장식 */}
+      <div className="absolute top-20 right-4 w-16 h-16 animate-mumu-float opacity-30 pointer-events-none z-0">
+        <img 
+          src="/mumu_mascot.png" 
+          alt="무무" 
+          className="w-full h-full object-contain"
+        />
+      </div>
+      
       {/* Header */}
-      <header className="flex items-center px-5 py-4 bg-background border-b border-border">
+      <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent relative z-10">
         <Button
           variant="ghost"
           size="icon"
@@ -336,15 +360,21 @@ export default function NewReflectionPage() {
           <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2 flex-1">
-          <BookOpenIcon className="h-6 w-6 text-violet-600" />
-          <span className="font-bold text-foreground text-lg">새로운 성찰</span>
+          <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
+            <img 
+              src="/mumu_mascot.png" 
+              alt="무무" 
+              className="w-6 h-6 object-contain"
+            />
+          </div>
+          <span className="font-bold text-mumu-brown-dark text-lg">새로운 성찰</span>
         </div>
         <ThemeToggle />
       </header>
 
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto">
-        <Card className="p-6 bg-card dark:bg-card border-border">
+        <Card className="p-6 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
           <div className="space-y-6">
             <div>
               <Label htmlFor="title">제목</Label>
@@ -368,12 +398,12 @@ export default function NewReflectionPage() {
               />
             </div>
 
-            <div className="bg-blue-50 dark:bg-gray-700/50 rounded-lg p-4 border border-blue-200 dark:border-gray-600">
+            <div className="bg-mumu-accent/50 dark:bg-mumu-brown/20 rounded-lg p-4 border border-mumu-brown-light">
               <div className="flex items-center gap-2 mb-2">
-                <SparklesIcon className="h-5 w-5 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">AI 감정 분석</span>
+                <SparklesIcon className="h-5 w-5 text-mumu-brown-dark" />
+                <span className="text-sm font-medium text-mumu-brown-dark">AI 감정 분석</span>
               </div>
-              <p className="text-xs text-blue-600 dark:text-blue-400">
+              <p className="text-xs text-mumu-brown">
                 AI가 당신의 성찰 내용을 분석하여 감정과 강도를 자동으로 파악하고 맞춤형 상담을 제공합니다.
               </p>
             </div>
@@ -416,7 +446,7 @@ export default function NewReflectionPage() {
 
             <Button 
               onClick={() => handleSave()} 
-              className="w-full flex items-center gap-2"
+              className="w-full flex items-center gap-2 bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream"
               disabled={isLoading}
             >
               <SaveIcon className="h-4 w-4" />
