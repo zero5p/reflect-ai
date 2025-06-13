@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
+import { cachedFetch } from "@/lib/cache"
 
 export default function ProfilePage() {
   const { data: session } = useSession()
@@ -29,11 +30,10 @@ export default function ProfilePage() {
       }
 
       try {
-        const response = await fetch(`/api/profile/stats?email=${session.user.email}`)
-        const data = await response.json()
+        const data = await cachedFetch(`/api/dashboard?email=${session.user.email}`, undefined, 2)
         
         if (data.success) {
-          setStats(data.stats)
+          setStats(data.data.stats)
         }
       } catch (error) {
         console.error('통계 데이터를 가져오는 중 오류가 발생했습니다:', error)

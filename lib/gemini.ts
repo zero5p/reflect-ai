@@ -4,10 +4,18 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
 export const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
 
+// 재시도 기능이 있는 AI 분석 함수
 export async function analyzeEmotionAndGenerateResponse(reflection: {
   title: string
   content: string
-}) {
+}, retryCount = 0): Promise<any> {
+  const maxRetries = 3
+  
+  // API 키 확인
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY가 설정되지 않았습니다.")
+  }
+
   try {
     const prompt = `
 당신은 따뜻하고 공감적인 심리 상담사입니다. 사용자의 성찰 일기를 분석하여 감정을 파악하고 상담 응답을 제공해주세요.
@@ -15,7 +23,7 @@ export async function analyzeEmotionAndGenerateResponse(reflection: {
 성찰 제목: ${reflection.title}
 내용: ${reflection.content}
 
-다음 JSON 형식으로 응답해주세요:
+다음 JSON 형식으로 정확히 응답해주세요 (```json 이나 다른 마크다운 포맷 사용하지 말고 순수 JSON만):
 {
   "emotion": "감정 (happy/sad/angry/anxious/excited/calm/confused/grateful 중 하나)",
   "intensity": "강도 (low/medium/high 중 하나)",
@@ -39,7 +47,7 @@ export async function analyzeEmotionAndGenerateResponse(reflection: {
 
 응답 스타일:
 - 전문적이지만 친근하고 따뜻한 톤
-- 마크다운 포맷 (##, **, 1. 2. 3. 등) 절대 사용하지 말고 자연스러운 문장으로 작성
+- 마크다운 포맷 사용하지 말고 자연스러운 문장으로 작성
 - "당신"보다는 좀 더 친근한 표현 사용
 - 공감과 격려가 느껴지는 따뜻한 말투
 - 4개 섹션을 자연스럽게 이어지는 하나의 글로 작성
@@ -47,20 +55,74 @@ export async function analyzeEmotionAndGenerateResponse(reflection: {
 한국어로 답변하세요.
 `
 
+    console.log(`AI 분석 시도 중... (시도 ${retryCount + 1}/${maxRetries + 1})`)
+    
     const result = await geminiModel.generateContent(prompt)
     const response = await result.response
     const text = response.text()
     
-    // JSON 응답에서 코드 블록 제거
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0])
+    console.log("AI 응답 원본:", text.substring(0, 200) + "...")
+    
+    // JSON 추출 개선
+    let jsonText = text.trim()
+    
+    // 코드 블록 제거
+    jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+    
+    // JSON 객체 찾기
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error("JSON 형식의 응답을 찾을 수 없습니다.")
     }
     
-    throw new Error("Invalid JSON response")
+    const parsedResult = JSON.parse(jsonMatch[0])
+    
+    // 결과 검증
+    if (!parsedResult.emotion || !parsedResult.intensity || !parsedResult.response) {
+      throw new Error("AI 응답에 필수 필드가 누락되었습니다.")
+    }
+    
+    // 감정 값 검증
+    const validEmotions = ['happy', 'sad', 'angry', 'anxious', 'excited', 'calm', 'confused', 'grateful']
+    const validIntensities = ['low', 'medium', 'high']
+    
+    if (!validEmotions.includes(parsedResult.emotion)) {
+      console.warn("유효하지 않은 감정값, 기본값으로 설정:", parsedResult.emotion)
+      parsedResult.emotion = 'calm'
+    }
+    
+    if (!validIntensities.includes(parsedResult.intensity)) {
+      console.warn("유효하지 않은 강도값, 기본값으로 설정:", parsedResult.intensity)
+      parsedResult.intensity = 'medium'
+    }
+    
+    console.log("AI 분석 성공")
+    return parsedResult
+    
   } catch (error) {
-    console.error("Error analyzing emotion and generating response:", error)
-    throw new Error("AI 감정 분석 및 응답 생성에 실패했습니다.")
+    console.error(`AI 분석 실패 (시도 ${retryCount + 1}):`, error)
+    
+    // 재시도 로직
+    if (retryCount < maxRetries) {
+      console.log(`${2 * (retryCount + 1)}초 후 재시도...`)
+      await new Promise(resolve => setTimeout(resolve, 2000 * (retryCount + 1)))
+      return analyzeEmotionAndGenerateResponse(reflection, retryCount + 1)
+    }
+    
+    // 최종 실패 시 구체적인 에러 메시지
+    let errorMessage = "AI 감정 분석 및 응답 생성에 실패했습니다."
+    
+    if (error instanceof Error) {
+      if (error.message.includes("API key")) {
+        errorMessage = "AI 서비스 인증에 실패했습니다. 관리자에게 문의해주세요."
+      } else if (error.message.includes("quota")) {
+        errorMessage = "AI 서비스 사용량이 초과되었습니다. 잠시 후 다시 시도해주세요."
+      } else if (error.message.includes("network") || error.message.includes("fetch")) {
+        errorMessage = "네트워크 연결에 문제가 있습니다. 잠시 후 다시 시도해주세요."
+      }
+    }
+    
+    throw new Error(errorMessage)
   }
 }
 

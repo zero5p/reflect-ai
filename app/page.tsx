@@ -9,7 +9,7 @@ import { ActionCard } from "@/components/action-card"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { sql } from "@/lib/db"
+import { cachedFetch } from "@/lib/cache"
 
 export default function Page() {
   const { data: session } = useSession()
@@ -25,16 +25,11 @@ export default function Page() {
       }
 
       try {
-        const [reflectionData, eventsData] = await Promise.all([
-          fetch(`/api/reflections/recent?email=${session.user.email}`).then(res => res.json()),
-          fetch(`/api/events/today?email=${session.user.email}`).then(res => res.json())
-        ])
-
-        if (reflectionData.success) {
-          setRecentReflection(reflectionData.reflection)
-        }
-        if (eventsData.success) {
-          setTodayEvents(eventsData.events)
+        const data = await cachedFetch(`/api/dashboard?email=${session.user.email}`, undefined, 1)
+        
+        if (data.success) {
+          setRecentReflection(data.data.recentReflection)
+          setTodayEvents(data.data.todayEvents)
         }
       } catch (error) {
         console.error('데이터를 가져오는 중 오류가 발생했습니다:', error)

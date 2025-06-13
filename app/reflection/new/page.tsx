@@ -24,6 +24,8 @@ export default function NewReflectionPage() {
   const [showCustomRequest, setShowCustomRequest] = useState(false)
   const [customRequest, setCustomRequest] = useState("")
   const [currentQuote, setCurrentQuote] = useState(getRandomQuote())
+  const [errorMessage, setErrorMessage] = useState("")
+  const [retryCount, setRetryCount] = useState(0)
 
   // 로딩 시작 시 랜덤 명언 선택
   useEffect(() => {
@@ -37,10 +39,15 @@ export default function NewReflectionPage() {
     return null
   }
 
-  const handleSave = async () => {
+  const handleSave = async (retry = false) => {
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 모두 입력해주세요.")
       return
+    }
+
+    if (!retry) {
+      setRetryCount(0)
+      setErrorMessage("")
     }
 
     setIsLoading(true)
@@ -59,22 +66,44 @@ export default function NewReflectionPage() {
       const data = await response.json()
 
       if (response.ok && data.success) {
-        if (data.aiResponse) {
+        if (data.aiResponse && !data.aiResponse.includes("실패")) {
           setAiResponse(data.aiResponse)
           setShowAiResponse(true)
+        } else if (data.aiResponse && data.aiResponse.includes("실패")) {
+          // AI 분석은 실패했지만 성찰은 저장됨
+          setErrorMessage(data.aiResponse)
+          // 3초 후 성찰 목록으로 이동
+          setTimeout(() => {
+            router.push("/reflection")
+          }, 3000)
         } else {
           alert(data.message || "성찰이 저장되었습니다!")
           router.push("/reflection")
         }
       } else {
-        throw new Error(data.error || "저장에 실패했습니다.")
+        throw new Error(data.error || data.details || "저장에 실패했습니다.")
       }
     } catch (error) {
       console.error("Error saving reflection:", error)
-      alert("저장 중 오류가 발생했습니다. 다시 시도해주세요.")
+      const errorMsg = error instanceof Error ? error.message : "저장 중 오류가 발생했습니다."
+      
+      // 네트워크 에러나 일시적 오류인 경우 재시도 제안
+      if (errorMsg.includes("network") || errorMsg.includes("fetch") || errorMsg.includes("잠시 후")) {
+        setErrorMessage(`${errorMsg} (재시도 ${retryCount + 1}/3)`)
+        if (retryCount < 2) {
+          setRetryCount(prev => prev + 1)
+        }
+      } else {
+        setErrorMessage(errorMsg)
+        alert(errorMsg)
+      }
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleRetry = () => {
+    handleSave(true)
   }
 
   const handleGenerateSchedule = async (userRequest?: string) => {
@@ -331,6 +360,42 @@ export default function NewReflectionPage() {
                 AI가 당신의 성찰 내용을 분석하여 감정과 강도를 자동으로 파악하고 맞춤형 상담을 제공합니다.
               </p>
             </div>
+
+            {errorMessage && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-sm text-red-700 dark:text-red-300 font-medium mb-1">저장 중 문제가 발생했습니다</p>
+                    <p className="text-xs text-red-600 dark:text-red-400">{errorMessage}</p>
+                  </div>
+                </div>
+                {retryCount < 2 && errorMessage.includes("재시도") && (
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      onClick={handleRetry}
+                      size="sm"
+                      variant="outline"
+                      className="border-red-200 text-red-700 hover:bg-red-50"
+                    >
+                      다시 시도
+                    </Button>
+                    <Button
+                      onClick={() => setErrorMessage("")}
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-600"
+                    >
+                      닫기
+                    </Button>
+                  </div>
+                )}
+                {errorMessage.includes("실패") && !errorMessage.includes("재시도") && (
+                  <div className="mt-3">
+                    <p className="text-xs text-red-500 dark:text-red-400">성찰은 저장되었습니다. 3초 후 성찰 목록으로 이동합니다...</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <Button 
               onClick={handleSave} 
