@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSession } from "next-auth/react"
 import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -30,7 +30,7 @@ interface Reflection {
   created_at: string
 }
 
-export default function CalendarPage() {
+function CalendarPageContent() {
   const { data: session } = useSession()
   const router = useRouter()
   const [events, setEvents] = useState<Event[]>([])
@@ -40,12 +40,19 @@ export default function CalendarPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    if (session) {
+      fetchData()
+    }
+  }, [session])
+
+  useEffect(() => {
+    if (!session) {
+      router.push("/login")
+    }
+  }, [session, router])
 
   if (!session) {
-    router.push("/login")
-    return null
+    return <div>Loading...</div>
   }
 
   const fetchData = async () => {
@@ -57,15 +64,23 @@ export default function CalendarPage() {
       
       if (eventsResponse.ok) {
         const eventsData = await eventsResponse.json()
-        setEvents(eventsData)
+        setEvents(Array.isArray(eventsData) ? eventsData : eventsData.events || [])
+      } else {
+        console.error('Failed to fetch events:', eventsResponse.status)
+        setEvents([])
       }
       
       if (reflectionsResponse.ok) {
         const reflectionsData = await reflectionsResponse.json()
-        setReflections(reflectionsData.reflections || [])
+        setReflections(Array.isArray(reflectionsData) ? reflectionsData : reflectionsData.reflections || [])
+      } else {
+        console.error('Failed to fetch reflections:', reflectionsResponse.status)
+        setReflections([])
       }
     } catch (error) {
       console.error('Error fetching data:', error)
+      setEvents([])
+      setReflections([])
     } finally {
       setIsLoading(false)
     }
@@ -95,14 +110,16 @@ export default function CalendarPage() {
   }
 
   const getEventsForDate = (date: Date) => {
+    if (!Array.isArray(events)) return []
     const dateString = date.toISOString().split('T')[0]
-    return events.filter(event => event.date === dateString)
+    return events.filter(event => event?.date === dateString)
   }
 
   const getReflectionForDate = (date: Date) => {
+    if (!Array.isArray(reflections)) return null
     const dateString = date.toISOString().split('T')[0]
     return reflections.find(reflection => 
-      reflection.created_at.split('T')[0] === dateString
+      reflection?.created_at?.split('T')[0] === dateString
     )
   }
 
@@ -196,7 +213,7 @@ export default function CalendarPage() {
                 >
                   <ChevronLeftIcon className="h-4 w-4" />
                 </Button>
-                <h2 className="text-lg font-semibold">{formatDate(currentDate)}</h2>
+                <h2 className="text-lg font-semibold text-foreground">{formatDate(currentDate)}</h2>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -209,7 +226,7 @@ export default function CalendarPage() {
               {/* Calendar Grid */}
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
-                  <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
+                  <div key={day} className="text-center text-sm font-semibold text-foreground/80 dark:text-foreground/90 py-2">
                     {day}
                   </div>
                 ))}
@@ -234,8 +251,8 @@ export default function CalendarPage() {
                         isToday
                           ? 'bg-violet-500 text-white font-semibold'
                           : isSelected
-                          ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-200 font-medium'
-                          : 'hover:bg-muted text-foreground'
+                          ? 'bg-violet-100 dark:bg-violet-800/50 text-violet-700 dark:text-violet-100 font-medium border-2 border-violet-300 dark:border-violet-600'
+                          : 'hover:bg-muted text-foreground hover:bg-violet-50 dark:hover:bg-violet-900/30'
                       }`}
                     >
                       <span>{day.getDate()}</span>
@@ -281,12 +298,12 @@ export default function CalendarPage() {
                   {selectedEvents.map((event) => (
                     <div
                       key={event.id}
-                      className="flex items-center gap-3 p-3 bg-muted rounded-lg"
+                      className="flex items-center gap-3 p-3 bg-muted/70 dark:bg-muted/50 rounded-lg border border-border/50"
                     >
                       <div className={`w-3 h-3 rounded-full ${getEventTypeColor(event.type)}`} />
                       <div className="flex-1">
-                        <div className="font-medium">{event.title}</div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="font-medium text-foreground">{event.title}</div>
+                        <div className="text-sm text-muted-foreground dark:text-muted-foreground/90">
                           {formatTime(event.time)}
                           {event.description && ` • ${event.description}`}
                         </div>
@@ -321,5 +338,13 @@ export default function CalendarPage() {
       {/* Bottom Navigation */}
       <NavBar activeTab="calendar" />
     </div>
+  )
+}
+
+export default function CalendarPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CalendarPageContent />
+    </Suspense>
   )
 }
