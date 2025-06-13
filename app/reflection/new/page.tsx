@@ -398,7 +398,7 @@ export default function NewReflectionPage() {
             )}
 
             <Button 
-              onClick={handleSave} 
+              onClick={() => handleSave()} 
               className="w-full flex items-center gap-2"
               disabled={isLoading}
             >
