@@ -8,10 +8,42 @@ import { NavBar } from "@/components/nav-bar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
+import { useState, useEffect } from "react"
 
 export default function ProfilePage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const [stats, setStats] = useState({
+    totalReflections: 0,
+    completedEvents: 0,
+    consecutiveDays: 0,
+    achievementRate: 0
+  })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStats() {
+      if (!session?.user?.email) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/profile/stats?email=${session.user.email}`)
+        const data = await response.json()
+        
+        if (data.success) {
+          setStats(data.stats)
+        }
+      } catch (error) {
+        console.error('통계 데이터를 가져오는 중 오류가 발생했습니다:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [session?.user?.email])
 
   if (!session) {
     router.push("/login")
@@ -69,20 +101,56 @@ export default function ProfilePage() {
           <h3 className="text-lg font-semibold mb-4 text-card-foreground">활동 통계</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-violet-50 dark:bg-gray-700/50 rounded-lg">
-              <div className="text-2xl font-bold text-violet-600">12</div>
-              <div className="text-sm text-muted-foreground">작성한 성찰</div>
+              {isLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-8 bg-violet-200 dark:bg-violet-800 rounded mb-2 mx-auto w-12"></div>
+                  <div className="h-4 bg-violet-200 dark:bg-violet-800 rounded mx-auto w-16"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-violet-600">{stats.totalReflections}</div>
+                  <div className="text-sm text-muted-foreground">작성한 성찰</div>
+                </>
+              )}
             </div>
             <div className="text-center p-4 bg-blue-50 dark:bg-gray-700/50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">8</div>
-              <div className="text-sm text-muted-foreground">완료한 일정</div>
+              {isLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-8 bg-blue-200 dark:bg-blue-800 rounded mb-2 mx-auto w-12"></div>
+                  <div className="h-4 bg-blue-200 dark:bg-blue-800 rounded mx-auto w-16"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-blue-600">{stats.completedEvents}</div>
+                  <div className="text-sm text-muted-foreground">완료한 일정</div>
+                </>
+              )}
             </div>
             <div className="text-center p-4 bg-green-50 dark:bg-gray-700/50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">15</div>
-              <div className="text-sm text-muted-foreground">연속 사용일</div>
+              {isLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-8 bg-green-200 dark:bg-green-800 rounded mb-2 mx-auto w-12"></div>
+                  <div className="h-4 bg-green-200 dark:bg-green-800 rounded mx-auto w-16"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-green-600">{stats.consecutiveDays}</div>
+                  <div className="text-sm text-muted-foreground">연속 사용일</div>
+                </>
+              )}
             </div>
             <div className="text-center p-4 bg-amber-50 dark:bg-gray-700/50 rounded-lg">
-              <div className="text-2xl font-bold text-amber-600">85%</div>
-              <div className="text-sm text-muted-foreground">목표 달성률</div>
+              {isLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-8 bg-amber-200 dark:bg-amber-800 rounded mb-2 mx-auto w-12"></div>
+                  <div className="h-4 bg-amber-200 dark:bg-amber-800 rounded mx-auto w-16"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-amber-600">{stats.achievementRate}%</div>
+                  <div className="text-sm text-muted-foreground">목표 달성률</div>
+                </>
+              )}
             </div>
           </div>
         </Card>

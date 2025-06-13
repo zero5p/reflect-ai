@@ -8,9 +8,43 @@ import { NavBar } from "@/components/nav-bar"
 import { ActionCard } from "@/components/action-card"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
+import { useState, useEffect } from "react"
+import { sql } from "@/lib/db"
 
 export default function Page() {
   const { data: session } = useSession()
+  const [recentReflection, setRecentReflection] = useState<any>(null)
+  const [todayEvents, setTodayEvents] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!session?.user?.email) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const [reflectionData, eventsData] = await Promise.all([
+          fetch(`/api/reflections/recent?email=${session.user.email}`).then(res => res.json()),
+          fetch(`/api/events/today?email=${session.user.email}`).then(res => res.json())
+        ])
+
+        if (reflectionData.success) {
+          setRecentReflection(reflectionData.reflection)
+        }
+        if (eventsData.success) {
+          setTodayEvents(eventsData.events)
+        }
+      } catch (error) {
+        console.error('데이터를 가져오는 중 오류가 발생했습니다:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [session?.user?.email])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col">
@@ -93,11 +127,32 @@ export default function Page() {
                     더보기
                   </Button>
                 </div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xl">😊</span>
-                  <span className="text-sm text-violet-700 dark:text-violet-300">오늘은 프로젝트...</span>
-                </div>
-                <div className="text-xs text-violet-500 dark:text-violet-400 mt-auto">2023.06.12</div>
+                {isLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-violet-200 dark:bg-violet-800 rounded mb-2"></div>
+                    <div className="h-3 bg-violet-200 dark:bg-violet-800 rounded w-20"></div>
+                  </div>
+                ) : recentReflection ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">{recentReflection.emotion === 'happy' ? '😊' : recentReflection.emotion === 'sad' ? '😢' : recentReflection.emotion === 'angry' ? '😠' : recentReflection.emotion === 'excited' ? '😆' : '😐'}</span>
+                      <span className="text-sm text-violet-700 dark:text-violet-300">
+                        {recentReflection.title?.substring(0, 15)}...
+                      </span>
+                    </div>
+                    <div className="text-xs text-violet-500 dark:text-violet-400 mt-auto">
+                      {new Date(recentReflection.created_at).toLocaleDateString('ko-KR')}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">✨</span>
+                      <span className="text-sm text-violet-700 dark:text-violet-300">첫 번째 성찰을 시작해보세요</span>
+                    </div>
+                    <div className="text-xs text-violet-500 dark:text-violet-400 mt-auto">아직 작성된 성찰이 없습니다</div>
+                  </>
+                )}
               </div>
             </Card>
           </Link>
@@ -111,8 +166,26 @@ export default function Page() {
                     더보기
                   </Button>
                 </div>
-                <div className="text-sm text-emerald-700 dark:text-emerald-300 mb-1">김정희 회의...</div>
-                <div className="text-xs text-emerald-500 dark:text-emerald-400 mt-auto">오전 10:30 외 2개의 일정</div>
+                {isLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-emerald-200 dark:bg-emerald-800 rounded mb-2"></div>
+                    <div className="h-3 bg-emerald-200 dark:bg-emerald-800 rounded w-24"></div>
+                  </div>
+                ) : todayEvents.length > 0 ? (
+                  <>
+                    <div className="text-sm text-emerald-700 dark:text-emerald-300 mb-1">
+                      {todayEvents[0].title}...
+                    </div>
+                    <div className="text-xs text-emerald-500 dark:text-emerald-400 mt-auto">
+                      {todayEvents[0].time} {todayEvents.length > 1 ? `외 ${todayEvents.length - 1}개의 일정` : ''}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-sm text-emerald-700 dark:text-emerald-300 mb-1">오늘 일정이 없습니다</div>
+                    <div className="text-xs text-emerald-500 dark:text-emerald-400 mt-auto">새로운 일정을 추가해보세요</div>
+                  </>
+                )}
               </div>
             </Card>
           </Link>
