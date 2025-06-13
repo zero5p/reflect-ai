@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -342,9 +342,5 @@ function CalendarPageContent() {
 }
 
 export default function CalendarPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CalendarPageContent />
-    </Suspense>
-  )
+  return <CalendarPageContent />
 }
