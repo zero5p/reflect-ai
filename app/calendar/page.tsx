@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { NavBar } from "@/components/nav-bar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { cachedFetch } from "@/lib/cache"
 
 interface Event {
   id: number
@@ -39,11 +40,31 @@ function CalendarPageContent() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  // 캐시된 데이터 가져오기
+  const fetchData = useCallback(async () => {
+    if (!session?.user?.email) return
+    
+    setIsLoading(true)
+    try {
+      const month = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+      const data = await cachedFetch(`/api/calendar?month=${month}`, undefined, 2)
+      
+      if (data.success) {
+        setEvents(data.data.events || [])
+        setReflections(data.data.reflections || [])
+      }
+    } catch (error) {
+      console.error('Error fetching calendar data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [session?.user?.email, currentDate])
+
   useEffect(() => {
     if (session) {
       fetchData()
     }
-  }, [session])
+  }, [session, fetchData])
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -66,36 +87,6 @@ function CalendarPageContent() {
     return null
   }
 
-  const fetchData = async () => {
-    try {
-      const [eventsResponse, reflectionsResponse] = await Promise.all([
-        fetch('/api/events'),
-        fetch('/api/reflections')
-      ])
-      
-      if (eventsResponse.ok) {
-        const eventsData = await eventsResponse.json()
-        setEvents(Array.isArray(eventsData) ? eventsData : eventsData.events || [])
-      } else {
-        console.error('Failed to fetch events:', eventsResponse.status)
-        setEvents([])
-      }
-      
-      if (reflectionsResponse.ok) {
-        const reflectionsData = await reflectionsResponse.json()
-        setReflections(Array.isArray(reflectionsData) ? reflectionsData : reflectionsData.reflections || [])
-      } else {
-        console.error('Failed to fetch reflections:', reflectionsResponse.status)
-        setReflections([])
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-      setEvents([])
-      setReflections([])
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear()
@@ -208,10 +199,40 @@ function CalendarPageContent() {
       {/* Main Content */}
       <main className="flex-1 px-5 py-6 overflow-y-auto mb-16">
         {isLoading ? (
-          <Card className="p-6 text-center bg-card dark:bg-card border-border">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4"></div>
-            <p className="text-muted-foreground">캘린더를 불러오는 중...</p>
-          </Card>
+          <div className="space-y-4">
+            {/* Calendar Header Skeleton */}
+            <Card className="p-4 bg-card dark:bg-card border-border">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              </div>
+              
+              {/* Calendar Grid Skeleton */}
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
+                  <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">{day}</div>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-7 gap-1">
+                {Array.from({ length: 42 }).map((_, i) => (
+                  <div key={i} className="aspect-square p-1">
+                    <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            
+            {/* Selected Date Info Skeleton */}
+            <Card className="p-4 bg-card dark:bg-card border-border">
+              <div className="w-32 h-5 bg-gray-200 dark:bg-gray-700 rounded mb-3 animate-pulse"></div>
+              <div className="space-y-2">
+                <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              </div>
+            </Card>
+          </div>
         ) : (
           <div className="space-y-4">
             {/* Calendar Header */}
