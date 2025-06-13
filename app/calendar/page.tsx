@@ -31,7 +31,7 @@ interface Reflection {
 }
 
 function CalendarPageContent() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [events, setEvents] = useState<Event[]>([])
   const [reflections, setReflections] = useState<Reflection[]>([])
@@ -46,13 +46,24 @@ function CalendarPageContent() {
   }, [session])
 
   useEffect(() => {
-    if (!session) {
+    if (status === "unauthenticated") {
       router.push("/login")
     }
-  }, [session, router])
+  }, [status, router])
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!session) {
-    return <div>Loading...</div>
+    return null
   }
 
   const fetchData = async () => {
