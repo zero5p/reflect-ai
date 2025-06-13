@@ -57,9 +57,13 @@ export default function Page() {
       <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent relative z-10">
         <div className="flex items-center gap-2 flex-1">
           <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
-            <span className="text-mumu-cream font-bold text-sm">R</span>
+            <img 
+              src="/mumu_mascot.png" 
+              alt="무무" 
+              className="w-6 h-6 object-contain"
+            />
           </div>
-          <span className="font-bold text-mumu-brown-dark text-lg">Reflect-AI</span>
+          <span className="font-bold text-mumu-brown-dark text-lg">무무노트</span>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -118,7 +122,7 @@ export default function Page() {
 
         {/* What is Reflect-AI */}
         <Card className="mb-6 p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm relative">
-          <h2 className="text-lg font-bold mb-3 text-mumu-brown-dark">무무와 함께하는 Reflect-AI</h2>
+          <h2 className="text-lg font-bold mb-3 text-mumu-brown-dark">무무와 함께하는 무무노트</h2>
           <ul className="space-y-2 text-sm text-mumu-brown">
             <li className="flex items-start">
               <span className="mr-2 text-mumu-brown-light">🌱</span>
