@@ -141,34 +141,51 @@ export default function NewReflectionPage() {
   // 로딩 화면
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-violet-50/50 to-background dark:from-violet-950/30 dark:to-background flex flex-col items-center justify-center px-5">
-        <Card className="p-8 max-w-md w-full text-center bg-card dark:bg-card border-border bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200 dark:border-violet-800">
+      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex flex-col items-center justify-center px-5">
+        <Card className="p-8 max-w-md w-full text-center bg-mumu-cream/90 dark:bg-mumu-cream-dark/90 border-mumu-accent backdrop-blur-sm">
           <div className="flex items-center justify-center mb-6">
             <div className="relative">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-violet-200 dark:border-violet-800"></div>
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-violet-500 border-t-transparent absolute top-0"></div>
-              <SparklesIcon className="h-6 w-6 text-violet-600 absolute top-5 left-5" />
+              {/* 무무 마스코트 */}
+              <div className="w-20 h-20 mb-4 animate-mumu-thinking">
+                <img 
+                  src="/mumu_mascot.png" 
+                  alt="무무가 생각하고 있어요" 
+                  className="w-full h-full object-contain filter drop-shadow-lg"
+                />
+              </div>
+              {/* 사고 버블 애니메이션 */}
+              <div className="absolute -top-2 -right-2 animate-pulse">
+                <div className="w-3 h-3 bg-mumu-brown rounded-full opacity-60"></div>
+              </div>
+              <div className="absolute -top-4 -right-6 animate-pulse delay-300">
+                <div className="w-2 h-2 bg-mumu-brown rounded-full opacity-40"></div>
+              </div>
             </div>
           </div>
           
-          <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300 mb-2">
-            AI가 당신의 마음을 분석하고 있습니다
+          <h2 className="text-lg font-bold text-mumu-brown-dark mb-2">
+            무무가 당신의 마음을 분석하고 있어요
           </h2>
-          <p className="text-sm text-violet-600 dark:text-violet-400 mb-6">
-            감정을 파악하고 맞춤형 상담을 준비하는 중...
+          <p className="text-sm text-mumu-brown mb-6">
+            감정을 읽고 따뜻한 조언을 준비하는 중...
           </p>
 
-          <div className="bg-white/70 dark:bg-gray-700/80 rounded-lg p-4 min-h-[120px] flex flex-col justify-center">
+          <div className="bg-mumu-cream-light/80 backdrop-blur-sm rounded-lg p-4 min-h-[120px] flex flex-col justify-center border border-mumu-accent">
             <div className="flex items-center justify-center mb-3">
-              <HeartIcon className="h-5 w-5 text-pink-500 mr-2" />
-              <StarIcon className="h-4 w-4 text-yellow-500" />
+              <HeartIcon className="h-5 w-5 text-mumu-brown mr-2" />
+              <StarIcon className="h-4 w-4 text-mumu-brown-light" />
             </div>
-            <blockquote className="text-sm text-gray-700 dark:text-gray-300 italic text-center leading-relaxed">
+            <blockquote className="text-sm text-mumu-brown-dark italic text-center leading-relaxed">
               "{currentQuote.text}"
             </blockquote>
-            <cite className="text-xs text-gray-500 dark:text-gray-400 mt-3 block">
+            <cite className="text-xs text-mumu-brown mt-3 block">
               - {currentQuote.author}
             </cite>
+          </div>
+
+          {/* 로딩 진행 표시 */}
+          <div className="mt-4 w-full bg-mumu-accent rounded-full h-2">
+            <div className="bg-mumu-brown h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
           </div>
         </Card>
       </div>

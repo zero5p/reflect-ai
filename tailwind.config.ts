@@ -27,6 +27,18 @@ const config = {
         ],
       },
       colors: {
+        // 무무 마스코트 색상 팔레트
+        mumu: {
+          cream: '#F5F1E8',      // 무무 배경색 (메인)
+          'cream-dark': '#E8E1D3', // 약간 진한 크림
+          'cream-light': '#FDFBF7', // 밝은 크림
+          brown: '#D4A574',       // 무무 갈색
+          'brown-dark': '#B8956A', // 진한 갈색
+          'brown-light': '#E6C798', // 밝은 갈색
+          accent: '#F4E4BC',      // 액센트 크림
+          warm: '#F9F5F0',        // 따뜻한 베이지
+          soft: '#F7F3ED',        // 부드러운 베이지
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -125,10 +137,31 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "mumu-bounce": {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' }
+        },
+        "mumu-float": {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(-5px) rotate(1deg)' }
+        },
+        "mumu-reading": {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '25%': { transform: 'translateY(-3px)' },
+          '75%': { transform: 'translateY(-1px)' }
+        },
+        "mumu-thinking": {
+          '0%, 100%': { transform: 'scale(1) rotate(0deg)' },
+          '50%': { transform: 'scale(1.05) rotate(2deg)' }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "mumu-bounce": "mumu-bounce 2s ease-in-out infinite",
+        "mumu-float": "mumu-float 3s ease-in-out infinite",
+        "mumu-reading": "mumu-reading 4s ease-in-out infinite",
+        "mumu-thinking": "mumu-thinking 3s ease-in-out infinite",
       },
     },
   },
