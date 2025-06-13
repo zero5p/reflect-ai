@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import NextAuthSessionProvider from "./session-provider"
+import { PageTransition } from "@/components/page-transition"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <NextAuthSessionProvider>
           <ThemeProvider defaultTheme="system" storageKey="reflect-ai-theme">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </ThemeProvider>
         </NextAuthSessionProvider>
       </body>

@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { cachedFetch } from "@/lib/cache"
+import { AnimatedPage, SlideUpCard, AnimatedListItem } from "@/components/page-transition"
 
 export default function Page() {
   const { data: session } = useSession()

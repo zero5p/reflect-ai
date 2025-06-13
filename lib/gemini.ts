@@ -23,7 +23,7 @@ export async function analyzeEmotionAndGenerateResponse(reflection: {
 성찰 제목: ${reflection.title}
 내용: ${reflection.content}
 
-다음 JSON 형식으로 정확히 응답해주세요 (```json 이나 다른 마크다운 포맷 사용하지 말고 순수 JSON만):
+다음 JSON 형식으로 정확히 응답해주세요 (코드 블록 없이 순수 JSON만):
 {
   "emotion": "감정 (happy/sad/angry/anxious/excited/calm/confused/grateful 중 하나)",
   "intensity": "강도 (low/medium/high 중 하나)",
