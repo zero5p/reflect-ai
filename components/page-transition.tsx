@@ -9,26 +9,23 @@ interface PageTransitionProps {
   children: ReactNode
 }
 
-// iOS 스타일 페이지 전환 애니메이션
+// iOS 스타일 페이지 전환 애니메이션 (opacity 제거로 하얀 화면 방지)
 const pageVariants = {
   initial: {
-    x: "100%",
-    opacity: 0
+    x: "100%"
   },
   in: {
-    x: 0,
-    opacity: 1
+    x: 0
   },
   out: {
-    x: "-100%",
-    opacity: 0
+    x: "-100%"
   }
 }
 
 const pageTransition = {
   type: "tween",
-  ease: [0.4, 0, 0.2, 1], // iOS bezier curve
-  duration: 0.3
+  ease: [0.25, 0.1, 0.25, 1], // 더 부드러운 easing
+  duration: 0.25 // 조금 더 빠르게
 }
 
 export function PageTransition({ children }: PageTransitionProps) {
@@ -74,7 +71,7 @@ export function PageTransition({ children }: PageTransitionProps) {
   )
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={pathname}
@@ -88,7 +85,7 @@ export function PageTransition({ children }: PageTransitionProps) {
             touchAction: "pan-y" // 세로 스크롤 허용
           }}
           {...(canGoBack ? bind() : {})}
-          className="w-full h-full"
+          className="w-full h-full bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background"
         >
           {children}
           
@@ -127,17 +124,18 @@ export function PageTransition({ children }: PageTransitionProps) {
   )
 }
 
-// 개별 페이지 컴포넌트용 래퍼
+// 개별 페이지 컴포넌트용 래퍼 (opacity 제거, 위치 애니메이션만)
 export function AnimatedPage({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+      initial={{ y: 10 }}
+      animate={{ y: 0 }}
+      exit={{ y: -10 }}
       transition={{
-        type: "tween",
-        ease: [0.4, 0, 0.2, 1],
-        duration: 0.2
+        type: "spring",
+        damping: 30,
+        stiffness: 400,
+        duration: 0.15
       }}
       className="w-full h-full"
     >
