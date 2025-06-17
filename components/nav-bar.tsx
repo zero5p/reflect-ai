@@ -1,6 +1,6 @@
 "use client"
 
-import { HomeIcon, BookOpenIcon, BarChart3Icon, UserIcon, CalendarIcon } from "lucide-react"
+import { BookOpenIcon, BarChart3Icon, UserIcon, CalendarIcon, TargetIcon, TrendingUpIcon } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -13,20 +13,26 @@ export function NavBar({ activeTab }: NavBarProps) {
     {
       id: "home",
       label: "홈",
-      icon: <HomeIcon className="h-5 w-5" />,
+      icon: <CalendarIcon className="h-5 w-5" />,
       href: "/",
+    },
+    {
+      id: "analysis",
+      label: "분석",
+      icon: <BarChart3Icon className="h-5 w-5" />,
+      href: "/analysis",
+    },
+    {
+      id: "goals",
+      label: "목표",
+      icon: <TargetIcon className="h-5 w-5" />,
+      href: "/goals",
     },
     {
       id: "reflection",
       label: "성찰",
       icon: <BookOpenIcon className="h-5 w-5" />,
       href: "/reflection",
-    },
-    {
-      id: "calendar",
-      label: "기록보기",
-      icon: <CalendarIcon className="h-5 w-5" />,
-      href: "/calendar",
     },
     {
       id: "profile",

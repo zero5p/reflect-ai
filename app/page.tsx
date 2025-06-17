@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { BarChart3Icon, ArrowRightIcon, LightbulbIcon, CalendarIcon, FileTextIcon, SparklesIcon } from "lucide-react"
+import { BarChart3Icon, ArrowRightIcon, LightbulbIcon, CalendarIcon, FileTextIcon, SparklesIcon, ZapIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { cachedFetch } from "@/lib/cache"
 import { AnimatedPage, SlideUpCard, AnimatedListItem } from "@/components/page-transition"
+import { JustDoItMode } from "@/components/just-do-it-mode"
 
 export default function Page() {
   const { data: session } = useSession()
@@ -23,6 +24,8 @@ export default function Page() {
     days90: any
   }>({ days7: null, days30: null, days90: null })
   const [isLoadingMemory, setIsLoadingMemory] = useState(true)
+  const [showJustDoIt, setShowJustDoIt] = useState(false)
+  const [shouldShowJustDoIt, setShouldShowJustDoIt] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -53,6 +56,12 @@ export default function Page() {
           days30: memory30.success ? memory30.data : null,
           days90: memory90.success ? memory90.data : null
         })
+
+        // 의지력 고갈 상태 확인
+        const justDoItResponse = await cachedFetch('/api/just-do-it', undefined, 2)
+        if (justDoItResponse.success && justDoItResponse.data.burnoutLevel !== 'low') {
+          setShouldShowJustDoIt(true)
+        }
 
       } catch (error) {
         console.error('데이터를 가져오는 중 오류가 발생했습니다:', error)
@@ -169,6 +178,35 @@ export default function Page() {
             />
           </div>
         </Card>
+
+        {/* 그냥 하기 모드 알림 (의지력 고갈 감지 시) */}
+        {shouldShowJustDoIt && (
+          <Card className="mb-4 p-4 bg-gradient-to-r from-orange-100/80 to-yellow-100/80 dark:from-orange-900/30 dark:to-yellow-900/30 border-orange-300 dark:border-orange-600 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8">
+                <img 
+                  src="/mumu_mascot.png" 
+                  alt="무무" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-orange-800 dark:text-orange-200">무무가 눈치챘어요!</h3>
+                <p className="text-xs text-orange-700 dark:text-orange-300">
+                  요즘 조금 지쳐 보이시네요. 작은 것부터 시작해볼까요?
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowJustDoIt(true)}
+                size="sm"
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                <ZapIcon className="w-3 h-3 mr-1" />
+                그냥 하기
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* 무무의 시간여행 */}
         <Card className="mb-6 p-4 bg-gradient-to-r from-mumu-accent/30 to-mumu-brown-light/20 dark:from-mumu-brown/40 dark:to-mumu-brown-dark/30 border-mumu-accent backdrop-blur-sm relative">
@@ -393,8 +431,23 @@ export default function Page() {
         </div>
       </main>
 
+      {/* 플로팅 그냥 하기 버튼 */}
+      <Button
+        onClick={() => setShowJustDoIt(true)}
+        className="fixed bottom-20 right-4 w-12 h-12 rounded-full bg-orange-500 hover:bg-orange-600 text-white shadow-lg z-40 flex items-center justify-center"
+        title="그냥 하기 모드"
+      >
+        <ZapIcon className="w-5 h-5" />
+      </Button>
+
       {/* Bottom Navigation */}
       <NavBar activeTab="home" />
+
+      {/* 그냥 하기 모드 모달 */}
+      <JustDoItMode 
+        isVisible={showJustDoIt} 
+        onClose={() => setShowJustDoIt(false)} 
+      />
     </div>
   )
 }

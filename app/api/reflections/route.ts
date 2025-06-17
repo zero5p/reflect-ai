@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, content } = body
+    const { title, content, aiStyle } = body
 
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 })
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       const analysis = await analyzeEmotionAndGenerateResponse({
         title,
         content
-      })
+      }, 0, aiStyle)
       emotion = analysis.emotion
       intensity = analysis.intensity
       aiResponse = analysis.response

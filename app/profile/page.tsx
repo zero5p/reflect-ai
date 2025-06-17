@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { UserIcon, ArrowLeftIcon, SettingsIcon, LogOutIcon } from "lucide-react"
+import { UserIcon, ArrowLeftIcon, SettingsIcon, LogOutIcon, BotIcon, HeartIcon, BrainCircuitIcon, UsersIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
@@ -21,6 +21,7 @@ export default function ProfilePage() {
     achievementRate: 0
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [aiStyle, setAiStyle] = useState<string>('balanced')
 
   useEffect(() => {
     async function fetchStats() {
@@ -35,6 +36,10 @@ export default function ProfilePage() {
         if (data.success) {
           setStats(data.data.stats)
         }
+
+        // AI 스타일 설정 불러오기
+        const savedStyle = localStorage.getItem('aiStyle') || 'balanced'
+        setAiStyle(savedStyle)
       } catch (error) {
         console.error('통계 데이터를 가져오는 중 오류가 발생했습니다:', error)
       } finally {
@@ -44,6 +49,42 @@ export default function ProfilePage() {
 
     fetchStats()
   }, [session?.user?.email])
+
+  const aiStyles = [
+    {
+      id: 'coach',
+      name: '코치형',
+      icon: <BrainCircuitIcon className="w-5 h-5" />,
+      description: '직설적이고 현실적인 조언',
+      example: '"목표에 집중하세요. 구체적인 행동이 필요해요."'
+    },
+    {
+      id: 'friend',
+      name: '친구형',
+      icon: <HeartIcon className="w-5 h-5" />,
+      description: '따뜻하고 공감적인 대화',
+      example: '"많이 힘들었겠어요. 함께 이겨내봐요! 💕"'
+    },
+    {
+      id: 'balanced',
+      name: '균형형',
+      icon: <UsersIcon className="w-5 h-5" />,
+      description: '상황에 맞게 조절 (기본값)',
+      example: '"이런 감정이 드는 게 자연스러워요. 천천히 해봐요."'
+    },
+    {
+      id: 'mentor',
+      name: '멘토형',
+      icon: <BotIcon className="w-5 h-5" />,
+      description: '의지력 최소화 중심 조언',
+      example: '"시스템을 바꿔보는 건 어떨까요? 환경부터 시작해봐요."'
+    }
+  ]
+
+  const handleAiStyleChange = (styleId: string) => {
+    setAiStyle(styleId)
+    localStorage.setItem('aiStyle', styleId)
+  }
 
   if (!session) {
     router.push("/login")
@@ -183,9 +224,56 @@ export default function ProfilePage() {
           </div>
         </Card>
 
-        {/* Settings Card */}
+        {/* AI Style Settings */}
         <Card className="p-6 mb-6 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
-          <h3 className="text-lg font-semibold mb-4 text-mumu-brown-dark">설정</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6">
+              <img 
+                src="/mumu_mascot.png" 
+                alt="무무" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <h3 className="text-lg font-semibold text-mumu-brown-dark">무무 AI 스타일</h3>
+          </div>
+          <p className="text-sm text-mumu-brown mb-4">
+            무무가 어떤 방식으로 대화할지 선택해보세요
+          </p>
+          
+          <div className="space-y-3">
+            {aiStyles.map((style) => (
+              <div
+                key={style.id}
+                onClick={() => handleAiStyleChange(style.id)}
+                className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                  aiStyle === style.id
+                    ? 'border-mumu-brown bg-mumu-brown/10 dark:bg-mumu-brown/20'
+                    : 'border-mumu-accent hover:border-mumu-brown-light hover:bg-mumu-accent/30'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`${aiStyle === style.id ? 'text-mumu-brown' : 'text-mumu-brown-light'}`}>
+                    {style.icon}
+                  </div>
+                  <span className={`font-medium ${aiStyle === style.id ? 'text-mumu-brown-dark' : 'text-mumu-brown'}`}>
+                    {style.name}
+                  </span>
+                  {aiStyle === style.id && (
+                    <span className="ml-auto text-xs bg-mumu-brown text-mumu-cream px-2 py-1 rounded-full">
+                      선택됨
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-mumu-brown mb-2">{style.description}</p>
+                <p className="text-xs text-mumu-brown/80 italic">{style.example}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Other Settings Card */}
+        <Card className="p-6 mb-6 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
+          <h3 className="text-lg font-semibold mb-4 text-mumu-brown-dark">기타 설정</h3>
           <div className="space-y-3">
             <Button variant="ghost" className="w-full justify-start" disabled>
               <SettingsIcon className="h-4 w-4 mr-2" />

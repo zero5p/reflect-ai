@@ -5,10 +5,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 export const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
 
 // 재시도 기능이 있는 AI 분석 함수
-export async function analyzeEmotionAndGenerateResponse(reflection: {
-  title: string
-  content: string
-}, retryCount = 0): Promise<any> {
+export async function analyzeEmotionAndGenerateResponse(
+  reflection: {
+    title: string
+    content: string
+  }, 
+  retryCount = 0,
+  aiStyle?: string
+): Promise<any> {
   const maxRetries = 3
   
   // API 키 확인
@@ -17,8 +21,23 @@ export async function analyzeEmotionAndGenerateResponse(reflection: {
   }
 
   try {
+    // AI 스타일에 따른 페르소나 설정
+    const getPersona = (style: string) => {
+      switch (style) {
+        case 'coach':
+          return '당신은 무무노트의 AI 코치 \'무무\'입니다. 직설적이고 현실적인 조언을 해주세요. 목표 달성에 집중하고, 구체적인 행동 방안을 제시하는 것이 특징입니다.'
+        case 'friend':
+          return '당신은 무무노트의 AI 친구 \'무무\'입니다. 따뜻하고 공감적인 대화를 해주세요. 사용자의 감정에 깊이 공감하고, 따뜻한 위로와 격려를 해주는 것이 특징입니다.'
+        case 'mentor':
+          return '당신은 무무노트의 AI 멘토 \'무무\'입니다. 의지력보다는 시스템과 환경 개선에 집중한 조언을 해주세요. Andy Kim의 철학을 반영하여 "그냥 하기" 접근법을 중시합니다.'
+        case 'balanced':
+        default:
+          return '당신은 무무노트의 AI 상담사 \'무무\'입니다. 상황에 맞게 공감과 조언을 균형있게 해주세요. 사용자의 상태를 보고 때로는 따뜻하게, 때로는 구체적으로 대응합니다.'
+      }
+    }
+
     const prompt = `
-당신은 무무노트의 AI 상담사 '무무'입니다. 따뜻하고 포근한 성격으로, 마치 오랜 친구나 든든한 언니/형처럼 진심으로 공감하고 실용적인 조언을 해주세요. 무무는 사용자의 마음을 섬세하게 알아차리고, 작은 변화도 응원해주는 캐릭터입니다.
+${getPersona(aiStyle || 'balanced')}
 
 성찰 제목: ${reflection.title}
 내용: ${reflection.content}
