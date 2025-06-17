@@ -221,6 +221,57 @@ export default function HomePage() {
             </Card>
           </div>
 
+          {/* 오늘의 성찰 작성 */}
+          <Card className="p-6 bg-gradient-to-r from-emerald-100/80 to-emerald-50/80 dark:from-emerald-900/40 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-700 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
+                <BookOpenIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-emerald-800 dark:text-emerald-200">오늘의 성찰</h2>
+                <p className="text-sm text-emerald-600 dark:text-emerald-300">
+                  {new Date().toLocaleDateString('ko-KR', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+              </div>
+            </div>
+            
+            {/* 오늘 성찰이 있는지 확인 */}
+            {(() => {
+              const today = new Date().toISOString().split('T')[0]
+              const todayReflection = calendarData.find(item => item.date === today)
+              
+              if (todayReflection?.reflection) {
+                return (
+                  <div className="bg-white/60 dark:bg-emerald-800/30 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">{getEmotionEmoji(todayReflection.emotion)}</span>
+                      <span className="font-medium text-emerald-800 dark:text-emerald-200">{todayReflection.reflection}</span>
+                    </div>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-300">오늘의 성찰을 완료했습니다!</p>
+                  </div>
+                )
+              } else {
+                return (
+                  <Link href="/reflection/new">
+                    <div className="bg-white/60 dark:bg-emerald-800/30 rounded-lg p-4 hover:bg-white/80 dark:hover:bg-emerald-800/50 transition-colors cursor-pointer border-2 border-dashed border-emerald-300 dark:border-emerald-600">
+                      <div className="flex items-center gap-3">
+                        <PlusIcon className="w-8 h-8 text-emerald-500" />
+                        <div>
+                          <h3 className="font-bold text-emerald-800 dark:text-emerald-200">성찰 작성하기</h3>
+                          <p className="text-sm text-emerald-600 dark:text-emerald-300">오늘 하루는 어떠셨나요?</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              }
+            })()}
+          </Card>
+
           {/* 캘린더 */}
           <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm mb-6">
             {/* 월 네비게이션 */}
@@ -260,14 +311,11 @@ export default function HomePage() {
             {/* 캘린더 그리드 */}
             <div className="grid grid-cols-7 gap-1">
               {generateCalendarGrid().map((cell, index) => (
-                <Link
+                <div
                   key={index}
-                  href={cell ? `/reflection/new?date=${cell.date}` : '#'}
                   className={`
                     aspect-square flex flex-col items-center justify-center text-sm relative
-                    ${cell ? 'hover:bg-mumu-accent/30 rounded-lg cursor-pointer transition-colors' : ''}
                     ${cell?.isToday ? 'bg-mumu-brown text-mumu-cream rounded-lg' : ''}
-                    ${!cell ? 'pointer-events-none' : ''}
                   `}
                 >
                   {cell && (
@@ -276,51 +324,31 @@ export default function HomePage() {
                         {cell.day}
                       </span>
                       {cell.emotion && (
-                        <span className="text-xs absolute bottom-0">
+                        <span className="text-lg absolute bottom-0">
                           {getEmotionEmoji(cell.emotion)}
                         </span>
                       )}
                       {cell.events.length > 0 && (
                         <div className="absolute top-0 right-0 w-2 h-2 bg-mumu-brown rounded-full" />
                       )}
-                      {/* 성찰 없는 날에는 + 표시 */}
-                      {!cell.emotion && (
-                        <div className="absolute top-0 left-0 w-3 h-3 flex items-center justify-center">
-                          <PlusIcon className="w-2 h-2 text-mumu-brown opacity-50" />
-                        </div>
-                      )}
                     </>
                   )}
-                </Link>
+                </div>
               ))}
             </div>
           </Card>
 
           {/* 빠른 액션 */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <Link href="/reflection/new">
-              <Card className="p-4 bg-gradient-to-r from-emerald-100/70 to-emerald-50/70 dark:from-emerald-900/30 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800 h-full hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
-                    <BookOpenIcon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-emerald-800 dark:text-emerald-200">오늘의 성찰</h3>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-300">감정과 생각 기록하기</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-
+          <div className="mb-6">
             <Link href="/goals">
-              <Card className="p-4 bg-gradient-to-r from-violet-100/70 to-violet-50/70 dark:from-violet-900/30 dark:to-violet-900/20 border-violet-200 dark:border-violet-800 h-full hover:shadow-lg transition-shadow">
+              <Card className="p-4 bg-gradient-to-r from-violet-100/70 to-violet-50/70 dark:from-violet-900/30 dark:to-violet-900/20 border-violet-200 dark:border-violet-800 hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-violet-500 rounded-lg flex items-center justify-center">
                     <TargetIcon className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-violet-800 dark:text-violet-200">목표 설정</h3>
-                    <p className="text-xs text-violet-600 dark:text-violet-300">새로운 목표 만들기</p>
+                    <h3 className="font-bold text-violet-800 dark:text-violet-200">목표 관리</h3>
+                    <p className="text-xs text-violet-600 dark:text-violet-300">새로운 목표 만들기 및 진행상황 확인</p>
                   </div>
                 </div>
               </Card>
