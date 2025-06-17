@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 
 export default function HomePage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [calendarData, setCalendarData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -165,7 +165,22 @@ export default function HomePage() {
     }
   }
 
-  if (!session) {
+  // 로딩 중일 때
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4">
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin" />
+          </div>
+          <p className="text-mumu-brown">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 로그인되지 않았을 때
+  if (status === "unauthenticated") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
         <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">

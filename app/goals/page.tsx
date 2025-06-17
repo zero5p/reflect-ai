@@ -36,7 +36,7 @@ interface Goal {
 }
 
 export default function GoalsPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [goals, setGoals] = useState<Goal[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -55,11 +55,17 @@ export default function GoalsPage() {
       }
 
       try {
+        console.log('목표 데이터 로드 시작...')
         const response = await fetch('/api/goals')
         const data = await response.json()
         
+        console.log('목표 API 응답:', data)
+        
         if (data.success) {
+          console.log('목표 데이터 설정:', data.data)
           setGoals(data.data)
+        } else {
+          console.error('목표 API 성공하지 않음:', data)
         }
       } catch (error) {
         console.error('목표 로드 실패:', error)
@@ -215,7 +221,22 @@ export default function GoalsPage() {
     }
   }
 
-  if (!session) {
+  // 로딩 중일 때
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4">
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin" />
+          </div>
+          <p className="text-mumu-brown">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 로그인되지 않았을 때
+  if (status === "unauthenticated") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
         <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
@@ -344,7 +365,19 @@ export default function GoalsPage() {
           )}
 
           {/* 목표 목록 */}
-          {goals.length === 0 && !isCreating ? (
+          {isLoading ? (
+            <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
+              <div className="w-16 h-16 mx-auto mb-4">
+                <img 
+                  src="/mumu_mascot.png" 
+                  alt="무무" 
+                  className="w-full h-full object-contain animate-spin"
+                />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-mumu-brown-dark">목표를 불러오는 중...</h3>
+              <p className="text-sm text-mumu-brown">잠시만 기다려주세요</p>
+            </Card>
+          ) : goals.length === 0 && !isCreating ? (
             <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
               <div className="w-16 h-16 mx-auto mb-4 opacity-50">
                 <img 
