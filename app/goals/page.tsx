@@ -44,6 +44,32 @@ export default function GoalsPage() {
     title: '',
     description: ''
   })
+  const [isLoading, setIsLoading] = useState(true)
+
+  // 목표 데이터 로드
+  useEffect(() => {
+    async function loadGoals() {
+      if (!session?.user?.email) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch('/api/goals')
+        const data = await response.json()
+        
+        if (data.success) {
+          setGoals(data.data)
+        }
+      } catch (error) {
+        console.error('목표 로드 실패:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadGoals()
+  }, [session?.user?.email])
 
   // 난이도별 색상
   const getDifficultyColor = (difficulty: string) => {
@@ -97,51 +123,91 @@ export default function GoalsPage() {
           }))
         }))
 
-        const goal: Goal = {
-          id: Date.now().toString(),
-          title: newGoal.title,
-          description: newGoal.description,
-          progress: 0,
-          timeframe: breakdown.timeframe,
-          phases: phasesWithStatus,
-          createdAt: new Date().toISOString()
-        }
+        // API에 목표 저장
+        const saveResponse = await fetch('/api/goals', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: newGoal.title,
+            description: newGoal.description,
+            timeframe: breakdown.timeframe,
+            phases: phasesWithStatus
+          }),
+        })
 
-        setGoals([...goals, goal])
-        setNewGoal({ title: '', description: '' })
-        setIsCreating(false)
+        const saveData = await saveResponse.json()
+        
+        if (saveData.success) {
+          const savedGoal: Goal = {
+            id: saveData.data.id.toString(),
+            title: saveData.data.title,
+            description: saveData.data.description,
+            progress: saveData.data.progress,
+            timeframe: saveData.data.timeframe,
+            phases: saveData.data.phases,
+            createdAt: saveData.data.created_at
+          }
+          
+          setGoals([...goals, savedGoal])
+          setNewGoal({ title: '', description: '' })
+          setIsCreating(false)
+        } else {
+          throw new Error('목표 저장 실패')
+        }
       } else {
         throw new Error('목표 분해 실패')
       }
     } catch (error) {
       console.error('목표 생성 실패:', error)
-      // 기본 구조로 목표 생성
-      const goal: Goal = {
-        id: Date.now().toString(),
-        title: newGoal.title,
-        description: newGoal.description,
-        progress: 0,
-        timeframe: "2-3개월",
-        phases: [
-          {
-            title: "시작하기",
-            description: "기본적인 첫 단계들",
-            duration: "1-2주",
-            completed: false,
-            tasks: [
-              {
-                title: "목표 구체화하기",
-                description: "목표를 더 세부적으로 계획해보세요",
-                timeEstimate: "30분",
-                difficulty: "easy",
-                completed: false
-              }
-            ]
-          }
-        ],
-        createdAt: new Date().toISOString()
+      // 기본 구조로 목표 생성하고 API에 저장
+      const defaultPhases = [
+        {
+          title: "시작하기",
+          description: "기본적인 첫 단계들",
+          duration: "1-2주",
+          completed: false,
+          tasks: [
+            {
+              title: "목표 구체화하기",
+              description: "목표를 더 세부적으로 계획해보세요",
+              timeEstimate: "30분",
+              difficulty: "easy",
+              completed: false
+            }
+          ]
+        }
+      ]
+
+      const saveResponse = await fetch('/api/goals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newGoal.title,
+          description: newGoal.description,
+          timeframe: "2-3개월",
+          phases: defaultPhases
+        }),
+      })
+
+      const saveData = await saveResponse.json()
+      
+      if (saveData.success) {
+        const savedGoal: Goal = {
+          id: saveData.data.id.toString(),
+          title: saveData.data.title,
+          description: saveData.data.description,
+          progress: saveData.data.progress,
+          timeframe: saveData.data.timeframe,
+          phases: saveData.data.phases,
+          createdAt: saveData.data.created_at
+        }
+        
+        setGoals([...goals, savedGoal])
       }
-      setGoals([...goals, goal])
       setNewGoal({ title: '', description: '' })
       setIsCreating(false)
     } finally {

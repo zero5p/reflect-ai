@@ -32,13 +32,16 @@ export default function AnalysisPage() {
 
       try {
         // 캘린더 데이터와 통계 동시 로딩
+        const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
         const [calendarResponse, statsResponse] = await Promise.all([
-          cachedFetch(`/api/calendar?month=${currentDate.getMonth() + 1}&year=${currentDate.getFullYear()}`, undefined, 2),
+          cachedFetch(`/api/calendar?month=${monthStr}`, undefined, 2),
           cachedFetch(`/api/profile/stats?email=${session.user.email}`, undefined, 5)
         ])
 
         if (calendarResponse.success) {
-          setCalendarData(calendarResponse.data)
+          // 캘린더 데이터를 분석 페이지에 맞는 형식으로 변환
+          const calendarDataFormatted = processCalendarData(calendarResponse.data)
+          setCalendarData(calendarDataFormatted)
         }
         if (statsResponse.success) {
           setStats(statsResponse.data)
@@ -52,6 +55,40 @@ export default function AnalysisPage() {
 
     fetchData()
   }, [session?.user?.email, currentDate])
+
+  // 캘린더 API 데이터를 분석 페이지 형식으로 변환
+  const processCalendarData = (data: any) => {
+    const processedData: any[] = []
+    
+    // 날짜별로 그룹화
+    const dateMap = new Map()
+    
+    // 성찰 데이터 처리
+    if (data.reflections) {
+      data.reflections.forEach((reflection: any) => {
+        const date = new Date(reflection.created_at).toISOString().split('T')[0]
+        if (!dateMap.has(date)) {
+          dateMap.set(date, { date, events: [] })
+        }
+        const dayData = dateMap.get(date)
+        dayData.reflection = reflection.title
+        dayData.emotion = reflection.emotion
+      })
+    }
+    
+    // 이벤트 데이터 처리
+    if (data.events) {
+      data.events.forEach((event: any) => {
+        if (!dateMap.has(event.date)) {
+          dateMap.set(event.date, { date: event.date, events: [] })
+        }
+        const dayData = dateMap.get(event.date)
+        dayData.events.push(event)
+      })
+    }
+    
+    return Array.from(dateMap.values())
+  }
 
   const goToPreviousMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))

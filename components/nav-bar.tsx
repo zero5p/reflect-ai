@@ -11,12 +11,6 @@ interface NavBarProps {
 export function NavBar({ activeTab }: NavBarProps) {
   const navItems = [
     {
-      id: "home",
-      label: "홈",
-      icon: <CalendarIcon className="h-5 w-5" />,
-      href: "/",
-    },
-    {
       id: "analysis",
       label: "분석",
       icon: <BarChart3Icon className="h-5 w-5" />,
