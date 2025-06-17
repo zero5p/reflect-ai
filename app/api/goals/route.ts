@@ -13,6 +13,25 @@ export async function GET(request: NextRequest) {
 
     const userEmail = session.user.email
 
+    // goals 테이블 생성 (없으면)
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS goals (
+          id SERIAL PRIMARY KEY,
+          user_email VARCHAR(255) NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          description TEXT,
+          timeframe VARCHAR(100),
+          phases TEXT,
+          progress INTEGER DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `
+    } catch (tableError) {
+      console.error("Error creating goals table:", tableError)
+    }
+
     // 사용자 목표 조회
     const goals = await sql`
       SELECT * FROM goals 
@@ -51,6 +70,25 @@ export async function POST(request: NextRequest) {
 
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 })
+    }
+
+    // goals 테이블 생성 (없으면)
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS goals (
+          id SERIAL PRIMARY KEY,
+          user_email VARCHAR(255) NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          description TEXT,
+          timeframe VARCHAR(100),
+          phases TEXT,
+          progress INTEGER DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `
+    } catch (tableError) {
+      console.error("Error creating goals table:", tableError)
     }
 
     // 목표 저장

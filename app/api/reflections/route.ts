@@ -100,7 +100,10 @@ export async function GET(request: NextRequest) {
       ORDER BY created_at DESC
     `
 
-    return NextResponse.json({ reflections })
+    return NextResponse.json({ 
+      success: true,
+      data: reflections 
+    })
   } catch (error) {
     console.error("Error fetching reflections:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })

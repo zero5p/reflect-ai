@@ -43,21 +43,36 @@ export default function HomePage() {
           cachedFetch('/api/reflections', undefined, 5)
         ])
 
+        console.log('API 응답 상태:', {
+          calendar: calendarResponse.success,
+          stats: statsResponse.success,
+          goals: goalsResponse.success,
+          reflections: reflectionsResponse.success
+        })
+
         if (calendarResponse.success) {
           const calendarDataFormatted = processCalendarData(calendarResponse.data)
           setCalendarData(calendarDataFormatted)
+        } else {
+          console.error('캘린더 데이터 로드 실패:', calendarResponse)
         }
         
         if (statsResponse.success) {
           setStats(statsResponse.data)
+        } else {
+          console.error('통계 데이터 로드 실패:', statsResponse)
         }
 
         if (goalsResponse.success) {
           setRecentGoals(goalsResponse.data.slice(0, 3)) // 최근 3개
+        } else {
+          console.error('목표 데이터 로드 실패:', goalsResponse)
         }
 
         if (reflectionsResponse.success) {
           setRecentReflections(reflectionsResponse.data.slice(0, 3)) // 최근 3개
+        } else {
+          console.error('성찰 데이터 로드 실패:', reflectionsResponse)
         }
 
       } catch (error) {
