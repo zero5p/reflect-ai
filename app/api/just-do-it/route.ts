@@ -142,13 +142,18 @@ async function getUserContext(userEmail: string): Promise<{
     ]
 
     // 최근 성찰 내용
-    const recentReflections = await sql`
+    const reflectionRows = await sql`
       SELECT title, content 
       FROM reflections 
       WHERE user_email = ${userEmail}
       ORDER BY created_at DESC 
       LIMIT 3
     `
+
+    const recentReflections = reflectionRows.map(row => ({
+      title: row.title as string,
+      content: row.content as string
+    }))
 
     // 관심사 추출 (성찰 내용에서 키워드 분석)
     const interests = extractInterests(recentReflections.map(r => r.content).join(' '))
