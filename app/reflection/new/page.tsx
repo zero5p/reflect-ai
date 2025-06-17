@@ -9,12 +9,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { getRandomQuote } from "@/lib/quotes"
 
 export default function NewReflectionPage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -26,6 +27,22 @@ export default function NewReflectionPage() {
   const [currentQuote, setCurrentQuote] = useState(getRandomQuote())
   const [errorMessage, setErrorMessage] = useState("")
   const [retryCount, setRetryCount] = useState(0)
+  const [selectedDate, setSelectedDate] = useState<string>("")
+
+  // URL에서 날짜 파라미터 처리
+  useEffect(() => {
+    const dateParam = searchParams.get('date')
+    if (dateParam) {
+      setSelectedDate(dateParam)
+      // 날짜에 따른 기본 제목 설정
+      const date = new Date(dateParam)
+      const dateStr = date.toLocaleDateString('ko-KR', { 
+        month: 'long', 
+        day: 'numeric' 
+      })
+      setTitle(`${dateStr}의 하루`)
+    }
+  }, [searchParams])
 
   // 로딩 시작 시 랜덤 명언 선택
   useEffect(() => {
