@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSession } from "next-auth/react"
 import { BookOpenIcon, ArrowLeftIcon, SaveIcon, SparklesIcon, HomeIcon, CalendarPlusIcon, HeartIcon, StarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getRandomQuote } from "@/lib/quotes"
 
-export default function NewReflectionPage() {
+function NewReflectionContent() {
   const { data: session } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -473,5 +473,22 @@ export default function NewReflectionPage() {
         </Card>
       </main>
     </div>
+  )
+}
+
+export default function NewReflectionPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4">
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin" />
+          </div>
+          <p className="text-mumu-brown">로딩 중...</p>
+        </div>
+      </div>
+    }>
+      <NewReflectionContent />
+    </Suspense>
   )
 }

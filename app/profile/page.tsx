@@ -99,8 +99,8 @@ export default function ProfilePage() {
       })
     } catch (error) {
       console.error("로그아웃 오류:", error)
-      // 강제로 홈페이지로 이동
-      window.location.href = "/"
+      // 라우터를 사용하여 홈페이지로 이동
+      router.push("/")
     }
   }
 
