@@ -5,8 +5,6 @@ import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
-import { cachedFetch } from "@/lib/cache"
-import { AnimatedPage } from "@/components/page-transition"
 import { ArrowLeftIcon, ArrowRightIcon, PlusIcon, CalendarDaysIcon, BrainCircuitIcon, TargetIcon, BookOpenIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
@@ -25,36 +23,27 @@ export default function HomePage() {
   const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
   const today = new Date()
 
-  // 홈 페이지가 포커스될 때 데이터 새로고침
+
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && session?.user?.email) {
-        fetchData()
+    async function fetchData() {
+      if (!session?.user?.email) {
+        setIsLoading(false)
+        return
       }
-    }
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [session?.user?.email])
+      setIsLoading(true)
+      console.log('홈 페이지 데이터 로드 시작...', session.user.email)
 
-  const fetchData = async (forceRefresh = false) => {
-    if (!session?.user?.email) {
-      setIsLoading(false)
-      return
-    }
-
-    setIsLoading(true)
-
-    try {
-      const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
-      
-      // 모든 데이터 병렬 로딩 - 홈페이지에서는 항상 최신 데이터
-      const [calendarResponse, statsResponse, goalsResponse, reflectionsResponse] = await Promise.all([
-        fetch(`/api/calendar?month=${monthStr}`).then(res => res.json()),
-        fetch(`/api/profile/stats?email=${session.user.email}`).then(res => res.json()),
-        fetch('/api/goals').then(res => res.json()),
-        fetch('/api/reflections').then(res => res.json())
-      ])
+      try {
+        const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+        
+        // 모든 데이터 병렬 로딩
+        const [calendarResponse, statsResponse, goalsResponse, reflectionsResponse] = await Promise.all([
+          fetch(`/api/calendar?month=${monthStr}`).then(res => res.json()),
+          fetch(`/api/profile/stats?email=${session.user.email}`).then(res => res.json()),
+          fetch('/api/goals').then(res => res.json()),
+          fetch('/api/reflections').then(res => res.json())
+        ])
 
         console.log('API 응답 상태:', {
           calendar: calendarResponse.success,
@@ -90,18 +79,17 @@ export default function HomePage() {
           setRecentReflections([]) // 빈 배열로 설정
         }
 
-    } catch (error) {
-      console.error('데이터를 가져오는 중 오류가 발생했습니다:', error)
-    } finally {
-      setIsLoading(false)
+      } catch (error) {
+        console.error('데이터를 가져오는 중 오류가 발생했습니다:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
 
-  useEffect(() => {
-    if (session?.user?.email) {
+    if (status === "authenticated" && session?.user?.email) {
       fetchData()
     }
-  }, [session?.user?.email, currentDate])
+  }, [session?.user?.email, currentDate, status])
 
   // 캘린더 API 데이터를 페이지 형식으로 변환
   const processCalendarData = (data: any) => {
@@ -218,8 +206,7 @@ export default function HomePage() {
   }
 
   return (
-    <AnimatedPage>
-      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background">
+    <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background">
         {/* Header */}
         <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent">
           <div className="flex items-center gap-2 flex-1">
@@ -469,7 +456,6 @@ export default function HomePage() {
         </main>
 
         <NavBar activeTab="home" />
-      </div>
-    </AnimatedPage>
+    </div>
   )
 }
