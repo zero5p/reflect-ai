@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
-import { ArrowLeftIcon, ArrowRightIcon, PlusIcon, CalendarDaysIcon, BrainCircuitIcon, TargetIcon, BookOpenIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, PlusIcon, CalendarDaysIcon, BrainCircuitIcon, TargetIcon, BookOpenIcon, CheckCircleIcon, CircleIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 
@@ -17,6 +17,7 @@ export default function HomePage() {
   const [stats, setStats] = useState<any>(null)
   const [recentGoals, setRecentGoals] = useState<any[]>([])
   const [recentReflections, setRecentReflections] = useState<any[]>([])
+  const [dailyTasks, setDailyTasks] = useState<any[]>([])
 
   // 현재 월의 시작과 끝 날짜 계산
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
@@ -38,18 +39,20 @@ export default function HomePage() {
         const monthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
         
         // 모든 데이터 병렬 로딩
-        const [calendarResponse, statsResponse, goalsResponse, reflectionsResponse] = await Promise.all([
+        const [calendarResponse, statsResponse, goalsResponse, reflectionsResponse, dailyTasksResponse] = await Promise.all([
           fetch(`/api/calendar?month=${monthStr}`).then(res => res.json()),
           fetch(`/api/profile/stats?email=${session.user.email}`).then(res => res.json()),
           fetch('/api/goals').then(res => res.json()),
-          fetch('/api/reflections').then(res => res.json())
+          fetch('/api/reflections').then(res => res.json()),
+          fetch('/api/daily-tasks').then(res => res.json())
         ])
 
         console.log('API 응답 상태:', {
           calendar: calendarResponse.success,
           stats: statsResponse.success,
           goals: goalsResponse.success,
-          reflections: reflectionsResponse.success
+          reflections: reflectionsResponse.success,
+          dailyTasks: dailyTasksResponse.success
         })
 
         if (calendarResponse.success) {
@@ -77,6 +80,13 @@ export default function HomePage() {
         } else {
           console.error('성찰 데이터 로드 실패:', reflectionsResponse)
           setRecentReflections([]) // 빈 배열로 설정
+        }
+
+        if (dailyTasksResponse.success) {
+          setDailyTasks(dailyTasksResponse.data || [])
+        } else {
+          console.error('일일 할 일 데이터 로드 실패:', dailyTasksResponse)
+          setDailyTasks([])
         }
 
       } catch (error) {
@@ -158,6 +168,32 @@ export default function HomePage() {
     }
 
     return grid
+  }
+
+  const toggleDailyTask = async (taskId: number, isCompleted: boolean) => {
+    try {
+      const response = await fetch('/api/daily-tasks', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          taskId,
+          isCompleted: !isCompleted
+        })
+      })
+
+      if (response.ok) {
+        // 로컬 상태 업데이트
+        setDailyTasks(prev => prev.map(task => 
+          task.id === taskId 
+            ? { ...task, is_completed: !isCompleted }
+            : task
+        ))
+      }
+    } catch (error) {
+      console.error('할 일 상태 업데이트 실패:', error)
+    }
   }
 
   const getEmotionEmoji = (emotion: string) => {
@@ -450,6 +486,61 @@ export default function HomePage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </Card>
+          )}
+
+          {/* 오늘의 할 일 체크리스트 */}
+          {!isLoading && dailyTasks.length > 0 && (
+            <Card className="p-4 bg-gradient-to-r from-blue-100/80 to-blue-50/80 dark:from-blue-900/40 dark:to-blue-900/20 border-blue-200 dark:border-blue-700 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <h3 className="font-bold text-blue-800 dark:text-blue-200">오늘의 할 일</h3>
+                </div>
+                <span className="text-xs text-blue-600 dark:text-blue-300">
+                  {dailyTasks.filter(task => task.is_completed).length}/{dailyTasks.length} 완료
+                </span>
+              </div>
+              <div className="space-y-2">
+                {dailyTasks.slice(0, 5).map((task: any) => (
+                  <div 
+                    key={task.id} 
+                    className="flex items-center gap-3 p-2 rounded-lg bg-white/60 dark:bg-blue-800/30 hover:bg-white/80 dark:hover:bg-blue-800/50 transition-colors cursor-pointer"
+                    onClick={() => toggleDailyTask(task.id, task.is_completed)}
+                  >
+                    {task.is_completed ? (
+                      <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <CircleIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    )}
+                    <div className="flex-1">
+                      <div className={`text-sm font-medium ${task.is_completed ? 'line-through text-gray-500' : 'text-blue-800 dark:text-blue-200'}`}>
+                        {task.task_title}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-300">
+                        <span>{task.goal_title}</span>
+                        <span>•</span>
+                        <span>{task.estimated_time}</span>
+                        {task.streak_count > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>{task.streak_count}일 연속</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {dailyTasks.length > 5 && (
+                  <div className="text-center">
+                    <Link href="/goals">
+                      <Button variant="ghost" size="sm" className="text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800">
+                        +{dailyTasks.length - 5}개 더 보기
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </Card>
           )}
