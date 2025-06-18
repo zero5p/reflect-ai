@@ -172,6 +172,8 @@ export default function HomePage() {
 
   const toggleDailyTask = async (taskId: number, isCompleted: boolean) => {
     try {
+      console.log('체크박스 토글:', { taskId, isCompleted, newStatus: !isCompleted })
+      
       const response = await fetch('/api/daily-tasks', {
         method: 'PATCH',
         headers: {
@@ -183,13 +185,21 @@ export default function HomePage() {
         })
       })
 
+      console.log('API 응답 상태:', response.status)
+      
       if (response.ok) {
+        const data = await response.json()
+        console.log('API 응답 데이터:', data)
+        
         // 로컬 상태 업데이트
         setDailyTasks(prev => prev.map(task => 
           task.id === taskId 
             ? { ...task, is_completed: !isCompleted }
             : task
         ))
+        console.log('로컬 상태 업데이트 완료')
+      } else {
+        console.error('API 응답 실패:', response.status, await response.text())
       }
     } catch (error) {
       console.error('할 일 상태 업데이트 실패:', error)
@@ -492,26 +502,29 @@ export default function HomePage() {
 
           {/* 오늘의 할 일 체크리스트 */}
           {!isLoading && dailyTasks.length > 0 && (
-            <Card className="p-4 bg-gradient-to-r from-blue-100/80 to-blue-50/80 dark:from-blue-900/40 dark:to-blue-900/20 border-blue-200 dark:border-blue-700 mb-6">
+            <Card className="p-4 bg-gradient-to-r from-green-100/80 to-green-50/80 dark:from-green-900/40 dark:to-green-900/20 border-green-200 dark:border-green-700 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  <h3 className="font-bold text-blue-800 dark:text-blue-200">오늘의 할 일</h3>
+                  <CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <h3 className="font-bold text-green-800 dark:text-green-200">🗓️ 매일 할 일 체크리스트</h3>
+                  <span className="px-2 py-1 bg-green-200 dark:bg-green-800 rounded-full text-xs text-green-700 dark:text-green-300">
+                    일일 루틴
+                  </span>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-blue-600 dark:text-blue-300">
+                  <div className="text-xs text-green-600 dark:text-green-300">
                     {dailyTasks.filter(task => task.is_completed).length}/{dailyTasks.length} 완료
                   </div>
-                  <div className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                  <div className="text-lg font-bold text-green-800 dark:text-green-200">
                     {Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%
                   </div>
                 </div>
               </div>
               
               {/* 진행률 바 */}
-              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 mb-4">
+              <div className="w-full bg-green-200 dark:bg-green-800 rounded-full h-2 mb-4">
                 <div 
-                  className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
+                  className="bg-green-600 dark:bg-green-400 h-2 rounded-full transition-all duration-300"
                   style={{ 
                     width: `${Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%` 
                   }}
@@ -522,7 +535,7 @@ export default function HomePage() {
                 {dailyTasks.slice(0, 5).map((task: any) => (
                   <div 
                     key={task.id} 
-                    className="flex items-start gap-3 p-3 rounded-lg bg-white/60 dark:bg-blue-800/30 hover:bg-white/80 dark:hover:bg-blue-800/50 transition-all duration-200 border border-transparent hover:border-blue-300 dark:hover:border-blue-600"
+                    className="flex items-start gap-3 p-3 rounded-lg bg-white/60 dark:bg-green-800/30 hover:bg-white/80 dark:hover:bg-green-800/50 transition-all duration-200 border border-transparent hover:border-green-300 dark:hover:border-green-600"
                   >
                     {/* 체크박스 */}
                     <button
@@ -530,7 +543,7 @@ export default function HomePage() {
                       className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 mt-0.5 ${
                         task.is_completed 
                           ? 'bg-green-500 border-green-500 text-white' 
-                          : 'border-gray-300 hover:border-blue-500 bg-white'
+                          : 'border-gray-300 hover:border-green-500 bg-white'
                       }`}
                     >
                       {task.is_completed && (
@@ -544,12 +557,12 @@ export default function HomePage() {
                       <div className={`text-sm font-medium transition-all duration-200 ${
                         task.is_completed 
                           ? 'line-through text-gray-500 dark:text-gray-400' 
-                          : 'text-blue-800 dark:text-blue-200'
+                          : 'text-green-800 dark:text-green-200'
                       }`}>
                         {task.task_title}
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-300 mt-1">
-                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded-full">{task.goal_title}</span>
+                      <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-300 mt-1">
+                        <span className="px-2 py-1 bg-green-100 dark:bg-green-800 rounded-full">{task.goal_title}</span>
                         <span>•</span>
                         <span>{task.estimated_time}</span>
                         {task.streak_count > 0 && (
@@ -568,7 +581,7 @@ export default function HomePage() {
                 {dailyTasks.length > 5 && (
                   <div className="text-center pt-2">
                     <Link href="/daily-tasks">
-                      <Button variant="outline" size="sm" className="text-blue-600 dark:text-blue-300 border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                      <Button variant="outline" size="sm" className="text-green-600 dark:text-green-300 border-green-300 hover:bg-green-50 dark:hover:bg-green-900">
                         +{dailyTasks.length - 5}개 더 보기
                       </Button>
                     </Link>
