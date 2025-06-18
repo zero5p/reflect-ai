@@ -153,6 +153,10 @@ const config = {
         "mumu-thinking": {
           '0%, 100%': { transform: 'scale(1) rotate(0deg)' },
           '50%': { transform: 'scale(1.05) rotate(2deg)' }
+        },
+        "spin-reverse": {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(-360deg)' }
         }
       },
       animation: {
@@ -162,6 +166,7 @@ const config = {
         "mumu-float": "mumu-float 3s ease-in-out infinite",
         "mumu-reading": "mumu-reading 4s ease-in-out infinite",
         "mumu-thinking": "mumu-thinking 3s ease-in-out infinite",
+        "spin-reverse": "spin-reverse 1s linear infinite",
       },
     },
   },

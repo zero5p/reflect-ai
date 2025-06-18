@@ -382,7 +382,7 @@ export default function GoalsPage() {
                 <img 
                   src="/mumu_mascot.png" 
                   alt="무무" 
-                  className="w-full h-full object-contain animate-spin"
+                  className="w-full h-full object-contain animate-spin-reverse"
                 />
               </div>
               <h3 className="text-lg font-bold mb-2 text-mumu-brown-dark">목표를 불러오는 중...</h3>

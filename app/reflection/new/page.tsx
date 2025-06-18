@@ -270,7 +270,7 @@ function NewReflectionContent() {
                   >
                     {isGeneratingSchedule ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                        <div className="animate-spin-reverse rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                         AI 일정 추천 생성 중...
                       </>
                     ) : (
@@ -482,7 +482,7 @@ export default function NewReflectionPage() {
       <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4">
-            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin" />
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin-reverse" />
           </div>
           <p className="text-mumu-brown">로딩 중...</p>
         </div>

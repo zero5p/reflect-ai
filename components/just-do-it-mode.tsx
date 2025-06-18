@@ -128,7 +128,7 @@ export function JustDoItMode({ isVisible, onClose }: JustDoItProps) {
           <div className="px-6 pb-6">
             {isLoading ? (
               <div className="text-center py-8">
-                <ZapIcon className="w-8 h-8 mx-auto mb-2 animate-spin text-mumu-brown" />
+                <ZapIcon className="w-8 h-8 mx-auto mb-2 animate-spin-reverse text-mumu-brown" />
                 <p className="text-sm text-mumu-brown">
                   무무가 맞춤 액션을 만들고 있어요...
                 </p>
