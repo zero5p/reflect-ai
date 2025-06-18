@@ -376,7 +376,7 @@ export default function GoalsPage() {
           )}
 
           {/* 목표 목록 */}
-          {status === "loading" || isLoading ? (
+          {isLoading ? (
             <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
               <div className="w-16 h-16 mx-auto mb-4">
                 <img 
