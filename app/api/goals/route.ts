@@ -127,12 +127,11 @@ async function createDailyTasksFromGoal(userEmail: string, goalId: number, phase
       const firstPhase = phases[0]
       
       for (const task of firstPhase.tasks || []) {
-        // 매일 할 수 있는 작업들만 필터링
+        // 매일 할 수 있는 작업들만 필터링 (더 엄격한 기준)
         if (task.timeEstimate?.includes('매일') || 
             task.title?.includes('매일') ||
             task.description?.includes('매일') ||
-            task.timeEstimate?.includes('하루') ||
-            task.difficulty === 'easy') {
+            task.timeEstimate?.includes('하루')) {
           
           await sql`
             INSERT INTO daily_tasks (user_email, goal_id, task_title, task_description, difficulty, estimated_time)

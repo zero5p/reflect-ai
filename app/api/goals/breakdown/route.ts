@@ -183,46 +183,58 @@ function generateFallbackBreakdown(goalTitle: string, goalDescription?: string):
   if (goal.includes('운동') || goal.includes('건강') || goal.includes('다이어트') || goal.includes('체중')) {
     phases = [
       {
-        title: "1단계: 기초 체력 다지기",
-        description: "운동 습관을 만들고 기초 체력을 향상시키는 단계",
+        title: "1단계: 기초 습관 만들기",
+        description: "매일 할 수 있는 간단한 건강 습관 형성",
         duration: "2-3주",
         tasks: [
           {
             title: "매일 10분 스트레칭하기",
-            description: "아침이나 저녁에 간단한 스트레칭으로 몸을 풀어주세요",
+            description: "아침 기상 후 또는 잠들기 전 간단한 스트레칭",
             timeEstimate: "매일 10분",
             difficulty: "easy" as const
           },
           {
-            title: "주 3회 30분 걷기",
-            description: "가벼운 산책부터 시작해서 걷기 습관을 만드세요",
-            timeEstimate: "주 3회 30분",
+            title: "매일 물 8잔 마시기",
+            description: "하루 종일 충분한 수분 섭취하기",
+            timeEstimate: "매일",
             difficulty: "easy" as const
           },
           {
-            title: "물 하루 8잔 마시기",
-            description: "충분한 수분 섭취로 건강한 몸 만들기",
-            timeEstimate: "하루 종일",
+            title: "매일 30분 걷기",
+            description: "산책이나 가벼운 걷기로 몸을 움직이기",
+            timeEstimate: "매일 30분",
+            difficulty: "easy" as const
+          },
+          {
+            title: "운동 계획 세우기",
+            description: "본격적인 운동을 위한 계획과 목표 수립",
+            timeEstimate: "1시간",
             difficulty: "easy" as const
           }
         ]
       },
       {
         title: "2단계: 본격적인 운동 시작",
-        description: "체계적인 운동 루틴을 만들어 나가는 단계",
+        description: "체계적인 운동 루틴을 시작하는 단계",
         duration: "4-6주",
         tasks: [
           {
-            title: "근력 운동 추가하기",
-            description: "집에서 할 수 있는 간단한 근력 운동 시작",
-            timeEstimate: "주 3회 20분",
+            title: "주 3회 근력 운동하기",
+            description: "집에서 할 수 있는 기본 근력 운동 시작",
+            timeEstimate: "주 3회 30분",
             difficulty: "medium" as const
           },
           {
-            title: "운동 강도 높이기",
-            description: "걷기에서 조깅으로, 시간과 강도를 점진적으로 증가",
+            title: "유산소 운동 강화하기",
+            description: "걷기에서 조깅, 러닝으로 단계적 발전",
             timeEstimate: "주 4회 40분",
             difficulty: "medium" as const
+          },
+          {
+            title: "체중/체성분 측정하기",
+            description: "주 1회 정기적인 몸 상태 체크",
+            timeEstimate: "주 1회 10분",
+            difficulty: "easy" as const
           }
         ]
       }
@@ -230,45 +242,57 @@ function generateFallbackBreakdown(goalTitle: string, goalDescription?: string):
   } else if (goal.includes('공부') || goal.includes('학습') || goal.includes('시험') || goal.includes('언어')) {
     phases = [
       {
-        title: "1단계: 학습 환경 구축",
-        description: "효과적인 학습을 위한 기반을 마련하는 단계",
-        duration: "1-2주",
+        title: "1단계: 학습 습관 만들기",
+        description: "매일 할 수 있는 학습 루틴 형성",
+        duration: "2-3주",
         tasks: [
           {
-            title: "학습 계획 세우기",
-            description: "구체적인 학습 목표와 일정을 계획해보세요",
-            timeEstimate: "2시간",
+            title: "매일 30분 학습하기",
+            description: "부담 없는 시간으로 매일 꾸준히 학습",
+            timeEstimate: "매일 30분",
             difficulty: "easy" as const
           },
           {
-            title: "학습 공간 정리하기",
+            title: "매일 학습 일지 작성하기",
+            description: "오늘 배운 내용과 느낀 점을 간단히 기록",
+            timeEstimate: "매일 5분",
+            difficulty: "easy" as const
+          },
+          {
+            title: "학습 환경 정리하기",
             description: "집중할 수 있는 깔끔한 학습 공간 만들기",
             timeEstimate: "1시간",
             difficulty: "easy" as const
           },
           {
-            title: "매일 30분 기초 학습",
-            description: "부담 없는 시간으로 학습 습관 만들기",
-            timeEstimate: "매일 30분",
+            title: "학습 계획 수립하기",
+            description: "구체적인 학습 목표와 로드맵 작성",
+            timeEstimate: "2시간",
             difficulty: "easy" as const
           }
         ]
       },
       {
-        title: "2단계: 본격적인 학습",
-        description: "체계적이고 깊이 있는 학습을 진행하는 단계",
+        title: "2단계: 심화 학습",
+        description: "체계적이고 깊이 있는 학습 진행",
         duration: "6-8주",
         tasks: [
           {
-            title: "학습 시간 늘리기",
-            description: "30분에서 1시간으로 점진적으로 시간 증가",
-            timeEstimate: "매일 1시간",
+            title: "학습 시간 확장하기",
+            description: "30분에서 1-2시간으로 점진적 증가",
+            timeEstimate: "매일 1-2시간",
             difficulty: "medium" as const
           },
           {
-            title: "복습 시스템 만들기",
-            description: "배운 내용을 정기적으로 복습하는 시스템 구축",
-            timeEstimate: "주 2회 30분",
+            title: "주간 복습하기",
+            description: "배운 내용을 주 1-2회 정기적으로 복습",
+            timeEstimate: "주 2회 1시간",
+            difficulty: "medium" as const
+          },
+          {
+            title: "모의시험/실습하기",
+            description: "실제 시험이나 실습을 통한 실력 점검",
+            timeEstimate: "주 1회 2시간",
             difficulty: "medium" as const
           }
         ]
@@ -278,18 +302,30 @@ function generateFallbackBreakdown(goalTitle: string, goalDescription?: string):
     phases = [
       {
         title: "1단계: 독서 습관 만들기",
-        description: "꾸준한 독서 습관을 형성하는 단계",
-        duration: "2-3주",
+        description: "매일 꾸준한 독서 루틴 형성",
+        duration: "3-4주",
         tasks: [
           {
-            title: "매일 15분 독서하기",
-            description: "부담 없는 시간으로 독서 습관 시작하기",
-            timeEstimate: "매일 15분",
+            title: "매일 20분 독서하기",
+            description: "부담 없는 시간으로 매일 꾸준히 독서",
+            timeEstimate: "매일 20분",
+            difficulty: "easy" as const
+          },
+          {
+            title: "매일 독서 기록하기",
+            description: "읽은 페이지 수와 간단한 감상 기록",
+            timeEstimate: "매일 5분",
             difficulty: "easy" as const
           },
           {
             title: "읽고 싶은 책 목록 만들기",
-            description: "관심 있는 책들을 리스트업해서 동기부여하기",
+            description: "관심 있는 책들을 장르별로 정리하기",
+            timeEstimate: "1시간",
+            difficulty: "easy" as const
+          },
+          {
+            title: "독서 환경 만들기",
+            description: "편안하고 집중할 수 있는 독서 공간 조성",
             timeEstimate: "30분",
             difficulty: "easy" as const
           }
@@ -297,19 +333,25 @@ function generateFallbackBreakdown(goalTitle: string, goalDescription?: string):
       },
       {
         title: "2단계: 깊이 있는 독서",
-        description: "더 많이, 더 깊이 있게 읽는 단계",
+        description: "더 많이, 더 깊이 있게 읽고 사고하기",
         duration: "4-6주",
         tasks: [
           {
-            title: "독서 시간 늘리기",
-            description: "15분에서 30분, 1시간으로 점진적 증가",
-            timeEstimate: "매일 30분-1시간",
+            title: "독서 시간 확장하기",
+            description: "20분에서 40분-1시간으로 점진적 증가",
+            timeEstimate: "매일 40분-1시간",
             difficulty: "medium" as const
           },
           {
             title: "독서 노트 작성하기",
-            description: "인상 깊은 구절이나 생각을 기록하기",
-            timeEstimate: "독서 후 10분",
+            description: "인상 깊은 구절과 생각을 상세히 기록",
+            timeEstimate: "독서 후 15분",
+            difficulty: "medium" as const
+          },
+          {
+            title: "독서 토론/공유하기",
+            description: "읽은 책에 대해 다른 사람과 이야기 나누기",
+            timeEstimate: "주 1회 30분",
             difficulty: "medium" as const
           }
         ]
@@ -319,52 +361,64 @@ function generateFallbackBreakdown(goalTitle: string, goalDescription?: string):
     // 일반적인 목표
     phases = [
       {
-        title: "1단계: 목표 구체화 및 준비",
-        description: `${goalTitle} 달성을 위한 기초 준비 단계`,
-        duration: "1-2주",
+        title: "1단계: 기초 습관 만들기",
+        description: `${goalTitle} 달성을 위한 매일 할 수 있는 기초 습관 형성`,
+        duration: "2-3주",
         tasks: [
           {
-            title: "목표 세부 계획 세우기",
-            description: "구체적이고 측정 가능한 세부 목표들로 나누어 보세요",
-            timeEstimate: "1시간",
+            title: "매일 15분 관련 활동하기",
+            description: `${goalTitle}와 관련된 가장 기본적인 활동을 매일 15분씩`,
+            timeEstimate: "매일 15분",
             difficulty: "easy" as const
           },
           {
-            title: "필요한 자료/도구 준비하기",
-            description: "목표 달성에 필요한 것들을 미리 준비해두세요",
+            title: "매일 진행상황 기록하기",
+            description: "오늘 한 일과 느낀 점을 간단히 기록",
+            timeEstimate: "매일 5분",
+            difficulty: "easy" as const
+          },
+          {
+            title: "목표 세부 계획 세우기",
+            description: "구체적이고 측정 가능한 세부 목표들로 나누어 보기",
             timeEstimate: "2시간",
             difficulty: "easy" as const
           },
           {
-            title: "첫 번째 작은 행동 시작하기",
-            description: "가장 작고 쉬운 것부터 시작해서 동기를 유지하세요",
-            timeEstimate: "매일 15분",
+            title: "필요한 자료/도구 준비하기",
+            description: "목표 달성에 필요한 것들을 미리 준비해두기",
+            timeEstimate: "1-2시간",
             difficulty: "easy" as const
           }
         ]
       },
       {
         title: "2단계: 본격적인 실행",
-        description: "계획한 것들을 실제로 실행에 옮기는 단계",
+        description: "체계적이고 지속적인 실행을 통한 목표 달성",
         duration: "4-6주",
         tasks: [
           {
-            title: "활동 강도 높이기",
-            description: "익숙해진 활동의 시간이나 강도를 점진적으로 늘려보세요",
+            title: "활동 시간 확장하기",
+            description: "15분에서 30분-1시간으로 점진적 확장",
             timeEstimate: "매일 30분-1시간",
             difficulty: "medium" as const
           },
           {
-            title: "관련 활동 추가하기",
-            description: "목표와 관련된 다른 유익한 활동들도 시도해보세요",
+            title: "관련 활동 다양화하기",
+            description: "목표와 관련된 다양한 활동들을 추가로 시도",
             timeEstimate: "주 2-3회",
             difficulty: "medium" as const
           },
           {
-            title: "진행상황 점검하기",
-            description: "정기적으로 목표 달성 정도를 확인하고 조정하세요",
+            title: "주간 점검 및 조정하기",
+            description: "정기적으로 목표 달성 정도를 확인하고 계획 조정",
             timeEstimate: "주 1회 30분",
             difficulty: "easy" as const
+          },
+          {
+            title: "성과 정리 및 공유하기",
+            description: "달성한 성과를 정리하고 다른 사람과 공유",
+            timeEstimate: "2주마다 1시간",
+            difficulty: "medium" as const
           }
         ]
       }
