@@ -4,6 +4,9 @@ import { authOptions } from "../../auth/authOptions"
 import { geminiModel } from "@/lib/gemini"
 
 export async function POST(request: NextRequest) {
+  let goalTitle = ""
+  let goalDescription = ""
+  
   try {
     const session = await getServerSession(authOptions)
     
@@ -11,7 +14,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { goalTitle, goalDescription } = await request.json()
+    const requestBody = await request.json()
+    goalTitle = requestBody.goalTitle
+    goalDescription = requestBody.goalDescription
 
     if (!goalTitle) {
       return NextResponse.json({ error: "Goal title is required" }, { status: 400 })
@@ -34,7 +39,7 @@ export async function POST(request: NextRequest) {
       phases: [
         {
           title: "준비 단계",
-          description: `${goalTitle} 목표를 위한 기본 준비`,
+          description: `${goalTitle || "목표"} 달성을 위한 기본 준비`,
           duration: "1-2주",
           tasks: [
             {
