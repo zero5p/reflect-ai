@@ -50,32 +50,43 @@ export default function GoalsPage() {
   useEffect(() => {
     async function loadGoals() {
       if (!session?.user?.email) {
+        console.log('세션 없음 - 로딩 중단')
         setIsLoading(false)
         return
       }
 
       try {
-        console.log('목표 데이터 로드 시작...')
+        console.log('목표 데이터 로드 시작...', session.user.email)
+        setIsLoading(true)
         const response = await fetch('/api/goals')
-        const data = await response.json()
+        console.log('API 응답 상태:', response.status)
         
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const data = await response.json()
         console.log('목표 API 응답:', data)
         
         if (data.success) {
           console.log('목표 데이터 설정:', data.data)
-          setGoals(data.data)
+          setGoals(data.data || [])
         } else {
           console.error('목표 API 성공하지 않음:', data)
+          setGoals([])
         }
       } catch (error) {
         console.error('목표 로드 실패:', error)
+        setGoals([])
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadGoals()
-  }, [session?.user?.email])
+    if (status === "authenticated") {
+      loadGoals()
+    }
+  }, [session?.user?.email, status])
 
   // 난이도별 색상
   const getDifficultyColor = (difficulty: string) => {
@@ -222,7 +233,7 @@ export default function GoalsPage() {
   }
 
   // 로딩 중일 때
-  if (status === "loading") {
+  if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
         <div className="text-center">
@@ -365,7 +376,7 @@ export default function GoalsPage() {
           )}
 
           {/* 목표 목록 */}
-          {isLoading ? (
+          {status === "loading" || isLoading ? (
             <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
               <div className="w-16 h-16 mx-auto mb-4">
                 <img 

@@ -28,8 +28,10 @@ export default function ReflectionPage() {
   const [expandedReflection, setExpandedReflection] = useState<number | null>(null)
 
   useEffect(() => {
-    fetchReflections()
-  }, [])
+    if (session) {
+      fetchReflections()
+    }
+  }, [session])
 
   if (!session) {
     router.push("/login")
@@ -38,13 +40,26 @@ export default function ReflectionPage() {
 
   const fetchReflections = async () => {
     try {
+      console.log('성찰 데이터 로드 시작...')
       const response = await fetch('/api/reflections')
-      if (response.ok) {
-        const data = await response.json()
-        setReflections(data.reflections || [])
+      console.log('API 응답 상태:', response.status)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('성찰 API 응답:', data)
+      
+      if (data.success) {
+        setReflections(data.data || [])
+      } else {
+        console.error('성찰 API 성공하지 않음:', data)
+        setReflections([])
       }
     } catch (error) {
       console.error('Error fetching reflections:', error)
+      setReflections([])
     } finally {
       setIsLoading(false)
     }

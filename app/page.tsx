@@ -67,12 +67,14 @@ export default function HomePage() {
           setRecentGoals(goalsResponse.data.slice(0, 3)) // 최근 3개
         } else {
           console.error('목표 데이터 로드 실패:', goalsResponse)
+          setRecentGoals([]) // 빈 배열로 설정
         }
 
         if (reflectionsResponse.success) {
           setRecentReflections(reflectionsResponse.data.slice(0, 3)) // 최근 3개
         } else {
           console.error('성찰 데이터 로드 실패:', reflectionsResponse)
+          setRecentReflections([]) // 빈 배열로 설정
         }
 
       } catch (error) {
@@ -251,6 +253,16 @@ export default function HomePage() {
             </Card>
           </div>
 
+          {/* 로딩 상태 */}
+          {isLoading && (
+            <Card className="p-6 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm mb-6">
+              <div className="w-16 h-16 mx-auto mb-4">
+                <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin" />
+              </div>
+              <p className="text-mumu-brown">데이터를 불러오고 있어요...</p>
+            </Card>
+          )}
+
           {/* 오늘의 성찰 작성 */}
           <Card className="p-6 bg-gradient-to-r from-emerald-100/80 to-emerald-50/80 dark:from-emerald-900/40 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-700 mb-6">
             <div className="flex items-center gap-3 mb-4">
@@ -344,22 +356,22 @@ export default function HomePage() {
                 <div
                   key={index}
                   className={`
-                    aspect-square flex flex-col items-center justify-center text-sm relative
+                    aspect-square flex flex-col items-center justify-start text-sm relative p-1
                     ${cell?.isToday ? 'bg-mumu-brown text-mumu-cream rounded-lg' : ''}
                   `}
                 >
                   {cell && (
                     <>
-                      <span className={`font-medium ${cell.isToday ? 'text-mumu-cream' : 'text-mumu-brown-dark'}`}>
+                      <span className={`font-medium text-center ${cell.isToday ? 'text-mumu-cream' : 'text-mumu-brown-dark'}`}>
                         {cell.day}
                       </span>
                       {cell.emotion && (
-                        <span className="text-lg absolute bottom-0">
+                        <span className="text-xs mt-1">
                           {getEmotionEmoji(cell.emotion)}
                         </span>
                       )}
                       {cell.events.length > 0 && (
-                        <div className="absolute top-0 right-0 w-2 h-2 bg-mumu-brown rounded-full" />
+                        <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-mumu-brown rounded-full" />
                       )}
                     </>
                   )}
@@ -386,7 +398,7 @@ export default function HomePage() {
           </div>
 
           {/* 최근 성찰 */}
-          {recentReflections.length > 0 && (
+          {!isLoading && recentReflections.length > 0 && (
             <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm mb-6">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-mumu-brown-dark">최근 성찰</h3>
@@ -415,7 +427,7 @@ export default function HomePage() {
           )}
 
           {/* 최근 목표 */}
-          {recentGoals.length > 0 && (
+          {!isLoading && recentGoals.length > 0 && (
             <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-mumu-brown-dark">진행 중인 목표</h3>
