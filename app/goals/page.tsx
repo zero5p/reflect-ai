@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
@@ -45,6 +45,8 @@ export default function GoalsPage() {
     description: ''
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [dailyTasks, setDailyTasks] = useState<any[]>([])
+  const [loadingTasks, setLoadingTasks] = useState<Set<number>>(new Set())
 
   // 목표 데이터 로드
   useEffect(() => {
@@ -83,10 +85,84 @@ export default function GoalsPage() {
       }
     }
 
+    async function loadDailyTasks() {
+      try {
+        const response = await fetch('/api/daily-tasks')
+        const data = await response.json()
+        if (data.success) {
+          setDailyTasks(data.data || [])
+        }
+      } catch (error) {
+        console.error('일일 할일 로드 실패:', error)
+        setDailyTasks([])
+      }
+    }
+
     if (status === "authenticated") {
       loadGoals()
+      loadDailyTasks()
     }
   }, [session?.user?.email, status])
+
+  // 체크박스 토글 함수
+  const toggleTask = useCallback(async (taskId: number, isCompleted: boolean) => {
+    if (loadingTasks.has(taskId)) return
+    
+    setLoadingTasks(prev => new Set([...prev, taskId]))
+    
+    // 낙관적 업데이트
+    const newStatus = !isCompleted
+    setDailyTasks(prev => {
+      const taskIndex = prev.findIndex(task => task.id === taskId)
+      if (taskIndex === -1) return prev
+      
+      const newTasks = [...prev]
+      newTasks[taskIndex] = { ...newTasks[taskIndex], is_completed: newStatus }
+      return newTasks
+    })
+    
+    try {
+      const response = await fetch('/api/daily-tasks', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          taskId,
+          isCompleted: newStatus
+        })
+      })
+      
+      if (!response.ok) {
+        // 실패 시 상태 롤백
+        setDailyTasks(prev => {
+          const taskIndex = prev.findIndex(task => task.id === taskId)
+          if (taskIndex === -1) return prev
+          
+          const newTasks = [...prev]
+          newTasks[taskIndex] = { ...newTasks[taskIndex], is_completed: isCompleted }
+          return newTasks
+        })
+      }
+    } catch (error) {
+      // 에러 시 상태 롤백
+      setDailyTasks(prev => {
+        const taskIndex = prev.findIndex(task => task.id === taskId)
+        if (taskIndex === -1) return prev
+        
+        const newTasks = [...prev]
+        newTasks[taskIndex] = { ...newTasks[taskIndex], is_completed: isCompleted }
+        return newTasks
+      })
+      console.error('할 일 상태 업데이트 실패:', error)
+    } finally {
+      setLoadingTasks(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(taskId)
+        return newSet
+      })
+    }
+  }, [loadingTasks])
 
   // 난이도별 색상
   const getDifficultyColor = (difficulty: string) => {
@@ -431,50 +507,94 @@ export default function GoalsPage() {
                     </div>
                   </div>
 
-                  {/* 단계별 목표들 */}
-                  <div className="space-y-3">
-                    {goal.phases.map((phase, phaseIndex) => (
-                      <div key={phaseIndex} className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-mumu-brown-dark">
-                            {phase.title}
-                          </span>
-                          <span className="text-xs text-mumu-brown bg-mumu-cream/50 px-2 py-1 rounded">
-                            {phase.duration}
-                          </span>
+                  {/* 목표별 일일 할일들 */}
+                  {(() => {
+                    const goalTasks = dailyTasks.filter(task => task.goal_title === goal.title)
+                    if (goalTasks.length === 0) return null
+                    
+                    const completedTasks = goalTasks.filter(task => task.is_completed).length
+                    const totalTasks = goalTasks.length
+                    const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+
+                    return (
+                      <div className="space-y-3">
+                        {/* 진행률 바 */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs text-mumu-brown">
+                            <span>오늘의 할일</span>
+                            <span>{completedTasks}/{totalTasks} 완료 ({progressPercentage}%)</span>
+                          </div>
+                          <div className="w-full bg-mumu-accent rounded-full h-2">
+                            <div 
+                              className="bg-mumu-brown h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${progressPercentage}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="space-y-1 pl-2">
-                          {phase.tasks.slice(0, 3).map((task, taskIndex) => (
-                            <div key={taskIndex} className="flex items-center gap-2 text-sm">
-                              <CircleIcon className="w-3 h-3 text-mumu-brown" />
-                              <span className="text-mumu-brown flex-1">{task.title}</span>
-                              <span className={`text-xs ${getDifficultyColor(task.difficulty)}`}>
-                                {getDifficultyLabel(task.difficulty)}
-                              </span>
+
+                        {/* 할일 목록 */}
+                        <div className="space-y-2">
+                          {goalTasks.slice(0, 3).map((task) => (
+                            <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg bg-white/60 dark:bg-mumu-brown-light/30 hover:bg-white/80 dark:hover:bg-mumu-brown-light/50 transition-all duration-200">
+                              {/* 체크박스 */}
+                              <button
+                                onClick={() => toggleTask(task.id, task.is_completed)}
+                                disabled={loadingTasks.has(task.id)}
+                                className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
+                                  task.is_completed 
+                                    ? 'bg-mumu-brown border-mumu-brown text-mumu-cream' 
+                                    : 'border-mumu-brown hover:border-mumu-brown-dark'
+                                } ${loadingTasks.has(task.id) ? 'opacity-50' : ''}`}
+                              >
+                                {task.is_completed && <CheckCircleIcon className="w-3 h-3" />}
+                              </button>
+                              
+                              {/* 할일 내용 */}
+                              <div className="flex-1">
+                                <div className={`text-sm font-medium ${
+                                  task.is_completed 
+                                    ? 'text-mumu-brown/70 line-through' 
+                                    : 'text-mumu-brown-dark'
+                                }`}>
+                                  {task.task_title}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-mumu-brown mt-1">
+                                  <span>{task.estimated_time}</span>
+                                  {task.streak_count > 0 && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-orange-600">🔥 {task.streak_count}일 연속</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           ))}
-                          {phase.tasks.length > 3 && (
-                            <div className="text-xs text-mumu-brown pl-5">
-                              +{phase.tasks.length - 3}개 더...
+                          
+                          {goalTasks.length > 3 && (
+                            <div className="text-center">
+                              <Link href="/daily-tasks">
+                                <Button variant="ghost" size="sm" className="text-mumu-brown hover:bg-mumu-accent">
+                                  +{goalTasks.length - 3}개 더 보기
+                                </Button>
+                              </Link>
                             </div>
                           )}
                         </div>
                       </div>
-                    ))}
-                    {goal.phases.length > 2 && (
-                      <div className="text-xs text-mumu-brown">
-                        총 {goal.phases.length}단계로 구성
-                      </div>
-                    )}
-                  </div>
+                    )
+                  })()}
 
-                  <div className="mt-3 pt-3 border-t border-mumu-accent flex gap-2">
-                    <Button size="sm" variant="outline" className="text-mumu-brown border-mumu-brown hover:bg-mumu-brown hover:text-mumu-cream">
-                      <ZapIcon className="w-3 h-3 mr-1" />
-                      작업 완료하기
-                    </Button>
+                  {/* 목표 관리 버튼들 */}
+                  <div className="mt-4 pt-3 border-t border-mumu-accent flex gap-2">
+                    <Link href="/daily-tasks">
+                      <Button size="sm" variant="outline" className="text-mumu-brown border-mumu-brown hover:bg-mumu-brown hover:text-mumu-cream">
+                        <ZapIcon className="w-3 h-3 mr-1" />
+                        전체 할일 보기
+                      </Button>
+                    </Link>
                     <Button size="sm" variant="ghost" className="text-mumu-brown hover:bg-mumu-accent">
-                      전체 계획 보기
+                      목표 수정하기
                     </Button>
                   </div>
                 </Card>
