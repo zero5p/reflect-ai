@@ -1,0 +1,44 @@
+# 라벨 자동 적용 규칙
+
+# API 관련
+'api':
+  - 'app/api/**/*'
+  - 'API.md'
+
+# UI/컴포넌트 관련  
+'ui':
+  - 'components/**/*'
+  - 'app/**/page.tsx'
+
+# 스타일링 관련
+'style':
+  - '**/*.css'
+  - 'tailwind.config.ts'
+
+# 문서화
+'documentation':
+  - '*.md'
+  - 'docs/**/*'
+  - '.github/**/*'
+
+# 설정 파일
+'config':
+  - 'next.config.ts'
+  - 'package.json'
+  - 'tsconfig.json'
+  - '.env*'
+
+# 데이터베이스
+'database':
+  - 'lib/db.ts'
+  - '**/migrate/**/*'
+
+# 테스트
+'test':
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+
+# GitHub 관련
+'github':
+  - '.github/**/*'

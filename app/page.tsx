@@ -472,28 +472,28 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* 캘린더 그리드 */}
+            {/* 캘린더 그리드 - 간소화된 버전 */}
             <div className="grid grid-cols-7 gap-1">
               {generateCalendarGrid().map((cell, index) => (
                 <div
                   key={index}
                   className={`
-                    aspect-square flex flex-col items-center justify-start text-sm relative p-1
-                    ${cell?.isToday ? 'bg-mumu-brown text-mumu-cream rounded-lg' : ''}
+                    h-8 flex items-center justify-center text-xs relative rounded
+                    ${cell?.isToday ? 'bg-mumu-brown text-mumu-cream font-bold' : 'hover:bg-mumu-accent/50'}
                   `}
                 >
                   {cell && (
                     <>
-                      <span className={`font-medium text-center ${cell.isToday ? 'text-mumu-cream' : 'text-mumu-brown-dark'}`}>
+                      <span className={`${cell.isToday ? 'text-mumu-cream' : 'text-mumu-brown-dark'}`}>
                         {cell.day}
                       </span>
                       {cell.emotion && (
-                        <span className="text-xs mt-1">
+                        <div className="absolute -top-1 -right-1 text-xs">
                           {getEmotionEmoji(cell.emotion)}
-                        </span>
+                        </div>
                       )}
                       {cell.events.length > 0 && (
-                        <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-mumu-brown rounded-full" />
+                        <div className="absolute bottom-0 right-1 w-1 h-1 bg-mumu-brown rounded-full" />
                       )}
                     </>
                   )}

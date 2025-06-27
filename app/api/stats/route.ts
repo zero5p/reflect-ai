@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         COUNT(*) as count
       FROM reflections 
       WHERE user_email = ${userEmail} 
-        AND created_at >= NOW() - INTERVAL ${days + ' days'}
+        AND created_at >= NOW() - INTERVAL '${days} days'
       GROUP BY DATE(created_at), emotion, intensity
       ORDER BY date DESC
     `
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         COUNT(CASE WHEN is_completed = true THEN 1 END) as completed_tasks
       FROM daily_tasks 
       WHERE user_email = ${userEmail}
-        AND updated_at >= NOW() - INTERVAL ${days + ' days'}
+        AND updated_at >= NOW() - INTERVAL '${days} days'
       GROUP BY DATE(updated_at)
       ORDER BY date DESC
     `
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         COUNT(*) as reflection_count
       FROM reflections 
       WHERE user_email = ${userEmail}
-        AND created_at >= NOW() - INTERVAL ${days + ' days'}
+        AND created_at >= NOW() - INTERVAL '${days} days'
       GROUP BY DATE(created_at)
       ORDER BY date DESC
     `

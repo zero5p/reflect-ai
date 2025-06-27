@@ -1,0 +1,78 @@
+name: =€ CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: >ê Test & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: =å Checkout Code
+      uses: actions/checkout@v4
+
+    - name: =æ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: =æ Install Dependencies
+      run: npm ci
+
+    - name: = TypeScript Check
+      run: npx tsc --noEmit
+
+    - name: <¨ Lint Check
+      run: npm run lint
+
+    - name: <× Build Test
+      run: npm run build
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+
+    - name:  Success Notification
+      if: success()
+      run: echo " All checks passed!"
+
+    - name: L Failure Notification
+      if: failure()
+      run: echo "L Some checks failed. Please review the logs."
+
+  auto-label:
+    name: <÷ Auto Label
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: =å Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: <÷ Auto Label PR
+      uses: actions/labeler@v4
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  issue-manager:
+    name: =Ë Issue Management
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: =å Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: = Check for Issue Close Keywords
+      run: |
+        commit_message=$(git log -1 --pretty=%B)
+        if [[ $commit_message =~ (close|closes|fix|fixes|resolve|resolves)[[:space:]]+#[0-9]+ ]]; then
+          echo " Issue reference found in commit message"
+        else
+          echo "9 No issue reference found in commit message"
+        fi

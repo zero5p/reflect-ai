@@ -15,16 +15,16 @@ export function GoogleLoginButton({ onSuccess, className }: GoogleLoginButtonPro
   const handleLogin = async () => {
     setIsLoading(true)
     try {
+      // signIn은 리다이렉트를 하므로 onSuccess 콜백이 호출되지 않음
       await signIn("google", { 
         callbackUrl: "/",
         redirect: true 
       })
-      if (onSuccess) onSuccess()
     } catch (error) {
       console.error("Login failed:", error)
-    } finally {
       setIsLoading(false)
     }
+    // 성공 시에는 리다이렉트되므로 setIsLoading(false)가 호출되지 않음
   }
 
   return (
