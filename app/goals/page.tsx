@@ -433,7 +433,7 @@ export default function GoalsPage() {
 
                   {/* 단계별 목표들 */}
                   <div className="space-y-3">
-                    {goal.phases.slice(0, 2).map((phase, phaseIndex) => (
+                    {goal.phases.map((phase, phaseIndex) => (
                       <div key={phaseIndex} className="space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-mumu-brown-dark">
