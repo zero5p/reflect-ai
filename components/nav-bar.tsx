@@ -29,12 +29,6 @@ export function NavBar({ activeTab }: NavBarProps) {
       href: "/reflection",
     },
     {
-      id: "stats",
-      label: "통계",
-      icon: <TrendingUpIcon className="h-5 w-5" />,
-      href: "/stats",
-    },
-    {
       id: "profile",
       label: "프로필",
       icon: <UserIcon className="h-5 w-5" />,

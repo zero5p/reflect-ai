@@ -421,20 +421,6 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* 목표 관리 빠른 액션 */}
-          <Card className="p-6 bg-gradient-to-r from-violet-100/80 to-violet-50/80 dark:from-violet-900/40 dark:to-violet-900/20 border-violet-200 dark:border-violet-700 mb-6">
-            <Link href="/goals">
-              <div className="flex items-center gap-3 hover:bg-violet-50/50 dark:hover:bg-violet-800/30 p-2 rounded-lg transition-colors cursor-pointer">
-                <div className="w-12 h-12 bg-violet-500 rounded-xl flex items-center justify-center">
-                  <TargetIcon className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-violet-800 dark:text-violet-200">목표 관리</h3>
-                  <p className="text-xs text-violet-600 dark:text-violet-300">새로운 목표 만들기 및 진행상황 확인</p>
-                </div>
-              </div>
-            </Link>
-          </Card>
 
           {/* 캘린더 */}
           <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm mb-6">
@@ -502,22 +488,6 @@ export default function HomePage() {
             </div>
           </Card>
 
-          {/* 빠른 액션 */}
-          <div className="mb-6">
-            <Link href="/goals">
-              <Card className="p-4 bg-gradient-to-r from-violet-100/70 to-violet-50/70 dark:from-violet-900/30 dark:to-violet-900/20 border-violet-200 dark:border-violet-800 hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-violet-500 rounded-lg flex items-center justify-center">
-                    <TargetIcon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-violet-800 dark:text-violet-200">목표 관리</h3>
-                    <p className="text-xs text-violet-600 dark:text-violet-300">새로운 목표 만들기 및 진행상황 확인</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          </div>
 
           {/* 최근 성찰 */}
           {!isLoading && recentReflections.length > 0 && (
