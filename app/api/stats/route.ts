@@ -19,11 +19,11 @@ export async function GET(request: NextRequest) {
     const days = Math.max(1, Math.min(365, parseInt(searchParams.get('days') || '7')))
 
     // 각 쿼리를 안전하게 실행
-    let emotionTrends = []
-    let routineStats = []
-    let goalProgress = []
-    let activitySummary = {}
-    let recentActivity = []
+    let emotionTrends: any[] = []
+    let routineStats: any[] = []
+    let goalProgress: any[] = []
+    let activitySummary: any = {}
+    let recentActivity: any[] = []
 
     try {
       // 감정 트렌드 데이터 (지난 N일)
