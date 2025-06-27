@@ -338,55 +338,102 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* 오늘의 성찰 작성 */}
-          <Card className="p-6 bg-gradient-to-r from-emerald-100/80 to-emerald-50/80 dark:from-emerald-900/40 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-700 mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
-                <BookOpenIcon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-emerald-800 dark:text-emerald-200">오늘의 성찰</h2>
-                <p className="text-sm text-emerald-600 dark:text-emerald-300">
-                  {new Date().toLocaleDateString('ko-KR', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
-              </div>
-            </div>
-            
-            {/* 오늘 성찰이 있는지 확인 */}
-            {(() => {
-              const today = new Date().toISOString().split('T')[0]
-              const todayReflection = calendarData.find(item => item.date === today)
-              
-              if (todayReflection?.reflection) {
-                return (
-                  <div className="bg-white/60 dark:bg-emerald-800/30 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl">{getEmotionEmoji(todayReflection.emotion)}</span>
-                      <span className="font-medium text-emerald-800 dark:text-emerald-200">{todayReflection.reflection}</span>
-                    </div>
-                    <p className="text-sm text-emerald-600 dark:text-emerald-300">오늘의 성찰을 완료했습니다!</p>
+          {/* 오늘의 할 일 체크리스트 */}
+          {!isLoading && dailyTasks.length > 0 && (
+            <Card className="p-4 bg-gradient-to-r from-green-100/80 to-green-50/80 dark:from-green-900/40 dark:to-green-900/20 border-green-200 dark:border-green-700 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <h3 className="font-bold text-green-800 dark:text-green-200">🗓️ 매일 할 일 체크리스트</h3>
+                  <span className="px-2 py-1 bg-green-200 dark:bg-green-800 rounded-full text-xs text-green-700 dark:text-green-300">
+                    일일 루틴
+                  </span>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-green-600 dark:text-green-300">
+                    {dailyTasks.filter(task => task.is_completed).length}/{dailyTasks.length} 완료
                   </div>
-                )
-              } else {
-                return (
-                  <Link href="/reflection/new">
-                    <div className="bg-white/60 dark:bg-emerald-800/30 rounded-lg p-4 hover:bg-white/80 dark:hover:bg-emerald-800/50 transition-colors cursor-pointer border-2 border-dashed border-emerald-300 dark:border-emerald-600">
-                      <div className="flex items-center gap-3">
-                        <PlusIcon className="w-8 h-8 text-emerald-500" />
-                        <div>
-                          <h3 className="font-bold text-emerald-800 dark:text-emerald-200">성찰 작성하기</h3>
-                          <p className="text-sm text-emerald-600 dark:text-emerald-300">오늘 하루는 어떠셨나요?</p>
-                        </div>
+                  <div className="text-lg font-bold text-green-800 dark:text-green-200">
+                    {Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%
+                  </div>
+                </div>
+              </div>
+              
+              {/* 진행률 바 */}
+              <div className="w-full bg-green-200 dark:bg-green-800 rounded-full h-2 mb-4">
+                <div 
+                  className="bg-green-600 dark:bg-green-400 h-2 rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%` 
+                  }}
+                ></div>
+              </div>
+
+              <div className="space-y-3">
+                {dailyTasks.slice(0, 5).map((task: any) => (
+                  <div 
+                    key={task.id} 
+                    className="flex items-start gap-3 p-3 rounded-lg bg-white/60 dark:bg-green-800/30 hover:bg-white/80 dark:hover:bg-green-800/50 transition-all duration-200 border border-transparent hover:border-green-300 dark:hover:border-green-600"
+                  >
+                    {/* 체크박스 */}
+                    <button
+                      onClick={() => toggleDailyTask(task.id, task.is_completed)}
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 mt-0.5 ${
+                        task.is_completed 
+                          ? 'bg-green-500 border-green-500 text-white' 
+                          : 'border-green-300 hover:border-green-500'
+                      }`}
+                    >
+                      {task.is_completed && <CheckCircleIcon className="w-3 h-3" />}
+                    </button>
+                    
+                    {/* 할일 내용 */}
+                    <div className="flex-1">
+                      <div className={`font-medium ${
+                        task.is_completed 
+                          ? 'text-green-600/70 dark:text-green-300/70 line-through' 
+                          : 'text-green-800 dark:text-green-200'
+                      }`}>
+                        {task.title}
                       </div>
+                      {task.description && (
+                        <div className={`text-sm mt-1 ${
+                          task.is_completed 
+                            ? 'text-green-500/60 dark:text-green-400/60' 
+                            : 'text-green-600 dark:text-green-300'
+                        }`}>
+                          {task.description}
+                        </div>
+                      )}
                     </div>
-                  </Link>
-                )
-              }
-            })()}
+                  </div>
+                ))}
+                {dailyTasks.length > 5 && (
+                  <div className="text-center">
+                    <Link href="/daily-tasks">
+                      <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-100 dark:hover:bg-green-800">
+                        +{dailyTasks.length - 5}개 더 보기
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* 목표 관리 빠른 액션 */}
+          <Card className="p-6 bg-gradient-to-r from-violet-100/80 to-violet-50/80 dark:from-violet-900/40 dark:to-violet-900/20 border-violet-200 dark:border-violet-700 mb-6">
+            <Link href="/goals">
+              <div className="flex items-center gap-3 hover:bg-violet-50/50 dark:hover:bg-violet-800/30 p-2 rounded-lg transition-colors cursor-pointer">
+                <div className="w-12 h-12 bg-violet-500 rounded-xl flex items-center justify-center">
+                  <TargetIcon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-violet-800 dark:text-violet-200">목표 관리</h3>
+                  <p className="text-xs text-violet-600 dark:text-violet-300">새로운 목표 만들기 및 진행상황 확인</p>
+                </div>
+              </div>
+            </Link>
           </Card>
 
           {/* 캘린더 */}
@@ -526,96 +573,6 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* 오늘의 할 일 체크리스트 */}
-          {!isLoading && dailyTasks.length > 0 && (
-            <Card className="p-4 bg-gradient-to-r from-green-100/80 to-green-50/80 dark:from-green-900/40 dark:to-green-900/20 border-green-200 dark:border-green-700 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  <h3 className="font-bold text-green-800 dark:text-green-200">🗓️ 매일 할 일 체크리스트</h3>
-                  <span className="px-2 py-1 bg-green-200 dark:bg-green-800 rounded-full text-xs text-green-700 dark:text-green-300">
-                    일일 루틴
-                  </span>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-green-600 dark:text-green-300">
-                    {dailyTasks.filter(task => task.is_completed).length}/{dailyTasks.length} 완료
-                  </div>
-                  <div className="text-lg font-bold text-green-800 dark:text-green-200">
-                    {Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%
-                  </div>
-                </div>
-              </div>
-              
-              {/* 진행률 바 */}
-              <div className="w-full bg-green-200 dark:bg-green-800 rounded-full h-2 mb-4">
-                <div 
-                  className="bg-green-600 dark:bg-green-400 h-2 rounded-full transition-all duration-300"
-                  style={{ 
-                    width: `${Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%` 
-                  }}
-                ></div>
-              </div>
-
-              <div className="space-y-3">
-                {dailyTasks.slice(0, 5).map((task: any) => (
-                  <div 
-                    key={task.id} 
-                    className="flex items-start gap-3 p-3 rounded-lg bg-white/60 dark:bg-green-800/30 hover:bg-white/80 dark:hover:bg-green-800/50 transition-all duration-200 border border-transparent hover:border-green-300 dark:hover:border-green-600"
-                  >
-                    {/* 체크박스 */}
-                    <button
-                      onClick={() => toggleDailyTask(task.id, task.is_completed)}
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 mt-0.5 ${
-                        task.is_completed 
-                          ? 'bg-green-500 border-green-500 text-white' 
-                          : 'border-gray-300 hover:border-green-500 bg-white'
-                      }`}
-                    >
-                      {task.is_completed && (
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                    
-                    <div className="flex-1">
-                      <div className={`text-sm font-medium transition-all duration-200 ${
-                        task.is_completed 
-                          ? 'line-through text-gray-500 dark:text-gray-400' 
-                          : 'text-green-800 dark:text-green-200'
-                      }`}>
-                        {task.task_title}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-300 mt-1">
-                        <span className="px-2 py-1 bg-green-100 dark:bg-green-800 rounded-full">{task.goal_title}</span>
-                        <span>•</span>
-                        <span>{task.estimated_time}</span>
-                        {task.streak_count > 0 && (
-                          <>
-                            <span>•</span>
-                            <span className="px-2 py-1 bg-green-100 dark:bg-green-800 rounded-full text-green-700 dark:text-green-300">
-                              🔥 {task.streak_count}일 연속
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {dailyTasks.length > 5 && (
-                  <div className="text-center pt-2">
-                    <Link href="/daily-tasks">
-                      <Button variant="outline" size="sm" className="text-green-600 dark:text-green-300 border-green-300 hover:bg-green-50 dark:hover:bg-green-900">
-                        +{dailyTasks.length - 5}개 더 보기
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </Card>
-          )}
         </main>
 
         <NavBar activeTab="home" />

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { NavBar } from '@/components/nav-bar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -47,13 +48,16 @@ const EMOTION_COLORS = {
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#e74c3c']
 
 export default function StatsPage() {
+  const { data: session, status } = useSession()
   const [stats, setStats] = useState<StatsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState('7')
 
   useEffect(() => {
-    fetchStats()
-  }, [period])
+    if (status === "authenticated" && session?.user?.email) {
+      fetchStats()
+    }
+  }, [period, status, session?.user?.email])
 
   const fetchStats = async () => {
     setLoading(true)
@@ -71,7 +75,8 @@ export default function StatsPage() {
     }
   }
 
-  if (loading) {
+  // 로딩 중일 때
+  if (status === "loading" || loading) {
     return (
       <div className="container mx-auto p-6">
         <div className="animate-pulse">
@@ -82,6 +87,19 @@ export default function StatsPage() {
             ))}
           </div>
         </div>
+      </div>
+    )
+  }
+
+  // 로그인하지 않았을 때
+  if (status === "unauthenticated") {
+    return (
+      <div className="container mx-auto p-6 text-center">
+        <h2 className="text-2xl font-bold mb-4">로그인이 필요합니다</h2>
+        <p className="text-gray-600 mb-4">통계를 확인하려면 로그인해주세요.</p>
+        <a href="/login" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          로그인하기
+        </a>
       </div>
     )
   }
