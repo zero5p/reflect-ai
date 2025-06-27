@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ export default function HomePage() {
   const [recentGoals, setRecentGoals] = useState<any[]>([])
   const [recentReflections, setRecentReflections] = useState<any[]>([])
   const [dailyTasks, setDailyTasks] = useState<any[]>([])
+  const [loadingTasks, setLoadingTasks] = useState<Set<number>>(new Set())
 
   // 현재 월의 시작과 끝 날짜 계산
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
@@ -170,10 +171,24 @@ export default function HomePage() {
     return grid
   }
 
-  const toggleDailyTask = async (taskId: number, isCompleted: boolean) => {
-    try {
-      console.log('체크박스 토글:', { taskId, isCompleted, newStatus: !isCompleted })
+  const toggleDailyTask = useCallback(async (taskId: number, isCompleted: boolean) => {
+    // 이미 처리 중인 태스크는 무시
+    if (loadingTasks.has(taskId)) return
+    
+    setLoadingTasks(prev => new Set([...prev, taskId]))
+    
+    // 낙관적 업데이트 - UI 즉시 변경
+    const newStatus = !isCompleted
+    setDailyTasks(prev => {
+      const taskIndex = prev.findIndex(task => task.id === taskId)
+      if (taskIndex === -1) return prev
       
+      const newTasks = [...prev]
+      newTasks[taskIndex] = { ...newTasks[taskIndex], is_completed: newStatus }
+      return newTasks
+    })
+    
+    try {
       const response = await fetch('/api/daily-tasks', {
         method: 'PATCH',
         headers: {
@@ -181,30 +196,41 @@ export default function HomePage() {
         },
         body: JSON.stringify({
           taskId,
-          isCompleted: !isCompleted
+          isCompleted: newStatus
         })
       })
-
-      console.log('API 응답 상태:', response.status)
       
-      if (response.ok) {
-        const data = await response.json()
-        console.log('API 응답 데이터:', data)
-        
-        // 로컬 상태 업데이트
-        setDailyTasks(prev => prev.map(task => 
-          task.id === taskId 
-            ? { ...task, is_completed: !isCompleted }
-            : task
-        ))
-        console.log('로컬 상태 업데이트 완료')
-      } else {
-        console.error('API 응답 실패:', response.status, await response.text())
+      if (!response.ok) {
+        // 실패 시 상태 롤백
+        setDailyTasks(prev => {
+          const taskIndex = prev.findIndex(task => task.id === taskId)
+          if (taskIndex === -1) return prev
+          
+          const newTasks = [...prev]
+          newTasks[taskIndex] = { ...newTasks[taskIndex], is_completed: isCompleted }
+          return newTasks
+        })
+        console.error('API 응답 실패:', response.status)
       }
     } catch (error) {
+      // 에러 시 상태 롤백
+      setDailyTasks(prev => {
+        const taskIndex = prev.findIndex(task => task.id === taskId)
+        if (taskIndex === -1) return prev
+        
+        const newTasks = [...prev]
+        newTasks[taskIndex] = { ...newTasks[taskIndex], is_completed: isCompleted }
+        return newTasks
+      })
       console.error('할 일 상태 업데이트 실패:', error)
+    } finally {
+      setLoadingTasks(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(taskId)
+        return newSet
+      })
     }
-  }
+  }, [loadingTasks])
 
   const getEmotionEmoji = (emotion: string) => {
     switch (emotion) {
