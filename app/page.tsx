@@ -249,7 +249,7 @@ export default function HomePage() {
       <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4">
-            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin-reverse" />
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-mumu-float" />
           </div>
           <p className="text-mumu-brown">로딩 중...</p>
         </div>
@@ -332,14 +332,15 @@ export default function HomePage() {
           {isLoading && (
             <Card className="p-6 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm mb-6">
               <div className="w-16 h-16 mx-auto mb-4">
-                <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin-reverse" />
+                <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-mumu-float" />
               </div>
               <p className="text-mumu-brown">데이터를 불러오고 있어요...</p>
             </Card>
           )}
 
           {/* 오늘의 할 일 체크리스트 */}
-          {!isLoading && dailyTasks.length > 0 && (
+          {!isLoading && (
+            dailyTasks.length > 0 ? (
             <Card className="p-4 bg-gradient-to-r from-green-100/80 to-green-50/80 dark:from-green-900/40 dark:to-green-900/20 border-green-200 dark:border-green-700 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -419,8 +420,26 @@ export default function HomePage() {
                 )}
               </div>
             </Card>
+            ) : (
+              <Card className="p-4 bg-gradient-to-r from-blue-100/80 to-blue-50/80 dark:from-blue-900/40 dark:to-blue-900/20 border-blue-200 dark:border-blue-700 mb-6">
+                <div className="text-center">
+                  <div className="w-12 h-12 mx-auto mb-3 opacity-70">
+                    <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain" />
+                  </div>
+                  <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-2">오늘은 휴식하는 날이에요! ☕</h3>
+                  <p className="text-sm text-blue-600 dark:text-blue-300 mb-3">
+                    새로운 목표를 설정하면 매일 할 일이 자동으로 생성됩니다
+                  </p>
+                  <Link href="/goals">
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <TargetIcon className="w-4 h-4 mr-2" />
+                      목표 만들기
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            )
           )}
-
 
           {/* 캘린더 */}
           <Card className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm mb-6">
@@ -474,7 +493,7 @@ export default function HomePage() {
                         {cell.day}
                       </span>
                       {cell.emotion && (
-                        <div className="absolute -top-1 -right-1 text-xs">
+                        <div className="absolute -top-1 -right-1 text-xs z-10">
                           {getEmotionEmoji(cell.emotion)}
                         </div>
                       )}

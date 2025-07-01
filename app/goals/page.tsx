@@ -40,6 +40,8 @@ export default function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
+  const [editGoalData, setEditGoalData] = useState({ title: '', description: '' })
   const [newGoal, setNewGoal] = useState({
     title: '',
     description: ''
@@ -183,6 +185,47 @@ export default function GoalsPage() {
     }
   }
 
+  const handleEditGoal = (goal: Goal) => {
+    setEditingGoal(goal)
+    setEditGoalData({
+      title: goal.title,
+      description: goal.description
+    })
+  }
+
+  const handleUpdateGoal = async () => {
+    if (!editingGoal || !editGoalData.title.trim()) return
+
+    try {
+      const response = await fetch(`/api/goals/${editingGoal.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editGoalData.title,
+          description: editGoalData.description
+        }),
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        setGoals(prev => prev.map(g => 
+          g.id === editingGoal.id 
+            ? { ...g, title: editGoalData.title, description: editGoalData.description }
+            : g
+        ))
+        setEditingGoal(null)
+        setEditGoalData({ title: '', description: '' })
+      } else {
+        console.error('목표 수정 실패:', data)
+      }
+    } catch (error) {
+      console.error('목표 수정 실패:', error)
+    }
+  }
+
   const handleCreateGoal = async () => {
     if (!newGoal.title.trim()) return
 
@@ -314,7 +357,7 @@ export default function GoalsPage() {
       <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4">
-            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin" />
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-mumu-float" />
           </div>
           <p className="text-mumu-brown">로딩 중...</p>
         </div>
@@ -376,6 +419,60 @@ export default function GoalsPage() {
               무무가 AI로 목표를 작은 단위로 자동 분해해서 실행 가능하게 만들어드려요.
             </p>
           </Card>
+
+          {/* 목표 수정 폼 */}
+          {editingGoal && (
+            <Card className="p-4 mb-6 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
+              <h3 className="text-lg font-bold mb-4 text-mumu-brown-dark">목표 수정하기</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="edit-goal-title" className="text-mumu-brown-dark">
+                    목표 제목
+                  </Label>
+                  <Input
+                    id="edit-goal-title"
+                    value={editGoalData.title}
+                    onChange={(e) => setEditGoalData({...editGoalData, title: e.target.value})}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-goal-description" className="text-mumu-brown-dark">
+                    설명 (선택사항)
+                  </Label>
+                  <Textarea
+                    id="edit-goal-description"
+                    value={editGoalData.description}
+                    onChange={(e) => setEditGoalData({...editGoalData, description: e.target.value})}
+                    className="mt-1"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    onClick={() => {
+                      setEditingGoal(null)
+                      setEditGoalData({ title: '', description: '' })
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    onClick={handleUpdateGoal}
+                    disabled={!editGoalData.title.trim()}
+                    className="flex-1 bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream disabled:opacity-50"
+                  >
+                    수정 완료
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
 
           {/* 목표 생성 폼 */}
           {isCreating && (
@@ -458,7 +555,7 @@ export default function GoalsPage() {
                 <img 
                   src="/mumu_mascot.png" 
                   alt="무무" 
-                  className="w-full h-full object-contain animate-spin-reverse"
+                  className="w-full h-full object-contain animate-mumu-float"
                 />
               </div>
               <h3 className="text-lg font-bold mb-2 text-mumu-brown-dark">목표를 불러오는 중...</h3>
@@ -593,7 +690,12 @@ export default function GoalsPage() {
                         전체 할일 보기
                       </Button>
                     </Link>
-                    <Button size="sm" variant="ghost" className="text-mumu-brown hover:bg-mumu-accent">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-mumu-brown hover:bg-mumu-accent"
+                      onClick={() => handleEditGoal(goal)}
+                    >
                       목표 수정하기
                     </Button>
                   </div>

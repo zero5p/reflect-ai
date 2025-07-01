@@ -82,7 +82,7 @@ export default function DailyTasksPage() {
       <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4">
-            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-spin-reverse" />
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-mumu-float" />
           </div>
           <p className="text-mumu-brown">로딩 중...</p>
         </div>
@@ -166,16 +166,23 @@ export default function DailyTasksPage() {
             <div className="w-16 h-16 mx-auto mb-4 opacity-50">
               <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain" />
             </div>
-            <h3 className="text-lg font-bold mb-2 text-mumu-brown-dark">이 날에는 할 일이 없습니다</h3>
+            <h3 className="text-lg font-bold mb-2 text-mumu-brown-dark">오늘은 할 일이 없어요!</h3>
             <p className="text-sm text-mumu-brown mb-4">
-              목표를 설정하면 자동으로 일일 할 일이 생성됩니다.
+              새로운 목표를 설정하거나 기존 목표에 할 일을 추가해보세요. 무무가 도와드릴게요! 🎯
             </p>
-            <Link href="/goals">
-              <Button className="bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream">
-                <TargetIcon className="w-4 h-4 mr-2" />
-                목표 설정하기
-              </Button>
-            </Link>
+            <div className="space-y-2">
+              <Link href="/goals">
+                <Button className="bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream w-full">
+                  <TargetIcon className="w-4 h-4 mr-2" />
+                  새로운 목표 만들기
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline" className="border-mumu-brown text-mumu-brown hover:bg-mumu-accent w-full">
+                  홈으로 돌아가기
+                </Button>
+              </Link>
+            </div>
           </Card>
         ) : (
           <div className="space-y-4">

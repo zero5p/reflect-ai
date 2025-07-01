@@ -300,10 +300,10 @@ function CalendarPageContent() {
                       }`}
                     >
                       <span>{day.getDate()}</span>
-                      <div className="absolute bottom-1 flex items-center gap-0.5">
+                      <div className="absolute bottom-0.5 left-0 right-0 flex items-center justify-center gap-1">
                         {/* 감정 이모지 표시 */}
                         {dayReflection && (
-                          <span className="text-xs leading-none">
+                          <span className="text-[10px] leading-none">
                             {getEmotionEmoji(dayReflection.emotion)}
                           </span>
                         )}
@@ -313,11 +313,11 @@ function CalendarPageContent() {
                             {dayEvents.slice(0, 2).map((event, eventIndex) => (
                               <div
                                 key={eventIndex}
-                                className={`w-1.5 h-1.5 rounded-full ${getEventTypeColor(event.type)}`}
+                                className={`w-1 h-1 rounded-full ${getEventTypeColor(event.type)}`}
                               />
                             ))}
                             {dayEvents.length > 2 && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                              <div className="w-1 h-1 rounded-full bg-gray-400" />
                             )}
                           </div>
                         )}
