@@ -8,22 +8,24 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     })
   ],
-  debug: true, // 디버깅 활성화
+  debug: process.env.NODE_ENV === 'development',
   pages: {
     signIn: "/login",
   },
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-development",
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, token }) {
+      console.log("🔍 NextAuth session callback:", { session, token })
       if (token?.id && session.user) {
         (session.user as any).id = token.id as string
       }
       return session
     },
     async jwt({ token, user, account }) {
+      console.log("🔍 NextAuth JWT callback:", { token, user, account })
       if (user) {
         token.id = user.id
       }
