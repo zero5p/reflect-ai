@@ -74,7 +74,11 @@ export default function GoalsPage() {
         
         if (data.success) {
           console.log('목표 데이터 설정:', data.data)
-          setGoals(data.data || [])
+          // 최신 목표부터 정렬 (created_at 기준 내림차순)
+          const sortedGoals = (data.data || []).sort((a: any, b: any) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )
+          setGoals(sortedGoals)
         } else {
           console.error('목표 API 성공하지 않음:', data)
           setGoals([])
@@ -108,11 +112,12 @@ export default function GoalsPage() {
 
   // 체크박스 토글 함수
   const toggleTask = useCallback(async (taskId: number, isCompleted: boolean) => {
+    // 이미 처리 중인 태스크는 무시
     if (loadingTasks.has(taskId)) return
     
     setLoadingTasks(prev => new Set([...prev, taskId]))
     
-    // 낙관적 업데이트
+    // 낙관적 업데이트 - UI 즉시 변경
     const newStatus = !isCompleted
     setDailyTasks(prev => {
       const taskIndex = prev.findIndex(task => task.id === taskId)
@@ -145,6 +150,7 @@ export default function GoalsPage() {
           newTasks[taskIndex] = { ...newTasks[taskIndex], is_completed: isCompleted }
           return newTasks
         })
+        console.error('API 응답 실패:', response.status)
       }
     } catch (error) {
       // 에러 시 상태 롤백
@@ -286,9 +292,15 @@ export default function GoalsPage() {
             createdAt: saveData.data.created_at
           }
           
-          setGoals([...goals, savedGoal])
+          // 새로운 목표를 맨 앞에 추가 (최신 목표가 위로)
+          setGoals([savedGoal, ...goals])
           setNewGoal({ title: '', description: '' })
           setIsCreating(false)
+          
+          // 목표 생성 후 자동으로 목표 목록 새로고침
+          setTimeout(() => {
+            window.location.reload()
+          }, 1000)
         } else {
           throw new Error('목표 저장 실패')
         }
@@ -354,12 +366,12 @@ export default function GoalsPage() {
   // 로딩 중일 때
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 mx-auto mb-6">
             <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-pulse" />
           </div>
-          <p className="text-purple-800 font-medium">목표를 불러오고 있어요...</p>
+          <p className="text-amber-800 font-medium">목표를 불러오고 있어요...</p>
         </div>
       </div>
     )
@@ -368,11 +380,11 @@ export default function GoalsPage() {
   // 로그인되지 않았을 때
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center px-4">
         <Card className="p-8 text-center bg-white shadow-xl border-0 rounded-2xl max-w-sm">
-          <h2 className="text-xl font-bold mb-4 text-purple-900">로그인이 필요합니다</h2>
+          <h2 className="text-xl font-bold mb-4 text-amber-900">로그인이 필요합니다</h2>
           <Link href="/login">
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-medium">
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-xl font-medium">
               로그인하기
             </Button>
           </Link>
@@ -383,12 +395,12 @@ export default function GoalsPage() {
 
   return (
     <AnimatedPage>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
         {/* Header */}
-        <header className="px-6 py-6 bg-white/80 backdrop-blur-sm border-b border-purple-100 shadow-sm">
+        <header className="px-6 py-6 bg-white/80 backdrop-blur-sm border-b border-amber-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
                 <TargetIcon className="w-7 h-7 text-white" />
               </div>
               <div>
@@ -398,7 +410,7 @@ export default function GoalsPage() {
             </div>
             <Button
               onClick={() => setIsCreating(true)}
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
             >
               <PlusIcon className="w-5 h-5 mr-2" />
               새 목표
@@ -407,7 +419,7 @@ export default function GoalsPage() {
           {/* 통계 간단히 */}
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{goals.length}</div>
+              <div className="text-2xl font-bold text-amber-600">{goals.length}</div>
               <div className="text-sm text-gray-600">전체 목표</div>
             </div>
             <div className="text-center">
@@ -415,7 +427,7 @@ export default function GoalsPage() {
               <div className="text-sm text-gray-600">오늘 완료</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{dailyTasks.length}</div>
+              <div className="text-2xl font-bold text-orange-600">{dailyTasks.length}</div>
               <div className="text-sm text-gray-600">전체 할일</div>
             </div>
           </div>
@@ -500,8 +512,8 @@ export default function GoalsPage() {
           {isCreating && (
             <Card className="p-8 mb-8 bg-white border-0 shadow-xl rounded-2xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-purple-100 rounded-xl">
-                  <TargetIcon className="w-6 h-6 text-purple-600" />
+                <div className="p-3 bg-amber-100 rounded-xl">
+                  <TargetIcon className="w-6 h-6 text-amber-600" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">새 목표 만들기</h3>
@@ -519,7 +531,7 @@ export default function GoalsPage() {
                     value={newGoal.title}
                     onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
                     placeholder="예: 건강한 몸 만들기, 새로운 기술 배우기, 독서 습관 만들기..."
-                    className="mt-3 px-4 py-3 text-base rounded-xl border-gray-200 focus:border-purple-400 focus:ring-purple-400"
+                    className="mt-3 px-4 py-3 text-base rounded-xl border-gray-200 focus:border-amber-400 focus:ring-amber-400"
                   />
                 </div>
 
@@ -532,15 +544,15 @@ export default function GoalsPage() {
                     value={newGoal.description}
                     onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
                     placeholder="왜 이 목표를 이루고 싶으신가요? 어떤 느낌으로 달성하고 싶으신가요?"
-                    className="mt-3 px-4 py-3 text-base rounded-xl border-gray-200 focus:border-purple-400 focus:ring-purple-400 resize-none"
+                    className="mt-3 px-4 py-3 text-base rounded-xl border-gray-200 focus:border-amber-400 focus:ring-amber-400 resize-none"
                     rows={3}
                   />
                 </div>
 
                 {isAnalyzing && (
-                  <div className="text-center py-8 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl border border-purple-100">
+                  <div className="text-center py-8 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-100">
                     <div className="w-12 h-12 mx-auto mb-4 animate-spin">
-                      <BrainCircuitIcon className="w-full h-full text-purple-500" />
+                      <BrainCircuitIcon className="w-full h-full text-amber-500" />
                     </div>
                     <h4 className="font-medium text-gray-900 mb-2">무무 AI가 분석 중이에요</h4>
                     <p className="text-sm text-gray-600">
@@ -560,7 +572,7 @@ export default function GoalsPage() {
                   <Button
                     onClick={handleCreateGoal}
                     disabled={isAnalyzing || !newGoal.title.trim()}
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
                   >
                     {isAnalyzing ? (
                       <>
@@ -608,7 +620,7 @@ export default function GoalsPage() {
               </p>
               <Button
                 onClick={() => setIsCreating(true)}
-                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-8 py-4 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
               >
                 <PlusIcon className="w-5 h-5 mr-2" />
                 첫 목표 만들기

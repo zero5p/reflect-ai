@@ -37,14 +37,26 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
   
   // 연속 기록 최고치
   const bestStreak = Math.max(...tasks.map(t => t.streak_count), 0)
+  
+  // 목표별 고유 색상 (ID를 해시하여 색상 선택)
+  const getGoalColor = (id: string) => {
+    const colors = [
+      'amber', 'orange', 'yellow', 'lime', 'green', 'emerald', 
+      'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'
+    ]
+    const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    return colors[hash % colors.length]
+  }
+  
+  const goalColor = getGoalColor(goal.id)
 
   return (
-    <Card className="p-6 bg-white border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300">
+    <Card className={`p-6 bg-white border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300 border-l-4 border-l-${goalColor}-500`}>
       {/* 목표 헤더 */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg">
+            <div className={`p-2 bg-gradient-to-br from-${goalColor}-500 to-${goalColor}-600 rounded-lg`}>
               <TargetIcon className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-xl font-bold text-gray-900">{goal.title}</h3>
@@ -53,7 +65,7 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
             <p className="text-gray-600 mb-3 leading-relaxed">{goal.description}</p>
           )}
           <div className="flex items-center gap-4 text-sm">
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+            <span className={`px-3 py-1 bg-${goalColor}-100 text-${goalColor}-700 rounded-full font-medium`}>
               📅 {goal.timeframe}
             </span>
             {bestStreak > 0 && (
@@ -70,14 +82,14 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-gray-700">오늘의 진행률</span>
-          <span className="text-2xl font-bold text-purple-600">{progressPercentage}%</span>
+          <span className={`text-2xl font-bold text-${goalColor}-600`}>{progressPercentage}%</span>
         </div>
         
         {/* 프로그레스 바 */}
         <div className="relative">
           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 h-3 rounded-full transition-all duration-700 ease-out"
+              className={`bg-gradient-to-r from-${goalColor}-500 to-${goalColor}-600 h-3 rounded-full transition-all duration-700 ease-out`}
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -104,8 +116,8 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
                 disabled={loadingTasks.has(task.id)}
                 className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 mt-0.5 ${
                   task.is_completed 
-                    ? 'bg-purple-500 border-purple-500 text-white shadow-sm' 
-                    : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                    ? 'bg-green-500 border-green-500 text-white shadow-sm' 
+                    : 'border-gray-300 hover:border-amber-400 hover:bg-amber-50'
                 } ${loadingTasks.has(task.id) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 {task.is_completed && <CheckCircleIcon className="w-4 h-4" />}
@@ -130,7 +142,7 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
                   </div>
                 )}
                 <div className="flex items-center gap-3 mt-2 text-xs">
-                  <span className="text-purple-600 font-medium bg-purple-50 px-2 py-1 rounded">
+                  <span className={`text-${goalColor}-600 font-medium bg-${goalColor}-50 px-2 py-1 rounded`}>
                     ⏱️ {task.estimated_time}
                   </span>
                   {task.streak_count > 0 && (
@@ -148,7 +160,7 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
           {tasks.length > 3 && (
             <div className="text-center pt-2">
               <Link href="/daily-tasks">
-                <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-xl">
+                <Button variant="ghost" size="sm" className={`text-${goalColor}-600 hover:text-${goalColor}-700 hover:bg-${goalColor}-50 rounded-xl`}>
                   +{tasks.length - 3}개 더 보기
                 </Button>
               </Link>
