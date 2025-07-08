@@ -13,13 +13,33 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET!,
   debug: true,
+  session: {
+    strategy: "jwt",
+  },
+  cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: true, // HTTPS에서만 작동
+      },
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       console.log("🔍 JWT callback:", { token, user })
+      if (user) {
+        token.id = user.id
+      }
       return token
     },
     async session({ session, token }) {
       console.log("🔍 Session callback:", { session, token })
+      if (token?.id && session.user) {
+        (session.user as any).id = token.id
+      }
       return session
     },
   },
