@@ -16,17 +16,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  cookies: {
-    sessionToken: {
-      name: "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: true, // HTTPS에서만 작동
-      },
-    },
-  },
   callbacks: {
     async jwt({ token, user }) {
       console.log("🔍 JWT callback:", { token, user })
