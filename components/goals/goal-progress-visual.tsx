@@ -39,24 +39,72 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
   const bestStreak = Math.max(...tasks.map(t => t.streak_count), 0)
   
   // 목표별 고유 색상 (ID를 해시하여 색상 선택)
-  const getGoalColor = (id: string) => {
-    const colors = [
-      'amber', 'orange', 'yellow', 'lime', 'green', 'emerald', 
-      'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'
+  const getGoalColorClasses = (id: string | number) => {
+    const colorSets = [
+      {
+        border: 'border-l-amber-500',
+        bg: 'bg-gradient-to-br from-amber-500 to-amber-600',
+        badge: 'bg-amber-100 text-amber-700',
+        text: 'text-amber-600',
+        hover: 'hover:text-amber-700 hover:bg-amber-50',
+        progress: 'bg-gradient-to-r from-amber-500 to-amber-600'
+      },
+      {
+        border: 'border-l-orange-500',
+        bg: 'bg-gradient-to-br from-orange-500 to-orange-600',
+        badge: 'bg-orange-100 text-orange-700',
+        text: 'text-orange-600',
+        hover: 'hover:text-orange-700 hover:bg-orange-50',
+        progress: 'bg-gradient-to-r from-orange-500 to-orange-600'
+      },
+      {
+        border: 'border-l-green-500',
+        bg: 'bg-gradient-to-br from-green-500 to-green-600',
+        badge: 'bg-green-100 text-green-700',
+        text: 'text-green-600',
+        hover: 'hover:text-green-700 hover:bg-green-50',
+        progress: 'bg-gradient-to-r from-green-500 to-green-600'
+      },
+      {
+        border: 'border-l-blue-500',
+        bg: 'bg-gradient-to-br from-blue-500 to-blue-600',
+        badge: 'bg-blue-100 text-blue-700',
+        text: 'text-blue-600',
+        hover: 'hover:text-blue-700 hover:bg-blue-50',
+        progress: 'bg-gradient-to-r from-blue-500 to-blue-600'
+      },
+      {
+        border: 'border-l-purple-500',
+        bg: 'bg-gradient-to-br from-purple-500 to-purple-600',
+        badge: 'bg-purple-100 text-purple-700',
+        text: 'text-purple-600',
+        hover: 'hover:text-purple-700 hover:bg-purple-50',
+        progress: 'bg-gradient-to-r from-purple-500 to-purple-600'
+      },
+      {
+        border: 'border-l-pink-500',
+        bg: 'bg-gradient-to-br from-pink-500 to-pink-600',
+        badge: 'bg-pink-100 text-pink-700',
+        text: 'text-pink-600',
+        hover: 'hover:text-pink-700 hover:bg-pink-50',
+        progress: 'bg-gradient-to-r from-pink-500 to-pink-600'
+      }
     ]
-    const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    return colors[hash % colors.length]
+    
+    const idStr = String(id) // 문자열로 변환
+    const hash = idStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    return colorSets[hash % colorSets.length]
   }
   
-  const goalColor = getGoalColor(goal.id)
+  const colors = getGoalColorClasses(goal.id)
 
   return (
-    <Card className={`p-6 bg-white border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300 border-l-4 border-l-${goalColor}-500`}>
+    <Card className={`p-6 bg-white border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300 border-l-4 ${colors.border}`}>
       {/* 목표 헤더 */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <div className={`p-2 bg-gradient-to-br from-${goalColor}-500 to-${goalColor}-600 rounded-lg`}>
+            <div className={`p-2 ${colors.bg} rounded-lg`}>
               <TargetIcon className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-xl font-bold text-gray-900">{goal.title}</h3>
@@ -65,7 +113,7 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
             <p className="text-gray-600 mb-3 leading-relaxed">{goal.description}</p>
           )}
           <div className="flex items-center gap-4 text-sm">
-            <span className={`px-3 py-1 bg-${goalColor}-100 text-${goalColor}-700 rounded-full font-medium`}>
+            <span className={`px-3 py-1 ${colors.badge} rounded-full font-medium`}>
               📅 {goal.timeframe}
             </span>
             {bestStreak > 0 && (
@@ -82,14 +130,14 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-gray-700">오늘의 진행률</span>
-          <span className={`text-2xl font-bold text-${goalColor}-600`}>{progressPercentage}%</span>
+          <span className={`text-2xl font-bold ${colors.text}`}>{progressPercentage}%</span>
         </div>
         
         {/* 프로그레스 바 */}
         <div className="relative">
           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div 
-              className={`bg-gradient-to-r from-${goalColor}-500 to-${goalColor}-600 h-3 rounded-full transition-all duration-700 ease-out`}
+              className={`${colors.progress} h-3 rounded-full transition-all duration-700 ease-out`}
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -142,7 +190,7 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
                   </div>
                 )}
                 <div className="flex items-center gap-3 mt-2 text-xs">
-                  <span className={`text-${goalColor}-600 font-medium bg-${goalColor}-50 px-2 py-1 rounded`}>
+                  <span className={`${colors.text} font-medium ${colors.badge} px-2 py-1 rounded`}>
                     ⏱️ {task.estimated_time}
                   </span>
                   {task.streak_count > 0 && (
@@ -160,7 +208,7 @@ export function GoalProgressVisual({ goal, tasks, onToggleTask, loadingTasks }: 
           {tasks.length > 3 && (
             <div className="text-center pt-2">
               <Link href="/daily-tasks">
-                <Button variant="ghost" size="sm" className={`text-${goalColor}-600 hover:text-${goalColor}-700 hover:bg-${goalColor}-50 rounded-xl`}>
+                <Button variant="ghost" size="sm" className={`${colors.text} ${colors.hover} rounded-xl`}>
                   +{tasks.length - 3}개 더 보기
                 </Button>
               </Link>
