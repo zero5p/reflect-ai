@@ -44,14 +44,14 @@ export function NavBar({ activeTab }: NavBarProps) {
             className={cn(
               "flex flex-col items-center justify-center gap-1 px-3 py-2 transition-all",
               activeTab === item.id
-                ? "text-violet-700 dark:text-violet-400"
-                : "text-violet-400 dark:text-violet-600 hover:text-violet-600 dark:hover:text-violet-500",
+                ? "text-amber-700"
+                : "text-amber-500 hover:text-amber-600",
             )}
           >
             <div
               className={cn(
                 "transition-all",
-                activeTab === item.id ? "text-violet-700 dark:text-violet-400" : "text-violet-400 dark:text-violet-600",
+                activeTab === item.id ? "text-amber-700" : "text-amber-500",
               )}
             >
               {item.icon}

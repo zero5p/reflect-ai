@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { AnimatedPage } from "@/components/page-transition"
 import { TargetIcon, PlusIcon, CheckCircleIcon, CircleIcon, FlameIcon, BrainCircuitIcon, ClockIcon, ZapIcon } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { GoalProgressVisual } from "@/components/goals/goal-progress-visual"
 import Link from "next/link"
 
 interface Goal {
@@ -354,12 +354,12 @@ export default function GoalsPage() {
   // 로딩 중일 때
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4">
-            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-mumu-float" />
+          <div className="w-20 h-20 mx-auto mb-6">
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-pulse" />
           </div>
-          <p className="text-mumu-brown">로딩 중...</p>
+          <p className="text-purple-800 font-medium">목표를 불러오고 있어요...</p>
         </div>
       </div>
     )
@@ -368,11 +368,11 @@ export default function GoalsPage() {
   // 로그인되지 않았을 때
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
-        <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
-          <h2 className="text-xl font-bold mb-4 text-mumu-brown-dark">로그인이 필요합니다</h2>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 flex items-center justify-center px-4">
+        <Card className="p-8 text-center bg-white shadow-xl border-0 rounded-2xl max-w-sm">
+          <h2 className="text-xl font-bold mb-4 text-purple-900">로그인이 필요합니다</h2>
           <Link href="/login">
-            <Button className="bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-medium">
               로그인하기
             </Button>
           </Link>
@@ -383,41 +383,63 @@ export default function GoalsPage() {
 
   return (
     <AnimatedPage>
-      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
         {/* Header */}
-        <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent">
-          <div className="flex items-center gap-2 flex-1">
-            <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
-              <TargetIcon className="w-5 h-5 text-mumu-cream" />
+        <header className="px-6 py-6 bg-white/80 backdrop-blur-sm border-b border-purple-100 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg">
+                <TargetIcon className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">목표 관리</h1>
+                <p className="text-sm text-gray-600">꿈을 현실로 만드는 첫 번째 단계</p>
+              </div>
             </div>
-            <span className="font-bold text-mumu-brown-dark text-lg">목표</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
             <Button
               onClick={() => setIsCreating(true)}
-              size="sm"
-              className="bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream"
+              className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
             >
-              <PlusIcon className="w-4 h-4 mr-1" />
-              목표 추가
+              <PlusIcon className="w-5 h-5 mr-2" />
+              새 목표
             </Button>
+          </div>
+          {/* 통계 간단히 */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{goals.length}</div>
+              <div className="text-sm text-gray-600">전체 목표</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{dailyTasks.filter(t => t.is_completed).length}</div>
+              <div className="text-sm text-gray-600">오늘 완료</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{dailyTasks.length}</div>
+              <div className="text-sm text-gray-600">전체 할일</div>
+            </div>
           </div>
         </header>
 
-        <main className="px-5 py-6 pb-20">
+        <main className="px-6 py-8 pb-24">
           {/* One Big Goal 소개 */}
-          <Card className="p-4 mb-6 bg-gradient-to-r from-mumu-brown-light/90 to-mumu-brown/90 dark:from-mumu-brown/80 dark:to-mumu-brown-dark/80 border-mumu-accent text-mumu-cream">
-            <div className="flex items-center gap-2 mb-2">
-              <FlameIcon className="w-5 h-5" />
-              <h2 className="text-lg font-bold">One Big Goal</h2>
+          <Card className="p-8 mb-8 bg-gradient-to-br from-orange-100 to-red-100 border-0 shadow-lg rounded-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-orange-500 rounded-xl">
+                <FlameIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">One Big Goal</h2>
+                <p className="text-sm text-gray-600">한 번에 하나씩, 착실하게</p>
+              </div>
             </div>
-            <p className="text-sm opacity-90 mb-3">
-              올해 이루고 싶은 한 가지 목표를 설정해보세요.
+            <p className="text-gray-700 mb-4 leading-relaxed">
+              올해 가장 이루고 싶은 한 가지 목표를 설정해보세요.
             </p>
-            <p className="text-xs opacity-80">
-              무무가 AI로 목표를 작은 단위로 자동 분해해서 실행 가능하게 만들어드려요.
-            </p>
+            <div className="flex items-center gap-2 text-sm text-orange-700">
+              <BrainCircuitIcon className="w-4 h-4" />
+              <span>무무 AI가 목표를 실행 가능한 단계로 나눠드려요</span>
+            </div>
           </Card>
 
           {/* 목표 수정 폼 */}
@@ -476,70 +498,79 @@ export default function GoalsPage() {
 
           {/* 목표 생성 폼 */}
           {isCreating && (
-            <Card className="p-4 mb-6 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
-              <h3 className="text-lg font-bold mb-4 text-mumu-brown-dark">새 목표 만들기</h3>
-              
-              <div className="space-y-4">
+            <Card className="p-8 mb-8 bg-white border-0 shadow-xl rounded-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-purple-100 rounded-xl">
+                  <TargetIcon className="w-6 h-6 text-purple-600" />
+                </div>
                 <div>
-                  <Label htmlFor="goal-title" className="text-mumu-brown-dark">
-                    올해 이루고 싶은 한 가지는?
+                  <h3 className="text-xl font-bold text-gray-900">새 목표 만들기</h3>
+                  <p className="text-sm text-gray-600">꿈을 현실로 만드는 첫 걸음</p>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <Label htmlFor="goal-title" className="text-gray-900 font-medium text-base">
+                    🎯 올해 이루고 싶은 것은 무엇인가요?
                   </Label>
                   <Input
                     id="goal-title"
                     value={newGoal.title}
                     onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
-                    placeholder="예: 건강한 몸 만들기, 새로운 기술 배우기..."
-                    className="mt-1"
+                    placeholder="예: 건강한 몸 만들기, 새로운 기술 배우기, 독서 습관 만들기..."
+                    className="mt-3 px-4 py-3 text-base rounded-xl border-gray-200 focus:border-purple-400 focus:ring-purple-400"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="goal-description" className="text-mumu-brown-dark">
-                    구체적인 설명 (선택사항)
+                  <Label htmlFor="goal-description" className="text-gray-900 font-medium text-base">
+                    📝 좀 더 자세히 설명해주세요 (선택사항)
                   </Label>
                   <Textarea
                     id="goal-description"
                     value={newGoal.description}
                     onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
-                    placeholder="목표에 대한 자세한 설명을 적어주세요..."
-                    className="mt-1"
+                    placeholder="왜 이 목표를 이루고 싶으신가요? 어떤 느낌으로 달성하고 싶으신가요?"
+                    className="mt-3 px-4 py-3 text-base rounded-xl border-gray-200 focus:border-purple-400 focus:ring-purple-400 resize-none"
                     rows={3}
                   />
                 </div>
 
                 {isAnalyzing && (
-                  <div className="text-center py-4">
-                    <div className="w-8 h-8 mx-auto mb-2 animate-spin">
-                      <BrainCircuitIcon className="w-full h-full text-mumu-brown" />
+                  <div className="text-center py-8 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl border border-purple-100">
+                    <div className="w-12 h-12 mx-auto mb-4 animate-spin">
+                      <BrainCircuitIcon className="w-full h-full text-purple-500" />
                     </div>
-                    <p className="text-sm text-mumu-brown">
-                      무무가 목표를 분석하고 있어요... 🤔
+                    <h4 className="font-medium text-gray-900 mb-2">무무 AI가 분석 중이에요</h4>
+                    <p className="text-sm text-gray-600">
+                      목표를 달성 가능한 단계로 나눠고 있어요... ✨
                     </p>
                   </div>
                 )}
 
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-4 pt-6">
                   <Button
                     onClick={() => setIsCreating(false)}
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 py-3 rounded-xl border-gray-200 hover:bg-gray-50"
                   >
                     취소
                   </Button>
                   <Button
                     onClick={handleCreateGoal}
                     disabled={isAnalyzing || !newGoal.title.trim()}
-                    className="flex-1 bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream disabled:opacity-50"
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
                   >
                     {isAnalyzing ? (
                       <>
-                        <BrainCircuitIcon className="w-4 h-4 mr-2 animate-spin" />
+                        <BrainCircuitIcon className="w-5 h-5 mr-2 animate-spin" />
                         AI 분석 중...
                       </>
                     ) : (
                       <>
-                        <BrainCircuitIcon className="w-4 h-4 mr-2" />
-                        AI로 목표 분해
+                        <BrainCircuitIcon className="w-5 h-5 mr-2" />
+                        AI로 목표 만들기
                       </>
                     )}
                   </Button>
@@ -562,145 +593,41 @@ export default function GoalsPage() {
               <p className="text-sm text-mumu-brown">잠시만 기다려주세요</p>
             </Card>
           ) : goals.length === 0 && !isCreating ? (
-            <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
-              <div className="w-16 h-16 mx-auto mb-4 opacity-50">
+            <Card className="p-12 text-center bg-white border-0 shadow-xl rounded-2xl">
+              <div className="w-24 h-24 mx-auto mb-6">
                 <img 
                   src="/mumu_mascot.png" 
                   alt="무무" 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain opacity-80"
                 />
               </div>
-              <h3 className="text-lg font-bold mb-2 text-mumu-brown-dark">첫 번째 목표를 설정해보세요</h3>
-              <p className="text-sm text-mumu-brown mb-4">
-                무무가 목표를 작은 단위로 나누어서 실행하기 쉽게 도와드릴게요.
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">첫 번째 목표를 시작해보세요! 🎯</h3>
+              <p className="text-gray-600 mb-8 leading-relaxed max-w-md mx-auto">
+                큰 꿈도 작은 한 걸음부터 시작됩니다.<br />
+                무무 AI가 목표를 달성 가능한 단계로 나눠드릴게요.
               </p>
               <Button
                 onClick={() => setIsCreating(true)}
-                className="bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream"
+                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-8 py-4 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
               >
-                <PlusIcon className="w-4 h-4 mr-2" />
-                목표 추가하기
+                <PlusIcon className="w-5 h-5 mr-2" />
+                첫 목표 만들기
               </Button>
             </Card>
           ) : (
-            <div className="space-y-4">
-              {goals.map((goal) => (
-                <Card key={goal.id} className="p-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-mumu-brown-dark mb-1">{goal.title}</h3>
-                      {goal.description && (
-                        <p className="text-sm text-mumu-brown mb-2">{goal.description}</p>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs bg-mumu-accent px-2 py-1 rounded-full text-mumu-brown flex items-center gap-1">
-                          <ClockIcon className="w-3 h-3" />
-                          {goal.timeframe}
-                        </span>
-                        <span className="text-xs text-mumu-brown">
-                          진행률 {goal.progress}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 목표별 일일 할일들 */}
-                  {(() => {
-                    const goalTasks = dailyTasks.filter(task => task.goal_title === goal.title)
-                    if (goalTasks.length === 0) return null
-                    
-                    const completedTasks = goalTasks.filter(task => task.is_completed).length
-                    const totalTasks = goalTasks.length
-                    const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
-
-                    return (
-                      <div className="space-y-3">
-                        {/* 진행률 바 */}
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-xs text-mumu-brown">
-                            <span>오늘의 할일</span>
-                            <span>{completedTasks}/{totalTasks} 완료 ({progressPercentage}%)</span>
-                          </div>
-                          <div className="w-full bg-mumu-accent rounded-full h-2">
-                            <div 
-                              className="bg-mumu-brown h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${progressPercentage}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* 할일 목록 */}
-                        <div className="space-y-2">
-                          {goalTasks.slice(0, 3).map((task) => (
-                            <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg bg-white/60 dark:bg-mumu-brown-light/30 hover:bg-white/80 dark:hover:bg-mumu-brown-light/50 transition-all duration-200">
-                              {/* 체크박스 */}
-                              <button
-                                onClick={() => toggleTask(task.id, task.is_completed)}
-                                disabled={loadingTasks.has(task.id)}
-                                className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
-                                  task.is_completed 
-                                    ? 'bg-mumu-brown border-mumu-brown text-mumu-cream' 
-                                    : 'border-mumu-brown hover:border-mumu-brown-dark'
-                                } ${loadingTasks.has(task.id) ? 'opacity-50' : ''}`}
-                              >
-                                {task.is_completed && <CheckCircleIcon className="w-3 h-3" />}
-                              </button>
-                              
-                              {/* 할일 내용 */}
-                              <div className="flex-1">
-                                <div className={`text-sm font-medium ${
-                                  task.is_completed 
-                                    ? 'text-mumu-brown/70 line-through' 
-                                    : 'text-mumu-brown-dark'
-                                }`}>
-                                  {task.task_title}
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-mumu-brown mt-1">
-                                  <span>{task.estimated_time}</span>
-                                  {task.streak_count > 0 && (
-                                    <>
-                                      <span>•</span>
-                                      <span className="text-orange-600">🔥 {task.streak_count}일 연속</span>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                          
-                          {goalTasks.length > 3 && (
-                            <div className="text-center">
-                              <Link href="/daily-tasks">
-                                <Button variant="ghost" size="sm" className="text-mumu-brown hover:bg-mumu-accent">
-                                  +{goalTasks.length - 3}개 더 보기
-                                </Button>
-                              </Link>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })()}
-
-                  {/* 목표 관리 버튼들 */}
-                  <div className="mt-4 pt-3 border-t border-mumu-accent flex gap-2">
-                    <Link href="/daily-tasks">
-                      <Button size="sm" variant="outline" className="text-mumu-brown border-mumu-brown hover:bg-mumu-brown hover:text-mumu-cream">
-                        <ZapIcon className="w-3 h-3 mr-1" />
-                        전체 할일 보기
-                      </Button>
-                    </Link>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="text-mumu-brown hover:bg-mumu-accent"
-                      onClick={() => handleEditGoal(goal)}
-                    >
-                      목표 수정하기
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+            <div className="space-y-6">
+              {goals.map((goal) => {
+                const goalTasks = dailyTasks.filter(task => task.goal_title === goal.title || task.goal_id === parseInt(goal.id))
+                return (
+                  <GoalProgressVisual
+                    key={goal.id}
+                    goal={goal}
+                    tasks={goalTasks}
+                    onToggleTask={toggleTask}
+                    loadingTasks={loadingTasks}
+                  />
+                )
+              })}
             </div>
           )}
         </main>

@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 import NextAuthSessionProvider from "./session-provider"
 import { PageTransition } from "@/components/page-transition"
 
@@ -31,11 +30,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <NextAuthSessionProvider>
-          <ThemeProvider defaultTheme="system" storageKey="reflect-ai-theme">
-            <PageTransition>
-              {children}
-            </PageTransition>
-          </ThemeProvider>
+          <PageTransition>
+            {children}
+          </PageTransition>
         </NextAuthSessionProvider>
       </body>
     </html>

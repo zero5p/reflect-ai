@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon, ArrowRightIcon, PlusIcon, CalendarDaysIcon, BrainCircuitIcon, TargetIcon, BookOpenIcon, CheckCircleIcon, CircleIcon } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 
 export default function HomePage() {
@@ -246,12 +245,12 @@ export default function HomePage() {
   // 로딩 중일 때
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4">
-            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-mumu-float" />
+            <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-pulse" />
           </div>
-          <p className="text-mumu-brown">로딩 중...</p>
+          <p className="text-amber-800 font-medium">로딩 중...</p>
         </div>
       </div>
     )
@@ -260,16 +259,16 @@ export default function HomePage() {
   // 로그인되지 않았을 때
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background flex items-center justify-center">
-        <Card className="p-8 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent">
-          <div className="w-16 h-16 mx-auto mb-4">
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 flex items-center justify-center px-4">
+        <Card className="p-8 text-center bg-white shadow-xl border-0 rounded-2xl max-w-sm">
+          <div className="w-20 h-20 mx-auto mb-6">
             <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain" />
           </div>
-          <h2 className="text-xl font-bold mb-4 text-mumu-brown-dark">무무노트에 오신 것을 환영합니다</h2>
-          <p className="text-mumu-brown mb-4">로그인하여 성찰과 목표 관리를 시작해보세요</p>
+          <h2 className="text-2xl font-bold mb-4 text-amber-900">무무노트에 오신 것을 환영합니다</h2>
+          <p className="text-amber-700 mb-6 leading-relaxed">AI와 함께하는 스마트한<br />성찰과 목표 관리를 시작해보세요</p>
           <Link href="/login">
-            <Button className="bg-mumu-brown hover:bg-mumu-brown-dark text-mumu-cream">
-              로그인하기
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all">
+              시작하기
             </Button>
           </Link>
         </Card>
@@ -278,92 +277,102 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-mumu-cream-light to-mumu-warm dark:from-mumu-cream-dark dark:to-background">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
         {/* Header */}
-        <header className="flex items-center px-5 py-4 bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 backdrop-blur-sm border-b border-mumu-accent">
-          <div className="flex items-center gap-2 flex-1">
-            <div className="h-8 w-8 rounded-lg bg-mumu-brown flex items-center justify-center">
+        <header className="flex items-center px-6 py-4 bg-white/80 backdrop-blur-sm border-b border-amber-100 shadow-sm">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
               <img 
                 src="/mumu_mascot.png" 
                 alt="무무" 
-                className="w-6 h-6 object-contain"
+                className="w-7 h-7 object-contain"
               />
             </div>
-            <span className="font-bold text-mumu-brown-dark text-lg">무무노트</span>
+            <div>
+              <span className="font-bold text-amber-900 text-xl">무무노트</span>
+              <div className="text-xs text-amber-600">AI 성찰 도우미</div>
+            </div>
           </div>
-          <ThemeToggle />
         </header>
 
-        <main className="px-5 py-6 pb-20">
+        <main className="px-6 py-6 pb-24">
           {/* 통계 카드들 */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <Card className="p-3 bg-mumu-accent/60 dark:bg-mumu-brown-light/30 border-mumu-brown-light">
-              <div className="flex items-center gap-2 mb-1">
-                <BrainCircuitIcon className="w-4 h-4 text-mumu-brown" />
-                <span className="text-xs font-medium text-mumu-brown-dark">총 성찰</span>
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <Card className="p-4 bg-white border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <BrainCircuitIcon className="w-4 h-4 text-blue-600" />
+                </div>
               </div>
-              <div className="text-lg font-bold text-mumu-brown-dark">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
                 {isLoading ? "..." : stats?.totalReflections || 0}
               </div>
+              <div className="text-sm text-gray-600">총 성찰</div>
             </Card>
 
-            <Card className="p-3 bg-mumu-brown-light/40 dark:bg-mumu-brown/30 border-mumu-accent">
-              <div className="flex items-center gap-2 mb-1">
-                <CalendarDaysIcon className="w-4 h-4 text-mumu-brown" />
-                <span className="text-xs font-medium text-mumu-brown-dark">연속일</span>
+            <Card className="p-4 bg-white border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <CalendarDaysIcon className="w-4 h-4 text-green-600" />
+                </div>
               </div>
-              <div className="text-lg font-bold text-mumu-brown-dark">
-                {isLoading ? "..." : stats?.currentStreak || 0}
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {isLoading ? "..." : stats?.currentStreak || 0}일
               </div>
+              <div className="text-sm text-gray-600">연속 기록</div>
             </Card>
 
-            <Card className="p-3 bg-gradient-to-r from-mumu-brown/20 to-mumu-accent/40 border-mumu-brown">
-              <div className="flex items-center gap-2 mb-1">
-                <TargetIcon className="w-4 h-4 text-mumu-brown" />
-                <span className="text-xs font-medium text-mumu-brown-dark">목표</span>
+            <Card className="p-4 bg-white border-0 shadow-lg rounded-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <TargetIcon className="w-4 h-4 text-purple-600" />
+                </div>
               </div>
-              <div className="text-lg font-bold text-mumu-brown-dark">
-                {isLoading ? "..." : recentGoals.length}
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {isLoading ? "..." : recentGoals.length}개
               </div>
+              <div className="text-sm text-gray-600">진행 목표</div>
             </Card>
           </div>
 
           {/* 로딩 상태 */}
           {isLoading && (
-            <Card className="p-6 text-center bg-mumu-cream/80 dark:bg-mumu-cream-dark/80 border-mumu-accent backdrop-blur-sm mb-6">
+            <Card className="p-8 text-center bg-white shadow-lg rounded-2xl border-0 mb-8">
               <div className="w-16 h-16 mx-auto mb-4">
-                <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-mumu-float" />
+                <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain animate-pulse" />
               </div>
-              <p className="text-mumu-brown">데이터를 불러오고 있어요...</p>
+              <p className="text-gray-700 font-medium">데이터를 불러오고 있어요...</p>
             </Card>
           )}
 
           {/* 오늘의 할 일 체크리스트 */}
           {!isLoading && (
             dailyTasks.length > 0 ? (
-            <Card className="p-4 bg-gradient-to-r from-green-100/80 to-green-50/80 dark:from-green-900/40 dark:to-green-900/20 border-green-200 dark:border-green-700 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  <h3 className="font-bold text-green-800 dark:text-green-200">🗓️ 매일 할 일 체크리스트</h3>
-                  <span className="px-2 py-1 bg-green-200 dark:bg-green-800 rounded-full text-xs text-green-700 dark:text-green-300">
-                    일일 루틴
-                  </span>
+            <Card className="p-6 bg-gradient-to-r from-emerald-50 to-green-50 border-0 shadow-lg rounded-2xl mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-100 rounded-xl">
+                    <CheckCircleIcon className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">오늘의 할 일</h3>
+                    <span className="text-sm text-gray-600">매일 루틴 체크리스트</span>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-green-600 dark:text-green-300">
+                  <div className="text-sm text-gray-600 mb-1">
                     {dailyTasks.filter(task => task.is_completed).length}/{dailyTasks.length} 완료
                   </div>
-                  <div className="text-lg font-bold text-green-800 dark:text-green-200">
+                  <div className="text-2xl font-bold text-emerald-600">
                     {Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%
                   </div>
                 </div>
               </div>
               
               {/* 진행률 바 */}
-              <div className="w-full bg-green-200 dark:bg-green-800 rounded-full h-2 mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-6 overflow-hidden">
                 <div 
-                  className="bg-green-600 dark:bg-green-400 h-2 rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-emerald-500 to-green-500 h-3 rounded-full transition-all duration-500 ease-out"
                   style={{ 
                     width: `${Math.round((dailyTasks.filter(task => task.is_completed).length / dailyTasks.length) * 100)}%` 
                   }}
@@ -374,45 +383,50 @@ export default function HomePage() {
                 {dailyTasks.slice(0, 5).map((task: any) => (
                   <div 
                     key={task.id} 
-                    className="flex items-start gap-3 p-3 rounded-lg bg-white/60 dark:bg-green-800/30 hover:bg-white/80 dark:hover:bg-green-800/50 transition-all duration-200 border border-transparent hover:border-green-300 dark:hover:border-green-600"
+                    className="flex items-start gap-4 p-4 rounded-xl bg-white/80 hover:bg-white transition-all duration-200 border border-gray-100 hover:border-emerald-200 hover:shadow-md"
                   >
                     {/* 체크박스 */}
                     <button
                       onClick={() => toggleDailyTask(task.id, task.is_completed)}
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 mt-0.5 ${
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 mt-0.5 ${
                         task.is_completed 
-                          ? 'bg-green-500 border-green-500 text-white' 
-                          : 'border-green-300 hover:border-green-500'
+                          ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm' 
+                          : 'border-gray-300 hover:border-emerald-400 hover:bg-emerald-50'
                       }`}
                     >
-                      {task.is_completed && <CheckCircleIcon className="w-3 h-3" />}
+                      {task.is_completed && <CheckCircleIcon className="w-4 h-4" />}
                     </button>
                     
                     {/* 할일 내용 */}
                     <div className="flex-1">
-                      <div className={`font-medium ${
+                      <div className={`font-medium text-base ${
                         task.is_completed 
-                          ? 'text-green-600/70 dark:text-green-300/70 line-through' 
-                          : 'text-green-800 dark:text-green-200'
+                          ? 'text-gray-500 line-through' 
+                          : 'text-gray-900'
                       }`}>
-                        {task.title}
+                        {task.task_title || task.title}
                       </div>
-                      {task.description && (
+                      {task.task_description || task.description && (
                         <div className={`text-sm mt-1 ${
                           task.is_completed 
-                            ? 'text-green-500/60 dark:text-green-400/60' 
-                            : 'text-green-600 dark:text-green-300'
+                            ? 'text-gray-400' 
+                            : 'text-gray-600'
                         }`}>
-                          {task.description}
+                          {task.task_description || task.description}
+                        </div>
+                      )}
+                      {task.estimated_time && (
+                        <div className="text-xs text-emerald-600 mt-1 font-medium">
+                          ⏱️ {task.estimated_time}
                         </div>
                       )}
                     </div>
                   </div>
                 ))}
                 {dailyTasks.length > 5 && (
-                  <div className="text-center">
+                  <div className="text-center pt-2">
                     <Link href="/daily-tasks">
-                      <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-100 dark:hover:bg-green-800">
+                      <Button variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl">
                         +{dailyTasks.length - 5}개 더 보기
                       </Button>
                     </Link>
@@ -421,18 +435,18 @@ export default function HomePage() {
               </div>
             </Card>
             ) : (
-              <Card className="p-4 bg-gradient-to-r from-blue-100/80 to-blue-50/80 dark:from-blue-900/40 dark:to-blue-900/20 border-blue-200 dark:border-blue-700 mb-6">
+              <Card className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-lg rounded-2xl mb-8">
                 <div className="text-center">
-                  <div className="w-12 h-12 mx-auto mb-3 opacity-70">
+                  <div className="w-16 h-16 mx-auto mb-4">
                     <img src="/mumu_mascot.png" alt="무무" className="w-full h-full object-contain" />
                   </div>
-                  <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-2">오늘은 휴식하는 날이에요! ☕</h3>
-                  <p className="text-sm text-blue-600 dark:text-blue-300 mb-3">
-                    새로운 목표를 설정하면 매일 할 일이 자동으로 생성됩니다
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">오늘은 여유로운 하루네요! ✨</h3>
+                  <p className="text-gray-600 mb-6 leading-relaxed">
+                    새로운 목표를 설정하면<br />매일 할 일이 자동으로 생성됩니다
                   </p>
                   <Link href="/goals">
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <TargetIcon className="w-4 h-4 mr-2" />
+                    <Button className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all">
+                      <TargetIcon className="w-5 h-5 mr-2" />
                       목표 만들기
                     </Button>
                   </Link>
