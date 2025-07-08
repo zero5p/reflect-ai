@@ -6,7 +6,6 @@ import { BookOpenIcon, ArrowLeftIcon, PlusIcon, SparklesIcon, ChevronDownIcon, C
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
-import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -164,7 +163,6 @@ export default function ReflectionPage() {
           </div>
           <span className="font-bold text-mumu-brown-dark text-lg">성찰 일기</span>
         </div>
-        <ThemeToggle />
       </header>
 
       {/* Main Content */}

@@ -5,7 +5,6 @@ import { UserIcon, ArrowLeftIcon, SettingsIcon, LogOutIcon, BotIcon, HeartIcon, 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -135,7 +134,6 @@ export default function ProfilePage() {
           </div>
           <span className="font-bold text-mumu-brown-dark text-lg">프로필</span>
         </div>
-        <ThemeToggle />
       </header>
 
       {/* Main Content */}

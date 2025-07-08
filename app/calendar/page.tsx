@@ -6,7 +6,6 @@ import { CalendarIcon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
-import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cachedFetch } from "@/lib/cache"
@@ -211,7 +210,6 @@ function CalendarPageContent() {
           </div>
           <span className="font-bold text-mumu-brown-dark text-lg">나의 성찰 기록</span>
         </div>
-        <ThemeToggle />
       </header>
 
       {/* Main Content */}

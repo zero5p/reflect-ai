@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getRandomQuote } from "@/lib/quotes"
 
@@ -241,7 +240,6 @@ function NewReflectionContent() {
             </div>
             <span className="font-bold text-mumu-brown-dark text-lg">AI 성찰 응답</span>
           </div>
-          <ThemeToggle />
         </header>
 
         {/* AI Response */}
@@ -386,7 +384,6 @@ function NewReflectionContent() {
           </div>
           <span className="font-bold text-mumu-brown-dark text-lg">새로운 성찰</span>
         </div>
-        <ThemeToggle />
       </header>
 
       {/* Main Content */}

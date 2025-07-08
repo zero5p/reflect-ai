@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { cachedFetch } from "@/lib/cache"
 import { AnimatedPage } from "@/components/page-transition"
 import { ArrowLeftIcon, ArrowRightIcon, TrendingUpIcon, CalendarDaysIcon, BrainCircuitIcon } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 
 export default function AnalysisPage() {
@@ -165,7 +164,6 @@ export default function AnalysisPage() {
             </div>
             <span className="font-bold text-mumu-brown-dark text-lg">분석</span>
           </div>
-          <ThemeToggle />
         </header>
 
         <main className="px-5 py-6 pb-20">

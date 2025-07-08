@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card"
 import { NavBar } from "@/components/nav-bar"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon, CheckCircleIcon, CalendarIcon, TargetIcon } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -124,7 +123,6 @@ export default function DailyTasksPage() {
           </div>
           <span className="font-bold text-mumu-brown-dark text-lg">일일 할 일</span>
         </div>
-        <ThemeToggle />
       </header>
 
       <main className="px-5 py-6 pb-20">

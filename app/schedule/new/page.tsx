@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
 
 interface AIRecommendation {
@@ -175,7 +174,6 @@ function NewSchedulePageContent() {
           </div>
           <span className="font-bold text-mumu-brown-dark text-lg">새 일정 추가</span>
         </div>
-        <ThemeToggle />
       </header>
 
       {/* Main Content */}
