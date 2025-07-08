@@ -10,5 +10,6 @@ export default function NextAuthSessionProvider({
   children: React.ReactNode
   session?: Session | null
 }) {
+  console.log("🔍 SessionProvider Debug:", { session })
   return <SessionProvider session={session}>{children}</SessionProvider>
 }

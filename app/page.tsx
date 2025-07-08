@@ -11,6 +11,9 @@ import Link from "next/link"
 export default function HomePage() {
   const { data: session, status } = useSession()
   const [currentDate, setCurrentDate] = useState(new Date())
+  
+  // 디버깅용 로그
+  console.log("🔍 HomePage Debug:", { status, session, userEmail: session?.user?.email })
   const [calendarData, setCalendarData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<any>(null)
